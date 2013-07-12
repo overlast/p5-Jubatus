@@ -5,6 +5,48 @@ use warnings;
 
 our $VERSION = "0.01";
 
+use Jubatus::Regression::Client;
+use Jubatus::Recommender::Client;
+use Jubatus::Classifier::Client;
+use Jubatus::Stat::Client;
+use Jubatus::Graph::Client;
+use Jubatus::Anomaly::Client;
+
+sub get_regression_client {
+    my ($self, $host, $port) = @_;
+    my $client = Jubatus::Regression::Client->new($host, $port);
+    return $client;
+}
+
+sub get_recommender_client {
+    my ($self, $host, $port) = @_;
+    my $client = Jubatus::Recommender::Client->new($host, $port);
+    return $client;
+}
+
+sub get_classifier_client {
+    my ($self, $host, $port) = @_;
+    my $client = Jubatus::Classifier::Client->new($host, $port);
+    return $client;
+}
+
+sub get_stat_client {
+    my ($self, $host, $port) = @_;
+    my $client = Jubatus::Stat::Client->new($host, $port);
+    return $client;
+}
+
+sub get_graph_client {
+    my ($self, $host, $port) = @_;
+    my $client = Jubatus::Graph::Client->new($host, $port);
+    return $client;
+}
+
+sub get_anomaly_client {
+    my ($self, $host, $port) = @_;
+    my $client = Jubatus::Anomaly::Client->new($host, $port);
+    return $client;
+}
 
 
 1;
@@ -36,4 +78,3 @@ it under the same terms as Perl itself.
 Toshinori Sato (@overlast) E<lt>overlasting@gmail.comE<gt>
 
 =cut
-
