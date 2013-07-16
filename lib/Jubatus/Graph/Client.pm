@@ -156,7 +156,7 @@ sub load {
 sub get_status {
   my ($self, $name) = @_;
   my $retval = $self->{client}->call('get_status' => [ $name ] )->recv;
-  return { map { $_->[0] => { map { $_->[0] => $_->[1] } @{ $_->[1] } } } @{ $retval } };
+  return $retval;
 }
 
 sub create_node_here {

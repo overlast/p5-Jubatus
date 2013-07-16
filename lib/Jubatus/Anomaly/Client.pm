@@ -40,13 +40,15 @@ sub clear_row {
 
 sub add {
   my ($self, $name, $row) = @_;
-  my $retval = $self->{client}->call('add' => [ $name, $row ] )->recv;
+  my $retval = $self->{client}->call('add' => [ $name, $row->to_msgpack(
+      ) ] )->recv;
   return  [ $retval->[0], $retval->[1] ] ;
 }
 
 sub update {
   my ($self, $name, $id, $row) = @_;
-  my $retval = $self->{client}->call('update' => [ $name, $id, $row ] )->recv;
+  my $retval = $self->{client}->call('update' => [ $name, $id, $row->to_msgpack(
+      ) ] )->recv;
   return $retval;
 }
 
@@ -58,7 +60,8 @@ sub clear {
 
 sub calc_score {
   my ($self, $name, $row) = @_;
-  my $retval = $self->{client}->call('calc_score' => [ $name, $row ] )->recv;
+  my $retval = $self->{client}->call('calc_score' => [ $name, $row->to_msgpack(
+      ) ] )->recv;
   return $retval;
 }
 
@@ -83,7 +86,7 @@ sub load {
 sub get_status {
   my ($self, $name) = @_;
   my $retval = $self->{client}->call('get_status' => [ $name ] )->recv;
-  return { map { $_->[0] => { map { $_->[0] => $_->[1] } @{ $_->[1] } } } @{ $retval } };
+  return $retval;
 }
 
 1;

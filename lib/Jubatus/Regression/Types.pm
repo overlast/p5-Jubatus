@@ -18,7 +18,7 @@ sub new {
     'string_values' => $string_values,
     'num_values' => $num_values,
   );
-  bless $self, \%hash;
+  bless \%hash, $self;
 }
 
 sub to_msgpack {

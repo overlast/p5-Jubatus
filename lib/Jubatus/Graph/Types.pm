@@ -19,7 +19,7 @@ sub new {
     'in_edges' => $in_edges,
     'out_edges' => $out_edges,
   );
-  bless $self, \%hash;
+  bless \%hash, $self;
 }
 
 sub to_msgpack {
@@ -33,9 +33,8 @@ sub to_msgpack {
 
 sub from_msgpack {
   my ($self, $arg) = @_;
-  my $node = Jubatus::Graph::Node->new(
-      { map { $_->[0] => $_->[1] } @{ $arg->[0] } },
-       [ map { $_} @{ $arg->[1] } ], [ map { $_} @{ $arg->[2] } ]);
+  my $node = Jubatus::Graph::Node->new($arg->[0], [ map { $_} @{ $arg->[1] } ],
+       [ map { $_} @{ $arg->[2] } ]);
   return $node;
 }
 
@@ -57,7 +56,7 @@ sub new {
     'edge_query' => $edge_query,
     'node_query' => $node_query,
   );
-  bless $self, \%hash;
+  bless \%hash, $self;
 }
 
 sub to_msgpack {
@@ -95,7 +94,7 @@ sub new {
     'source' => $source,
     'target' => $target,
   );
-  bless $self, \%hash;
+  bless \%hash, $self;
 }
 
 sub to_msgpack {
@@ -109,8 +108,7 @@ sub to_msgpack {
 
 sub from_msgpack {
   my ($self, $arg) = @_;
-  my $edge = Jubatus::Graph::Edge->new(
-      { map { $_->[0] => $_->[1] } @{ $arg->[0] } }, $arg->[1], $arg->[2]);
+  my $edge = Jubatus::Graph::Edge->new($arg->[0], $arg->[1], $arg->[2]);
   return $edge;
 }
 
@@ -134,7 +132,7 @@ sub new {
     'max_hop' => $max_hop,
     'query' => $query,
   );
-  bless $self, \%hash;
+  bless \%hash, $self;
 }
 
 sub to_msgpack {

@@ -41,7 +41,7 @@ sub clear_row {
 sub update_row {
   my ($self, $name, $id, $row) = @_;
   my $retval = $self->{client}->call('update_row' => [ $name, $id,
-       $row ] )->recv;
+       $row->to_msgpack() ] )->recv;
   return $retval;
 }
 
@@ -61,7 +61,7 @@ sub complete_row_from_id {
 sub complete_row_from_datum {
   my ($self, $name, $row) = @_;
   my $retval = $self->{client}->call('complete_row_from_datum' => [ $name,
-       $row ] )->recv;
+       $row->to_msgpack() ] )->recv;
   return Jubatus::Recommender::Datum->from_msgpack($retval);
 }
 
@@ -74,8 +74,8 @@ sub similar_row_from_id {
 
 sub similar_row_from_datum {
   my ($self, $name, $row, $size) = @_;
-  my $retval = $self->{client}->call('similar_row_from_datum' => [ $name, $row,
-       $size ] )->recv;
+  my $retval = $self->{client}->call('similar_row_from_datum' => [ $name,
+       $row->to_msgpack(), $size ] )->recv;
   return Jubatus::Recommender::SimilarResult->from_msgpack($retval);
 }
 
@@ -100,7 +100,8 @@ sub calc_similarity {
 
 sub calc_l2norm {
   my ($self, $name, $row) = @_;
-  my $retval = $self->{client}->call('calc_l2norm' => [ $name, $row ] )->recv;
+  my $retval = $self->{client}->call('calc_l2norm' => [ $name, $row->to_msgpack(
+      ) ] )->recv;
   return $retval;
 }
 
@@ -119,8 +120,7 @@ sub load {
 sub get_status {
   my ($self, $name) = @_;
   my $retval = $self->{client}->call('get_status' => [ $name ] )->recv;
-  return { map { $_->[0] => { map { $_->[0] => $_->[1] } @{ $_->[1] } } } @{ $retval } };
+  return $retval;
 }
 
 1;
-
