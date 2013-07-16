@@ -112,7 +112,7 @@ subtest 'Test server status reader' => sub {
     };
 };
 
-subtest 'Test server status reader' => sub {
+subtest 'Test model data updator' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
     my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
@@ -147,7 +147,7 @@ subtest 'Test server status reader' => sub {
     };
 };
 
-subtest 'Test data cleaner' => sub {
+subtest 'Test all model data cleaner' => sub {
     subtest 'test clear()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
@@ -160,6 +160,9 @@ subtest 'Test data cleaner' => sub {
         is_deeply($answer_rows, $result_rows, "Check the all row are cleared");
     };
 };
+
+
+
 
 
 =pod
