@@ -9,8 +9,11 @@ my @server_name_suffix = (
     "graph",
     "anomaly",
 );
+
 foreach my $suffix (@server_name_suffix) {
-    my $server_name = "juba".$suffix;
-    my $is_there = system("which $server_name"); # there => 0
-    is($is_there, 0, "is $server_name there ?");
+    subtest "Check the install path of $suffix" => sub {
+        my $server_name = "juba".$suffix;
+        my $is_there = system("which $server_name"); # there => 0
+        is($is_there, 0, "Is $server_name there ?");
+    };
 }
