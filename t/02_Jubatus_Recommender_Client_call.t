@@ -200,7 +200,9 @@ subtest 'Test model data updator by write multi row ids' => sub {
     };
 };
 
-subtest 'Test model data dumper' => sub {
+subtest 'Test data dumper and data loader of model' => sub {
+
+
     subtest 'test save()' => sub {
 
         my $name = "cpan module test";
@@ -231,16 +233,108 @@ subtest 'Test model data dumper' => sub {
             my $is_update = $reco_client->update_row($name, $row_id, $datum);
         }
 
-        my $model_name = "jubatus_recommender_test";
+        subtest 'Does the rows inpute ?' => sub {
+            my $result_ids = $reco_client->get_all_rows($name);
+            my $answer_ids = [
+                "Jubatus Recommender Test A",
+                "Jubatus Recommender Test B",
+                "Jubatus Recommender Test C",
+            ];
+            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
+        };
+
+        subtest 'Does model file dump ?' => sub {
+            my $model_name = "recommender_test";
+            my $is_save = $reco_client->save($name, $model_name);
+            is (1, $is_save, "Call save()");
+
+            my $datadir;
+            my $status = $reco_client->get_status($name);
+            foreach my $key (keys %{$status}) {
+                foreach my $item (keys %{$status->{$key}}) {
+                    if ($item eq 'datadir') {
+                        $datadir = $status->{$key}->{$item};
+                        last;
+                    }
+                }
+            }
+            is ('/tmp', $datadir, "Get default data directory from get_status()");
+            my $port = $server->{port};
+            my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".js";
+            my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
+            is (0, $is_there, "Check the suffix of file name in $datadir is '$model_file_name_suffix'");
+        };
+    };
+
+    subtest 'test load()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->($name);
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+
+        {
+            my $row_id = "Jubatus Recommender Test A";
+            my $string_values = [["key1", "val1"], ["key2", "val2"],];
+            my $num_values = [["key1", 1.0], ["key2", 2.0],];
+            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        }
+        {
+            my $row_id = "Jubatus Recommender Test B";
+            my $string_values = [["key1", "val1"], ["key2", "val2"],];
+            my $num_values = [["key1", 1.0], ["key2", 2.0],];
+            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        }
+        {
+            my $row_id = "Jubatus Recommender Test C";
+            my $string_values = [["key1", "val1"], ["key2", "val2"],];
+            my $num_values = [["key1", 1.0], ["key2", 2.0],];
+            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        }
+
+        my $model_name = "recommender_test";
         my $is_save = $reco_client->save($name, $model_name);
-        is (1, $is_save, "Call save()");
+        my $datadir;
+        my $status = $reco_client->get_status($name);
+        foreach my $key (keys %{$status}) {
+            foreach my $item (keys %{$status->{$key}}) {
+                if ($item eq 'datadir') {
+                    $datadir = $status->{$key}->{$item};
+                    last;
+                }
+            }
+        }
+        my $port = $server->{port};
+        my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".js";
+        my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
+
+        my $is_clear = $reco_client->clear($name);
+        subtest 'Does the saved rows delete ?' => sub {
+            my $result_ids = $reco_client->get_all_rows($name);
+            my $answer_ids = [];
+            is_deeply($answer_ids, $result_ids, "Check the row ids which are deleted by clear()");
+        };
+
+        subtest 'Does the saved rows load ?' => sub {
+            my $is_load = $reco_client->load($name, $model_name);
+            is (1, $is_save, "Call load()");
+
+
+            my $result_ids = $reco_client->get_all_rows($name);
+            my $answer_ids = [
+                "Jubatus Recommender Test A",
+                "Jubatus Recommender Test B",
+                "Jubatus Recommender Test C",
+            ];
+            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which are loaded by load()");
+        };
     };
 };
 
-=pod
 
-  def test_save(self):
-    self.assertEqual(self.cli.save("name", "recommender.save_test.model"), True)
+
+=pod
 
 
 =cut
@@ -296,13 +390,6 @@ sub kill_process {
     d = datum(string_values, num_values)
     self.assertAlmostEqual(self.cli.calc_similarity("name", d, d), 1, 6)
     self.assertAlmostEqual(self.cli.calc_l2norm("name", d), sqrt(1*1 + 1*1+ 1*1 + 2*2), 6)
-
-
-  def test_load(self):
-    model_name = "recommender.load_test.model"
-    self.cli.save("name", model_name)
-    self.assertEqual(self.cli.load("name", model_name), True)
-
 
 
 
