@@ -201,10 +201,7 @@ subtest 'Test model data updator by write multi row ids' => sub {
 };
 
 subtest 'Test data dumper and data loader of model' => sub {
-
-
     subtest 'test save()' => sub {
-
         my $name = "cpan module test";
         my $guard = $setup->($name);
         my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
@@ -332,10 +329,93 @@ subtest 'Test data dumper and data loader of model' => sub {
     };
 };
 
+subtest 'Test data deleter' => sub {
+    subtest 'test clear_row()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->($name);
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
 
+        my $is_clear = $reco_client->clear($name);
+
+        my @row_ids_arr = (
+            "Jubatus Recommender TestA",
+            "Jubatus Recommender TestB",
+            "Jubatus Recommender TestC",
+        );
+
+        foreach my $row_id (@row_ids_arr) {
+            my $string_values = [["key1", "val1"], ["key2", "val2"],];
+            my $num_values = [["key1", 1.0], ["key2", 2.0],];
+            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        }
+
+        {
+            my $result_ids = $reco_client->get_all_rows($name);
+            my $answer_ids = [
+                @row_ids_arr,
+            ];
+            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
+        }
+
+        # my $is_not_clear_row = $reco_client->clear_row($name, $row_ids_arr[0]."noize");
+        # is ($is_not_clear_row, 0, "Call clear_row() with uninputted key");
+        my $is_clear_row = $reco_client->clear_row($name, $row_ids_arr[0]);
+        is (1, $is_clear_row, "Call clear_row() (It is meanless test. Because recommender is always return true. delete_row() in storage/sparse_matrix_storage.cpp not return the error !!!)");
+
+        {
+            my $result_ids = $reco_client->get_all_rows($name);
+            my $answer_ids = [
+                $row_ids_arr[1],
+                $row_ids_arr[2],
+            ];
+        #    is_deeply($result_ids, $answer_ids, "Check row_id is deleted by clear_row()");
+        }
+    };
+
+};
+
+subtest 'Test data decoder' => sub {
+    subtest 'test decode_row()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->($name);
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+
+        my $is_clear = $reco_client->clear($name);
+
+        my @row_ids_arr = (
+            "Jubatus Recommender TestA",
+            "Jubatus Recommender TestB",
+            "Jubatus Recommender TestC",
+        );
+
+        my $string_values = [["key1", "val1"], ["key2", "val2"],];
+        my $num_values = [["key1", 1.0], ["key2", 2.0],];
+        foreach my $row_id (@row_ids_arr) {
+            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        }
+
+        {
+            my $result_ids = $reco_client->get_all_rows($name);
+            my $answer_ids = [
+                @row_ids_arr,
+            ];
+            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
+        }
+
+        foreach my $row_id (@row_ids_arr) {
+            my $datum = $reco_client->decode_row($name, $row_id);
+            is (ref $datum, "Jubatus::Recommender::Datum", "Call decode_row() and get Jubatus::Recommender::Datum object");
+            is(exists $datum->{string_values}, 1, "Datum object 'datum' has string_values field");
+            is(exists $datum->{num_values}, 1, "Datum object 'datum' has num_values field");
+            is_deeply($datum->{string_values}, $string_values, "string_values field of Datum object is same as imput data structure");
+            is_deeply($datum->{num_values}, $num_values, "num_values field of Datum object is same as imput data structure");
+        }
+    };
+};
 
 =pod
-
 
 =cut
 
@@ -373,16 +453,6 @@ sub kill_process {
     self.cli.update_row("name", "similar_row", d)
     s1 = self.cli.similar_row_from_id("name", "similar_row", 10)
     s2 = self.cli.similar_row_from_datum("name", d, 10)
-
-  def test_decode_row(self):
-    self.cli.clear_row("name", "decode_row")
-    string_values = [("key1", "val1"), ("key2", "val2")]
-    num_values = [("key1", 1.0), ("key2", 2.0)]
-    d = datum(string_values, num_values)
-    self.cli.update_row("name", "decode_row", d)
-    decoded_row = self.cli.decode_row("name", "decode_row")
-    self.assertEqual(d.string_values, decoded_row.string_values)
-    self.assertEqual(d.num_values, decoded_row.num_values)
 
   def test_calcs(self):
     string_values = [("key1", "val1"), ("key2", "val2")]
