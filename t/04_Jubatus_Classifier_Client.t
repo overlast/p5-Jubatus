@@ -112,7 +112,6 @@ subtest 'Test server status reader' => sub {
     };
 };
 
-=pod
 subtest 'Test model data updator' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
@@ -136,11 +135,11 @@ subtest 'Test model data updator' => sub {
     };
 
     subtest 'test train()' => sub {
-        my $weight = 1.0;
-        my $one_data = [[$weight, $datum->to_msgpack()]];
+        my $label = "label";
+        my $one_data = [[$label, $datum->to_msgpack()]];
         my $is_train_one_data = $clas_client->train($name, $one_data);
         is (1, $is_train_one_data, "Call train() with one training data");
-        my $two_data = [[$weight, $datum->to_msgpack()], [$weight, $datum->to_msgpack()],];
+        my $two_data = [[$label, $datum->to_msgpack()], [$label, $datum->to_msgpack()],];
         my $is_train_two_data = $clas_client->train($name, $two_data);
         is (2, $is_train_two_data, "Call train() with two training data");
         my $zero_data = [];
@@ -148,6 +147,41 @@ subtest 'Test model data updator' => sub {
         is (0, $is_train_zero_data, "Call train() with zero training data");
     };
 };
+
+=pod
+
+  def teardown
+    TestUtil.kill_process(@srv)
+  end
+
+  def test_train
+    string_values = [["key1", "val1"], ["key2", "val2"]]
+    num_values = [["key1", 1.0], ["key2", 2.0]]
+    d = Jubatus::Classifier::Datum.new(string_values, num_values)
+    data = [["label", d]]
+    assert_equal(@cli.train("name", data), 1)
+  end
+
+  def test_classify
+    string_values = [["key1", "val1"], ["key2", "val2"]]
+    num_values = [["key1", 1.0], ["key2", 2.0]]
+    d = Jubatus::Classifier::Datum.new(string_values, num_values)
+    data = [d]
+    result = @cli.classify("name", data)
+  end
+
+  def test_save
+    assert_equal(@cli.save("name", "classifier.save_test.model"), true)
+  end
+
+  def test_load
+    model_name = "classifier.load_test.model"
+    @cli.save("name", model_name)
+    assert_equal(@cli.load("name", model_name), true)
+  end
+
+
+
 
 # Origin of this sample data is https://raw.github.com/jubatus/jubatus-example/master/rent/dat/rent-data.csv
 my @sample = (
