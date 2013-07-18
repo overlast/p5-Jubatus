@@ -415,7 +415,42 @@ subtest 'Test data decoder' => sub {
     };
 };
 
+subtest 'Test caluculator' => sub {
+    my $name = "cpan module test";
+    my $guard = $setup->($name);
+    my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+
+    my $is_clear = $reco_client->clear($name);
+
+    my $string_values = [["key1", "val1"], ["key2", "val2"]];
+    my $num_values = [["key1", 1.0], ["key2", 2.0],];
+    my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+
+    subtest 'test calc_l2norm()' => sub {
+        my $l2norm = $reco_client->calc_l2norm($name, $datum);
+        is (1, (($l2norm > (sqrt(7) - 0.000001)) && ($l2norm < (sqrt(7) + 0.000001))) , "Check error value of l2norm is less than 0.000001");
+    };
+
+    subtest 'test calc_similarity()' => sub {
+        my $similarity = $reco_client->calc_similarity($name, $datum, $datum);
+        is (1, (($similarity > 0.999999) && ($similarity < 1.000001)) , "Check error value of similarity of self vector is less than 0.000001");
+    };
+};
+
+subtest 'Test caluculator' => sub {
+
+};
+
+
 =pod
+  def test_similar_row(self):
+    self.cli.clear_row("name", "similar_row")
+    string_values = [("key1", "val1"), ("key2", "val2")]
+    num_values = [("key1", 1.0), ("key2", 2.0)]
+    d = datum(string_values, num_values)
+    self.cli.update_row("name", "similar_row", d)
+    s1 = self.cli.similar_row_from_id("name", "similar_row", 10)
+    s2 = self.cli.similar_row_from_datum("name", d, 10)
 
 =cut
 
@@ -453,13 +488,6 @@ sub kill_process {
     self.cli.update_row("name", "similar_row", d)
     s1 = self.cli.similar_row_from_id("name", "similar_row", 10)
     s2 = self.cli.similar_row_from_datum("name", d, 10)
-
-  def test_calcs(self):
-    string_values = [("key1", "val1"), ("key2", "val2")]
-    num_values = [("key1", 1.0), ("key2", 2.0)]
-    d = datum(string_values, num_values)
-    self.assertAlmostEqual(self.cli.calc_similarity("name", d, d), 1, 6)
-    self.assertAlmostEqual(self.cli.calc_l2norm("name", d), sqrt(1*1 + 1*1+ 1*1 + 2*2), 6)
 
 
 
