@@ -438,7 +438,71 @@ subtest 'Test caluculator' => sub {
 };
 
 subtest 'Test caluculator' => sub {
+    my $name = "cpan module test";
+    my $guard = $setup->($name);
+    my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
 
+    my $is_clear = $reco_client->clear($name);
+
+    {
+        my $row_id = "red";
+        my $string_values = [["name", "red"], ["image", "warm"],];
+        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "blue";
+        my $string_values = [["name", "blue"], ["image", "cold"],];
+        my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "cyan";
+        my $string_values = [["name", "cyan"], ["image", "cold"],];
+        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "magenta";
+        my $string_values = [["name", "magenta"], ["image", "warm"],];
+        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "yellow";
+        my $string_values = [["name", "yellow"], ["image", "warm"],];
+        my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "green";
+        my $string_values = [["name", "green"], ["image", "cold"],];
+        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 0.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+
+        my $max_result_num = 10;
+        subtest 'test similar_row_from_datum' => sub {
+            my $similarity = $reco_client->similar_row_from_datum($name, $datum, $max_result_num);
+            is ("cyan", $similarity->[0]->[0], "cyan is most similar than other colors");
+            is ("yellow", $similarity->[1]->[0], "yellow is more similar than blue");
+            is ("blue", $similarity->[2]->[0], "blue is more similar than red");
+        };
+
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+
+        subtest 'test similar_row_from_id' => sub {
+            my $similarity = $reco_client->similar_row_from_id($name, "green", $max_result_num);
+            is ("green", $similarity->[0]->[0], "green is itself");
+            is ("cyan", $similarity->[1]->[0], "cyan is most similar than other colors");
+            is ("yellow", $similarity->[2]->[0], "yellow is more similar than blue");
+            is ("blue", $similarity->[3]->[0], "blue is more similar than red");
+        };
+    }
 };
 
 
@@ -449,8 +513,6 @@ subtest 'Test caluculator' => sub {
     num_values = [("key1", 1.0), ("key2", 2.0)]
     d = datum(string_values, num_values)
     self.cli.update_row("name", "similar_row", d)
-    s1 = self.cli.similar_row_from_id("name", "similar_row", 10)
-    s2 = self.cli.similar_row_from_datum("name", d, 10)
 
 =cut
 
