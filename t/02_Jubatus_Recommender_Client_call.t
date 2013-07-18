@@ -437,7 +437,8 @@ subtest 'Test caluculator' => sub {
     };
 };
 
-subtest 'Test caluculator' => sub {
+# Origin of this test is http://d.hatena.ne.jp/echizen_tm/20110721/1311253494
+subtest 'Test similarity caluculator' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
     my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
@@ -486,7 +487,7 @@ subtest 'Test caluculator' => sub {
         my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
 
         my $max_result_num = 10;
-        subtest 'test similar_row_from_datum' => sub {
+        subtest 'test similar_row_from_datum()' => sub {
             my $similarity = $reco_client->similar_row_from_datum($name, $datum, $max_result_num);
             is ("cyan", $similarity->[0]->[0], "cyan is most similar than other colors");
             is ("yellow", $similarity->[1]->[0], "yellow is more similar than blue");
@@ -495,7 +496,7 @@ subtest 'Test caluculator' => sub {
 
         my $is_update = $reco_client->update_row($name, $row_id, $datum);
 
-        subtest 'test similar_row_from_id' => sub {
+        subtest 'test similar_row_from_id()' => sub {
             my $similarity = $reco_client->similar_row_from_id($name, "green", $max_result_num);
             is ("green", $similarity->[0]->[0], "green is itself");
             is ("cyan", $similarity->[1]->[0], "cyan is most similar than other colors");
@@ -505,55 +506,77 @@ subtest 'Test caluculator' => sub {
     }
 };
 
+subtest 'Test colmun data completer' => sub {
 
-=pod
-  def test_similar_row(self):
-    self.cli.clear_row("name", "similar_row")
-    string_values = [("key1", "val1"), ("key2", "val2")]
-    num_values = [("key1", 1.0), ("key2", 2.0)]
-    d = datum(string_values, num_values)
-    self.cli.update_row("name", "similar_row", d)
+    my $name = "cpan module test";
+    my $guard = $setup->($name);
+    my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
 
-=cut
+    my $is_clear = $reco_client->clear($name);
 
+    {
+        my $row_id = "red";
+        my $string_values = [["name", "red"], ["image", "warm"],];
+        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "blue";
+        my $string_values = [["name", "blue"], ["image", "cold"],];
+        my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "cyan";
+        my $string_values = [["name", "cyan"], ["image", "cold"],];
+        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "magenta";
+        my $string_values = [["name", "magenta"], ["image", "warm"],];
+        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "yellow";
+        my $string_values = [["name", "yellow"], ["image", "warm"],];
+        my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+    }
+    {
+        my $row_id = "green";
+        my $string_values = [["name", "green"], ["image", "cold"],];
+        my $num_values = [["R", 0.0], ["G", 0.255], ["B", 0.0]];
+        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+
+        subtest 'test complete_row_from_datum()' => sub {
+            my $completed = $reco_client->complete_row_from_datum($name, $datum);
+            is (1, ($completed->{num_values}->[0]->[1] > 0), "R is completed using average of weighted value");
+            is (1, ($completed->{num_values}->[1]->[1] > 0), "G is replace using average of weighted value");
+            is (1, ($completed->{num_values}->[2]->[1] > 0), "B is completed using average of weighted value");
+        };
+
+        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+
+        subtest 'test similar_row_from_id()' => sub {
+            my $completed = $reco_client->complete_row_from_id($name, "green");
+            is (1, ($completed->{num_values}->[0]->[1] > 0), "R is completed using average of weighted value");
+            is (1, ($completed->{num_values}->[1]->[1] > 0), "G is replace using average of weighted value");
+            is (1, ($completed->{num_values}->[2]->[1] > 0), "B is completed using average of weighted value");
+          };
+    }
+};
 
 done_testing();
-
 
 sub kill_process {
     my ($pid) = @_;
     my $is_killed = system("kill -9 $pid"); # if success = 0 ,if fail > 0
     return  ($is_killed - 1) * -1; # i
 }
-
-#ok(1);
-
-=pod
-
-  def tearDown(self):
-    TestUtil.kill_process(self.srv)
-
-  def test_complete_row(self):
-    self.cli.clear_row("name", "complete_row")
-    string_values = [("key1", "val1"), ("key2", "val2")]
-    num_values = [("key1", 1.0), ("key2", 2.0)]
-    d = datum(string_values, num_values)
-    self.cli.update_row("name", "complete_row", d)
-    d1 = self.cli.complete_row_from_id("name", "complete_row")
-    d2 = self.cli.complete_row_from_datum("name", d)
-
-  def test_similar_row(self):
-    self.cli.clear_row("name", "similar_row")
-    string_values = [("key1", "val1"), ("key2", "val2")]
-    num_values = [("key1", 1.0), ("key2", 2.0)]
-    d = datum(string_values, num_values)
-    self.cli.update_row("name", "similar_row", d)
-    s1 = self.cli.similar_row_from_id("name", "similar_row", 10)
-    s2 = self.cli.similar_row_from_datum("name", d, 10)
-
-
-
-if __name__ == '__main__':
-  test_suite = unittest.TestLoader().loadTestsFromTestCase(RecommenderTest)
-  unittest.TextTestRunner().run(test_suite)
-=cut
