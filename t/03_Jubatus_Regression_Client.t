@@ -54,12 +54,12 @@ my $setup = sub {
 
 subtest "Test to connect to the Regression" => sub {
     my $guard = $setup->();
-    my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
     subtest "Give hostname & ort number" => sub {
-        is ("Jubatus::Regression::Client", ref $reco_client, "Get Jubatus::Regression::Client object");
+        is ("Jubatus::Regression::Client", ref $regr_client, "Get Jubatus::Regression::Client object");
     };
     subtest "Test Jubatus::Regression::Client->get_client()" => sub {
-        my $msg_client = $reco_client->get_client();
+        my $msg_client = $regr_client->get_client();
         is ("AnyEvent::MPRPC::Client", ref $msg_client, "Get AnyEvent::MPRPC::Client object");
     };
 };
@@ -67,8 +67,8 @@ subtest "Test to connect to the Regression" => sub {
 subtest 'Test JSON config file reader' => sub {
     subtest 'Test get_config() using null character string name (for standalone user)' => sub {
         my $guard = $setup->();
-        my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
-        my $con = $reco_client->get_config("");
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $con = $regr_client->get_config("");
         open my $in, '<', $json_path;
         my $content;
         {
@@ -81,8 +81,8 @@ subtest 'Test JSON config file reader' => sub {
     subtest 'test get_config() using not null character string name (for zookeeper user)' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
-        my $con = $reco_client->get_config("");
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $con = $regr_client->get_config("");
         open my $in, '<', $json_path;
         my $content;
         {
@@ -97,8 +97,8 @@ subtest 'Test JSON config file reader' => sub {
 subtest 'Test server status reader' => sub {
     subtest 'Test get_status()' => sub {
         my $guard = $setup->();
-        my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
-        my $status = $reco_client->get_status("");
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $status = $regr_client->get_status("");
         my $program_name = "";
         foreach my $key (keys %{$status}) {
             foreach my $item (keys %{$status->{$key}}) {
@@ -112,13 +112,12 @@ subtest 'Test server status reader' => sub {
     };
 };
 
-=pod
 subtest 'Test model data updator' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
-    my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
     subtest 'call clear()' => sub {
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear = $regr_client->clear($name);
         is (1, $is_clear, "Call clear()");
     };
 
@@ -136,26 +135,52 @@ subtest 'Test model data updator' => sub {
     };
 
     my $row_id = "jubatus regression test";
-    subtest 'test update_row()' => sub {
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
-        is (1, $is_update, "Call update_row()");
+    subtest 'test train()' => sub {
+        my $weight = 1.0;
+        my $one_data = [[$weight, $datum->to_msgpack()]];
+        my $is_train_one_data = $regr_client->train($name, $one_data);
+        is (1, $is_train_one_data, "Call train() with one training data");
+        my $two_data = [[$weight, $datum->to_msgpack()], [$weight, $datum->to_msgpack()],];
+        my $is_train_two_data = $regr_client->train($name, $two_data);
+        is (2, $is_train_two_data, "Call train() with two training data");
+        my $zero_data = [];
+        my $is_train_zero_data = $regr_client->train($name, $zero_data);
+        is (0, $is_train_zero_data, "Call train() with zero training data");
+
     };
 
-    subtest 'test get_all_rows()' => sub {
-        my $result_ids = $reco_client->get_all_rows($name);
-        my $answer_ids = [$row_id];
-        is_deeply($answer_ids, $result_ids, "Check the row ids which are same as '$row_id' which input by update_row()");
-    };
 };
+
+=pod
+
+
+  def test_estimate
+    string_values = [["key1", "val1"], ["key2", "val2"]]
+    num_values = [["key1", 1.0], ["key2", 2.0]]
+    d = Jubatus::Regression::Datum.new(string_values, num_values)
+    data = [d]
+    result = @cli.estimate("name", data)
+  end
+
+  def test_save
+    assert_equal(@cli.save("name", "regression.save_test.model"), true)
+  end
+
+  def test_load
+    model_name = "regression.load_test.model"
+    @cli.save("name", model_name)
+    assert_equal(@cli.load("name", model_name), true)
+  end
+
 
 subtest 'Test all model data cleaner' => sub {
     subtest 'test clear()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
-        my $is_clear = $reco_client->clear($name);
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $is_clear = $regr_client->clear($name);
         is (1, $is_clear, "Call clear()");
-        my $result_rows = $reco_client->get_all_rows($name);
+        my $result_rows = $regr_client->get_all_rows($name);
         my $answer_rows = [];
         is_deeply($answer_rows, $result_rows, "Check the all row ids are cleared");
     };
@@ -164,34 +189,34 @@ subtest 'Test all model data cleaner' => sub {
 subtest 'Test model data updator by write multi row ids' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
-    my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
 
-    my $is_clear = $reco_client->clear($name);
+    my $is_clear = $regr_client->clear($name);
 
     {
         my $row_id = "Jubatus Regression Test A";
         my $string_values = [["key1", "val1"], ["key2", "val2"],];
         my $num_values = [["key1", 1.0], ["key2", 2.0],];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "Jubatus Regression Test B";
         my $string_values = [["key1", "val1"], ["key2", "val2"],];
         my $num_values = [["key1", 1.0], ["key2", 2.0],];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "Jubatus Regression Test C";
         my $string_values = [["key1", "val1"], ["key2", "val2"],];
         my $num_values = [["key1", 1.0], ["key2", 2.0],];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
 
     subtest 'test get_all_rows()' => sub {
-        my $result_ids = $reco_client->get_all_rows($name);
+        my $result_ids = $regr_client->get_all_rows($name);
         my $answer_ids = [
             "Jubatus Regression Test A",
             "Jubatus Regression Test B",
@@ -205,34 +230,34 @@ subtest 'Test data dumper and data loader of model' => sub {
     subtest 'test save()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
 
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear = $regr_client->clear($name);
 
         {
             my $row_id = "Jubatus Regression Test A";
             my $string_values = [["key1", "val1"], ["key2", "val2"],];
             my $num_values = [["key1", 1.0], ["key2", 2.0],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $is_update = $regr_client->update_row($name, $row_id, $datum);
         }
         {
             my $row_id = "Jubatus Regression Test B";
             my $string_values = [["key1", "val1"], ["key2", "val2"],];
             my $num_values = [["key1", 1.0], ["key2", 2.0],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $is_update = $regr_client->update_row($name, $row_id, $datum);
         }
         {
             my $row_id = "Jubatus Regression Test C";
             my $string_values = [["key1", "val1"], ["key2", "val2"],];
             my $num_values = [["key1", 1.0], ["key2", 2.0],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $is_update = $regr_client->update_row($name, $row_id, $datum);
         }
 
         subtest 'Does the rows inpute ?' => sub {
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $regr_client->get_all_rows($name);
             my $answer_ids = [
                 "Jubatus Regression Test A",
                 "Jubatus Regression Test B",
@@ -243,11 +268,11 @@ subtest 'Test data dumper and data loader of model' => sub {
 
         subtest 'Does model file dump ?' => sub {
             my $model_name = "regression_test";
-            my $is_save = $reco_client->save($name, $model_name);
+            my $is_save = $regr_client->save($name, $model_name);
             is (1, $is_save, "Call save()");
 
             my $datadir;
-            my $status = $reco_client->get_status($name);
+            my $status = $regr_client->get_status($name);
             foreach my $key (keys %{$status}) {
                 foreach my $item (keys %{$status->{$key}}) {
                     if ($item eq 'datadir') {
@@ -267,34 +292,34 @@ subtest 'Test data dumper and data loader of model' => sub {
     subtest 'test load()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
 
         {
             my $row_id = "Jubatus Regression Test A";
             my $string_values = [["key1", "val1"], ["key2", "val2"],];
             my $num_values = [["key1", 1.0], ["key2", 2.0],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $is_update = $regr_client->update_row($name, $row_id, $datum);
         }
         {
             my $row_id = "Jubatus Regression Test B";
             my $string_values = [["key1", "val1"], ["key2", "val2"],];
             my $num_values = [["key1", 1.0], ["key2", 2.0],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $is_update = $regr_client->update_row($name, $row_id, $datum);
         }
         {
             my $row_id = "Jubatus Regression Test C";
             my $string_values = [["key1", "val1"], ["key2", "val2"],];
             my $num_values = [["key1", 1.0], ["key2", 2.0],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $is_update = $regr_client->update_row($name, $row_id, $datum);
         }
 
         my $model_name = "regression_test";
-        my $is_save = $reco_client->save($name, $model_name);
+        my $is_save = $regr_client->save($name, $model_name);
         my $datadir;
-        my $status = $reco_client->get_status($name);
+        my $status = $regr_client->get_status($name);
         foreach my $key (keys %{$status}) {
             foreach my $item (keys %{$status->{$key}}) {
                 if ($item eq 'datadir') {
@@ -307,19 +332,19 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".js";
         my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
 
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear = $regr_client->clear($name);
         subtest 'Does the saved rows delete ?' => sub {
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $regr_client->get_all_rows($name);
             my $answer_ids = [];
             is_deeply($answer_ids, $result_ids, "Check the row ids which are deleted by clear()");
         };
 
         subtest 'Does the saved rows load ?' => sub {
-            my $is_load = $reco_client->load($name, $model_name);
+            my $is_load = $regr_client->load($name, $model_name);
             is (1, $is_save, "Call load()");
 
 
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $regr_client->get_all_rows($name);
             my $answer_ids = [
                 "Jubatus Regression Test A",
                 "Jubatus Regression Test B",
@@ -334,9 +359,9 @@ subtest 'Test data deleter' => sub {
     subtest 'test clear_row()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
 
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear = $regr_client->clear($name);
 
         my @row_ids_arr = (
             "Jubatus Regression TestA",
@@ -348,24 +373,24 @@ subtest 'Test data deleter' => sub {
             my $string_values = [["key1", "val1"], ["key2", "val2"],];
             my $num_values = [["key1", 1.0], ["key2", 2.0],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $is_update = $regr_client->update_row($name, $row_id, $datum);
         }
 
         {
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $regr_client->get_all_rows($name);
             my $answer_ids = [
                 @row_ids_arr,
             ];
             is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
         }
 
-        # my $is_not_clear_row = $reco_client->clear_row($name, $row_ids_arr[0]."noize");
+        # my $is_not_clear_row = $regr_client->clear_row($name, $row_ids_arr[0]."noize");
         # is ($is_not_clear_row, 0, "Call clear_row() with uninputted key");
-        my $is_clear_row = $reco_client->clear_row($name, $row_ids_arr[0]);
+        my $is_clear_row = $regr_client->clear_row($name, $row_ids_arr[0]);
         is (1, $is_clear_row, "Call clear_row() (It is meanless test. Because regression is always return true. delete_row() in storage/sparse_matrix_storage.cpp not return the error !!!)");
 
         {
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $regr_client->get_all_rows($name);
             my $answer_ids = [
                 $row_ids_arr[1],
                 $row_ids_arr[2],
@@ -380,9 +405,9 @@ subtest 'Test data decoder' => sub {
     subtest 'test decode_row()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
 
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear = $regr_client->clear($name);
 
         my @row_ids_arr = (
             "Jubatus Regression TestA",
@@ -394,11 +419,11 @@ subtest 'Test data decoder' => sub {
         my $num_values = [["key1", 1.0], ["key2", 2.0],];
         foreach my $row_id (@row_ids_arr) {
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $is_update = $regr_client->update_row($name, $row_id, $datum);
         }
 
         {
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $regr_client->get_all_rows($name);
             my $answer_ids = [
                 @row_ids_arr,
             ];
@@ -406,7 +431,7 @@ subtest 'Test data decoder' => sub {
         }
 
         foreach my $row_id (@row_ids_arr) {
-            my $datum = $reco_client->decode_row($name, $row_id);
+            my $datum = $regr_client->decode_row($name, $row_id);
             is (ref $datum, "Jubatus::Regression::Datum", "Call decode_row() and get Jubatus::Regression::Datum object");
             is(exists $datum->{string_values}, 1, "Datum object 'datum' has string_values field");
             is(exists $datum->{num_values}, 1, "Datum object 'datum' has num_values field");
@@ -419,21 +444,21 @@ subtest 'Test data decoder' => sub {
 subtest 'Test caluculator' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
-    my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
 
-    my $is_clear = $reco_client->clear($name);
+    my $is_clear = $regr_client->clear($name);
 
     my $string_values = [["key1", "val1"], ["key2", "val2"]];
     my $num_values = [["key1", 1.0], ["key2", 2.0],];
     my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
 
     subtest 'test calc_l2norm()' => sub {
-        my $l2norm = $reco_client->calc_l2norm($name, $datum);
+        my $l2norm = $regr_client->calc_l2norm($name, $datum);
         is (1, (($l2norm > (sqrt(7) - 0.000001)) && ($l2norm < (sqrt(7) + 0.000001))) , "Check error value of l2norm is less than 0.000001");
     };
 
     subtest 'test calc_similarity()' => sub {
-        my $similarity = $reco_client->calc_similarity($name, $datum, $datum);
+        my $similarity = $regr_client->calc_similarity($name, $datum, $datum);
         is (1, (($similarity > 0.999999) && ($similarity < 1.000001)) , "Check error value of similarity of self vector is less than 0.000001");
     };
 };
@@ -442,44 +467,44 @@ subtest 'Test caluculator' => sub {
 subtest 'Test similarity caluculator' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
-    my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
 
-    my $is_clear = $reco_client->clear($name);
+    my $is_clear = $regr_client->clear($name);
 
     {
         my $row_id = "red";
         my $string_values = [["name", "red"], ["image", "warm"],];
         my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "blue";
         my $string_values = [["name", "blue"], ["image", "cold"],];
         my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "cyan";
         my $string_values = [["name", "cyan"], ["image", "cold"],];
         my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "magenta";
         my $string_values = [["name", "magenta"], ["image", "warm"],];
         my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "yellow";
         my $string_values = [["name", "yellow"], ["image", "warm"],];
         my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "green";
@@ -489,16 +514,16 @@ subtest 'Test similarity caluculator' => sub {
 
         my $max_result_num = 10;
         subtest 'test similar_row_from_datum()' => sub {
-            my $similarity = $reco_client->similar_row_from_datum($name, $datum, $max_result_num);
+            my $similarity = $regr_client->similar_row_from_datum($name, $datum, $max_result_num);
             is ("cyan", $similarity->[0]->[0], "cyan is most similar than other colors");
             is ("yellow", $similarity->[1]->[0], "yellow is more similar than blue");
             is ("blue", $similarity->[2]->[0], "blue is more similar than red");
         };
 
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
 
         subtest 'test similar_row_from_id()' => sub {
-            my $similarity = $reco_client->similar_row_from_id($name, "green", $max_result_num);
+            my $similarity = $regr_client->similar_row_from_id($name, "green", $max_result_num);
             is ("green", $similarity->[0]->[0], "green is itself");
             is ("cyan", $similarity->[1]->[0], "cyan is most similar than other colors");
             is ("yellow", $similarity->[2]->[0], "yellow is more similar than blue");
@@ -511,44 +536,44 @@ subtest 'Test colmun data completer' => sub {
 
     my $name = "cpan module test";
     my $guard = $setup->($name);
-    my $reco_client = Jubatus::Regression::Client->new($host, $server->{port});
+    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
 
-    my $is_clear = $reco_client->clear($name);
+    my $is_clear = $regr_client->clear($name);
 
     {
         my $row_id = "red";
         my $string_values = [["name", "red"], ["image", "warm"],];
         my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "blue";
         my $string_values = [["name", "blue"], ["image", "cold"],];
         my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "cyan";
         my $string_values = [["name", "cyan"], ["image", "cold"],];
         my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "magenta";
         my $string_values = [["name", "magenta"], ["image", "warm"],];
         my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "yellow";
         my $string_values = [["name", "yellow"], ["image", "warm"],];
         my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
     }
     {
         my $row_id = "green";
@@ -557,16 +582,16 @@ subtest 'Test colmun data completer' => sub {
         my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
 
         subtest 'test complete_row_from_datum()' => sub {
-            my $completed = $reco_client->complete_row_from_datum($name, $datum);
+            my $completed = $regr_client->complete_row_from_datum($name, $datum);
             is (1, ($completed->{num_values}->[0]->[1] > 0), "R is completed using average of weighted value");
             is (1, ($completed->{num_values}->[1]->[1] > 0), "G is replace using average of weighted value");
             is (1, ($completed->{num_values}->[2]->[1] > 0), "B is completed using average of weighted value");
         };
 
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $regr_client->update_row($name, $row_id, $datum);
 
         subtest 'test similar_row_from_id()' => sub {
-            my $completed = $reco_client->complete_row_from_id($name, "green");
+            my $completed = $regr_client->complete_row_from_id($name, "green");
             is (1, ($completed->{num_values}->[0]->[1] > 0), "R is completed using average of weighted value");
             is (1, ($completed->{num_values}->[1]->[1] > 0), "G is replace using average of weighted value");
             is (1, ($completed->{num_values}->[2]->[1] > 0), "B is completed using average of weighted value");
