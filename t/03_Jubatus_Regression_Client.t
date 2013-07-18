@@ -148,6 +148,155 @@ subtest 'Test model data updator' => sub {
     };
 };
 
+# Origin of this sample data is https://raw.github.com/jubatus/jubatus-example/master/rent/dat/rent-data.csv
+my @sample = (
+    "7.1 10.0 22.34 6.0 2.0 E",
+    "8.0 10.0 38.29 45.0 4.0 SE",
+    "4.5 26.0 18.23 24.0 2.0 W",
+    "4.75 7.0 15.0 24.0 3.0 SW",
+    "7.3 15.0 20.13 14.0 8.0 S",
+    "8.6 22.0 36.54 9.0 2.0 E",
+    "6.3 11.0 20.1 30.0 7.0 SE",
+    "9.6 10.0 30.03 0.0 5.0 SW",
+    "9.0 10.0 30.03 0.0 2.0 SE",
+    "9.0 10.0 30.03 0.0 2.0 SE",
+    "8.4 16.0 30.91 9.0 9.0 SE",
+    "9.2 12.0 30.03 0.0 2.0 SE",
+    "9.2 12.0 30.03 0.0 2.0 SE",
+    "9.2 12.0 30.03 0.0 2.0 SE",
+    "9.2 12.0 30.03 0.0 2.0 SE",
+    "8.8 10.0 30.03 0.0 1.0 W",
+    "5.05 7.0 15.0 24.0 10.0 E",
+    "5.05 7.0 15.0 24.0 10.0 E",
+    "5.05 7.0 15.0 24.0 10.0 E",
+    "5.05 7.0 15.0 24.0 10.0 E",
+    "6.0 15.0 29.48 24.0 4.0 NW",
+    "9.7 3.0 36.94 11.0 5.0 NW",
+    "9.22 10.0 30.03 0.0 2.0 SE",
+    "4.7 9.0 14.62 28.0 5.0 E",
+    "6.6 5.0 22.26 22.0 5.0 E",
+    "5.9 8.0 21.56 23.0 4.0 NE",
+    "5.9 8.0 21.56 23.0 4.0 NE",
+    "4.7 9.0 14.62 28.0 5.0 NE",
+    "12.3 8.0 40.12 9.0 7.0 SE",
+    "4.5 20.0 16.25 23.0 3.0 SW",
+    "9.2 10.0 30.03 0.0 4.0 SE",
+    "6.9 7.0 22.83 25.0 4.0 SW",
+    "5.8 2.0 17.24 29.0 9.0 E",
+    "6.1 5.0 20.43 22.0 3.0 SE",
+    "9.6 35.0 35.39 6.0 2.0 SW",
+    "9.6 10.0 30.03 0.0 5.0 SE",
+    "9.5 6.0 31.1 7.0 8.0 SW",
+    "7.8 15.0 23.37 5.0 10.0 NW",
+    "6.3 7.0 24.39 25.0 7.0 SE",
+    "4.7 1.0 16.35 21.0 4.0 SE",
+    "9.4 12.0 30.03 0.0 4.0 SE",
+    "9.4 10.0 30.03 0.0 4.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "9.3 10.0 30.03 0.0 3.0 SE",
+    "5.8 1.0 17.16 29.0 9.0 E",
+    "4.85 7.0 15.0 24.0 8.0 E",
+    "4.85 7.0 15.0 24.0 8.0 E",
+    "4.85 7.0 15.0 24.0 8.0 E",
+    "4.85 7.0 15.0 24.0 8.0 E",
+    "4.85 7.0 15.0 24.0 8.0 E",
+    "6.4 9.0 28.3 28.0 6.0 E",
+    "7.3 15.0 20.13 14.0 8.0 SE",
+    "7.8 5.0 25.03 6.0 2.0 SW",
+    "7.8 5.0 25.03 6.0 2.0 SW",
+    "7.2 25.0 25.33 23.0 3.0 SE",
+    "7.67 7.0 30.0 24.0 9.0 E",
+    "7.67 7.0 30.0 24.0 9.0 E",
+    "7.67 7.0 30.0 24.0 9.0 E",
+    "6.5 7.0 24.39 25.0 7.0 SE",
+    "4.75 7.0 15.0 24.0 3.0 W",
+    "7.5 25.0 22.82 23.0 4.0 SE",
+    "7.5 25.0 22.82 23.0 4.0 SE",
+    "5.3 7.0 18.07 25.0 06.0 SE",
+    "9.0 11.0 31.8 12.0 3.0 SE",
+    "7.3 12.0 23.09 12.0 3.0 S",
+    "5.5 1.0 17.59 29.0 8.0 S",
+    "9.2 10.0 30.03 0.0 2.0 SW",
+    "9.2 10.0 30.03 0.0 2.0 SW",
+    "6.3 8.0 21.56 23.0 2.0 N",
+    "8.8 10.0 30.03 0.0 1.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "9.2 10.0 30.03 0.0 2.0 SE",
+    "7.7 10.0 21.02 5.0 1.0 E",
+    "7.2 10.0 18.75 5.0 1.0 SW",
+    "7.2 10.0 18.75 5.0 1.0 SW",
+    "7.2 10.0 18.75 5.0 1.0 SW",
+    "7.7 10.0 18.75 5.0 1.0 W",
+    "4.75 7.0 15.0 24.0 3.0 E",
+    "4.75 7.0 15.0 24.0 3.0 E",
+    "4.75 7.0 15.0 24.0 3.0 E",
+    "4.75 7.0 15.0 24.0 3.0 E",
+    "4.75 7.0 15.0 24.0 3.0 E",
+    "5.6 20.0 21.14 7.0 3.0 SW",
+    "12.0 10.0 40.12 9.0 7.0 SE",
+    "10.6 3.0 37.18 11.0 9.0 NW",
+    "4.95 7.0 15.0 24.0 10.0 E",
+    "4.85 7.0 15.0 24.0 10.0 E",
+    "4.85 7.0 15.0 24.0 10.0 E",
+    "4.85 7.0 15.0 24.0 10.0 E",
+    "5.05 7.0 15.0 24.0 10.0 SW",
+    "9.5 5.0 30.0 13.0 8.0 NE",
+    "7.7 10.0 18.75 5.0 1.0 SW",
+    "9.3 12.0 30.03 0.0 3.0 SE",
+    "9.3 12.0 30.03 0.0 3.0 SE",
+    "9.3 12.0 30.03 0.0 3.0 SE",
+    "9.3 12.0 30.03 0.0 3.0 SE",
+    "9.3 12.0 30.03 0.0 3.0 SE",
+    "4.7 10.0 14.62 28.0 5.0 E",
+    "9.0 10.0 30.03 0.0 1.0 S",
+    "9.0 10.0 30.03 0.0 1.0 S",
+    "8.2 10.0 23.56 6.0 3.0 E",
+    "7.2 4.0 16.0 5.0 2.0 S",
+    "7.2 4.0 16.0 5.0 2.0 S",
+    "4.85 7.0 15.0 24.0 9.0 SE",
+    "6.6 5.0 22.26 22.0 5.0 SE",
+    "9.0 10.0 30.03 0.0 1.0 SE",
+    "9.0 10.0 30.03 0.0 1.0 SE",
+    "9.0 10.0 30.03 0.0 1.0 SE",
+    "9.0 10.0 30.03 0.0 1.0 SE",
+    "9.0 10.0 30.03 0.0 1.0 SE",
+    "8.3 9.0 32.18 24.0 3.0 S",
+    "7.8 10.0 21.02 5.0 4.0 W",
+    "6.8 25.0 25.33 23.0 3.0 SE",
+    "9.1 10.0 30.03 0.0 3.0 SE",
+    "9.1 10.0 30.03 0.0 3.0 SE",
+    "7.5 10.0 21.02 5.0 4.0 SW",
+    "8.3 9.0 32.18 24.0 3.0 E",
+    "10.3 3.0 36.94 11.0 7.0 SE",
+    "4.3 15.0 16.25 23.0 1.0 SW",
+    "25.0 15.0 74.96 10.0 15.0 E",
+    "4.6 17.0 16.32 18.0 4.0 SE",
+    "4.2 15.0 16.94 26.0 4.0 SW",
+    "6.5 5.0 22.83 25.0 4.0 NE",
+    "5.9 8.0 21.56 23.0 4.0 SW",
+);
+
 subtest 'Test estimater' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
@@ -156,155 +305,6 @@ subtest 'Test estimater' => sub {
         my $is_clear = $regr_client->clear($name);
         is (1, $is_clear, "Call clear()");
     };
-
-    # Origin of this sample data is https://raw.github.com/jubatus/jubatus-example/master/rent/dat/rent-data.csv
-    my @sample = (
-        "7.1 10.0 22.34 6.0 2.0 E",
-        "8.0 10.0 38.29 45.0 4.0 SE",
-        "4.5 26.0 18.23 24.0 2.0 W",
-        "4.75 7.0 15.0 24.0 3.0 SW",
-        "7.3 15.0 20.13 14.0 8.0 S",
-        "8.6 22.0 36.54 9.0 2.0 E",
-        "6.3 11.0 20.1 30.0 7.0 SE",
-        "9.6 10.0 30.03 0.0 5.0 SW",
-        "9.0 10.0 30.03 0.0 2.0 SE",
-        "9.0 10.0 30.03 0.0 2.0 SE",
-        "8.4 16.0 30.91 9.0 9.0 SE",
-        "9.2 12.0 30.03 0.0 2.0 SE",
-        "9.2 12.0 30.03 0.0 2.0 SE",
-        "9.2 12.0 30.03 0.0 2.0 SE",
-        "9.2 12.0 30.03 0.0 2.0 SE",
-        "8.8 10.0 30.03 0.0 1.0 W",
-        "5.05 7.0 15.0 24.0 10.0 E",
-        "5.05 7.0 15.0 24.0 10.0 E",
-        "5.05 7.0 15.0 24.0 10.0 E",
-        "5.05 7.0 15.0 24.0 10.0 E",
-        "6.0 15.0 29.48 24.0 4.0 NW",
-        "9.7 3.0 36.94 11.0 5.0 NW",
-        "9.22 10.0 30.03 0.0 2.0 SE",
-        "4.7 9.0 14.62 28.0 5.0 E",
-        "6.6 5.0 22.26 22.0 5.0 E",
-        "5.9 8.0 21.56 23.0 4.0 NE",
-        "5.9 8.0 21.56 23.0 4.0 NE",
-        "4.7 9.0 14.62 28.0 5.0 NE",
-        "12.3 8.0 40.12 9.0 7.0 SE",
-        "4.5 20.0 16.25 23.0 3.0 SW",
-        "9.2 10.0 30.03 0.0 4.0 SE",
-        "6.9 7.0 22.83 25.0 4.0 SW",
-        "5.8 2.0 17.24 29.0 9.0 E",
-        "6.1 5.0 20.43 22.0 3.0 SE",
-        "9.6 35.0 35.39 6.0 2.0 SW",
-        "9.6 10.0 30.03 0.0 5.0 SE",
-        "9.5 6.0 31.1 7.0 8.0 SW",
-        "7.8 15.0 23.37 5.0 10.0 NW",
-        "6.3 7.0 24.39 25.0 7.0 SE",
-        "4.7 1.0 16.35 21.0 4.0 SE",
-        "9.4 12.0 30.03 0.0 4.0 SE",
-        "9.4 10.0 30.03 0.0 4.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "9.3 10.0 30.03 0.0 3.0 SE",
-        "5.8 1.0 17.16 29.0 9.0 E",
-        "4.85 7.0 15.0 24.0 8.0 E",
-        "4.85 7.0 15.0 24.0 8.0 E",
-        "4.85 7.0 15.0 24.0 8.0 E",
-        "4.85 7.0 15.0 24.0 8.0 E",
-        "4.85 7.0 15.0 24.0 8.0 E",
-        "6.4 9.0 28.3 28.0 6.0 E",
-        "7.3 15.0 20.13 14.0 8.0 SE",
-        "7.8 5.0 25.03 6.0 2.0 SW",
-        "7.8 5.0 25.03 6.0 2.0 SW",
-        "7.2 25.0 25.33 23.0 3.0 SE",
-        "7.67 7.0 30.0 24.0 9.0 E",
-        "7.67 7.0 30.0 24.0 9.0 E",
-        "7.67 7.0 30.0 24.0 9.0 E",
-        "6.5 7.0 24.39 25.0 7.0 SE",
-        "4.75 7.0 15.0 24.0 3.0 W",
-        "7.5 25.0 22.82 23.0 4.0 SE",
-        "7.5 25.0 22.82 23.0 4.0 SE",
-        "5.3 7.0 18.07 25.0 06.0 SE",
-        "9.0 11.0 31.8 12.0 3.0 SE",
-        "7.3 12.0 23.09 12.0 3.0 S",
-        "5.5 1.0 17.59 29.0 8.0 S",
-        "9.2 10.0 30.03 0.0 2.0 SW",
-        "9.2 10.0 30.03 0.0 2.0 SW",
-        "6.3 8.0 21.56 23.0 2.0 N",
-        "8.8 10.0 30.03 0.0 1.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "9.2 10.0 30.03 0.0 2.0 SE",
-        "7.7 10.0 21.02 5.0 1.0 E",
-        "7.2 10.0 18.75 5.0 1.0 SW",
-        "7.2 10.0 18.75 5.0 1.0 SW",
-        "7.2 10.0 18.75 5.0 1.0 SW",
-        "7.7 10.0 18.75 5.0 1.0 W",
-        "4.75 7.0 15.0 24.0 3.0 E",
-        "4.75 7.0 15.0 24.0 3.0 E",
-        "4.75 7.0 15.0 24.0 3.0 E",
-        "4.75 7.0 15.0 24.0 3.0 E",
-        "4.75 7.0 15.0 24.0 3.0 E",
-        "5.6 20.0 21.14 7.0 3.0 SW",
-        "12.0 10.0 40.12 9.0 7.0 SE",
-        "10.6 3.0 37.18 11.0 9.0 NW",
-        "4.95 7.0 15.0 24.0 10.0 E",
-        "4.85 7.0 15.0 24.0 10.0 E",
-        "4.85 7.0 15.0 24.0 10.0 E",
-        "4.85 7.0 15.0 24.0 10.0 E",
-        "5.05 7.0 15.0 24.0 10.0 SW",
-        "9.5 5.0 30.0 13.0 8.0 NE",
-        "7.7 10.0 18.75 5.0 1.0 SW",
-        "9.3 12.0 30.03 0.0 3.0 SE",
-        "9.3 12.0 30.03 0.0 3.0 SE",
-        "9.3 12.0 30.03 0.0 3.0 SE",
-        "9.3 12.0 30.03 0.0 3.0 SE",
-        "9.3 12.0 30.03 0.0 3.0 SE",
-        "4.7 10.0 14.62 28.0 5.0 E",
-        "9.0 10.0 30.03 0.0 1.0 S",
-        "9.0 10.0 30.03 0.0 1.0 S",
-        "8.2 10.0 23.56 6.0 3.0 E",
-        "7.2 4.0 16.0 5.0 2.0 S",
-        "7.2 4.0 16.0 5.0 2.0 S",
-        "4.85 7.0 15.0 24.0 9.0 SE",
-        "6.6 5.0 22.26 22.0 5.0 SE",
-        "9.0 10.0 30.03 0.0 1.0 SE",
-        "9.0 10.0 30.03 0.0 1.0 SE",
-        "9.0 10.0 30.03 0.0 1.0 SE",
-        "9.0 10.0 30.03 0.0 1.0 SE",
-        "9.0 10.0 30.03 0.0 1.0 SE",
-        "8.3 9.0 32.18 24.0 3.0 S",
-        "7.8 10.0 21.02 5.0 4.0 W",
-        "6.8 25.0 25.33 23.0 3.0 SE",
-        "9.1 10.0 30.03 0.0 3.0 SE",
-        "9.1 10.0 30.03 0.0 3.0 SE",
-        "7.5 10.0 21.02 5.0 4.0 SW",
-        "8.3 9.0 32.18 24.0 3.0 E",
-        "10.3 3.0 36.94 11.0 7.0 SE",
-        "4.3 15.0 16.25 23.0 1.0 SW",
-        "25.0 15.0 74.96 10.0 15.0 E",
-        "4.6 17.0 16.32 18.0 4.0 SE",
-        "4.2 15.0 16.94 26.0 4.0 SW",
-        "6.5 5.0 22.83 25.0 4.0 NE",
-        "5.9 8.0 21.56 23.0 4.0 SW",
-    );
 
     my @data_arr = ();
     foreach my $data (@sample) {
@@ -330,72 +330,6 @@ subtest 'Test estimater' => sub {
     };
 };
 
-=pod
-
-  def test_save
-    assert_equal(@cli.save("name", "regression.save_test.model"), true)
-  end
-
-  def test_load
-    model_name = "regression.load_test.model"
-    @cli.save("name", model_name)
-    assert_equal(@cli.load("name", model_name), true)
-  end
-
-
-subtest 'Test all model data cleaner' => sub {
-    subtest 'test clear()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->($name);
-        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-        my $is_clear = $regr_client->clear($name);
-        is (1, $is_clear, "Call clear()");
-        my $result_rows = $regr_client->get_all_rows($name);
-        my $answer_rows = [];
-        is_deeply($answer_rows, $result_rows, "Check the all row ids are cleared");
-    };
-};
-
-subtest 'Test model data updator by write multi row ids' => sub {
-    my $name = "cpan module test";
-    my $guard = $setup->($name);
-    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-
-    my $is_clear = $regr_client->clear($name);
-
-    {
-        my $row_id = "Jubatus Regression Test A";
-        my $string_values = [["key1", "val1"], ["key2", "val2"],];
-        my $num_values = [["key1", 1.0], ["key2", 2.0],];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "Jubatus Regression Test B";
-        my $string_values = [["key1", "val1"], ["key2", "val2"],];
-        my $num_values = [["key1", 1.0], ["key2", 2.0],];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "Jubatus Regression Test C";
-        my $string_values = [["key1", "val1"], ["key2", "val2"],];
-        my $num_values = [["key1", 1.0], ["key2", 2.0],];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-
-    subtest 'test get_all_rows()' => sub {
-        my $result_ids = $regr_client->get_all_rows($name);
-        my $answer_ids = [
-            "Jubatus Regression Test A",
-            "Jubatus Regression Test B",
-            "Jubatus Regression Test C",
-        ];
-        is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
-    };
-};
-
 subtest 'Test data dumper and data loader of model' => sub {
     subtest 'test save()' => sub {
         my $name = "cpan module test";
@@ -404,37 +338,17 @@ subtest 'Test data dumper and data loader of model' => sub {
 
         my $is_clear = $regr_client->clear($name);
 
-        {
-            my $row_id = "Jubatus Regression Test A";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
+        my @data_arr = ();
+        foreach my $data (@sample) {
+            my @vals = split / /, $data;
+            my $string_values = [["direction", "$vals[5]"],];
+            my $num_values = [["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $regr_client->update_row($name, $row_id, $datum);
+            my $rent = 0.0 + $vals[0];
+            my $data = [$rent, $datum->to_msgpack()];
+            push @data_arr, $data;
         }
-        {
-            my $row_id = "Jubatus Regression Test B";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $regr_client->update_row($name, $row_id, $datum);
-        }
-        {
-            my $row_id = "Jubatus Regression Test C";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $regr_client->update_row($name, $row_id, $datum);
-        }
-
-        subtest 'Does the rows inpute ?' => sub {
-            my $result_ids = $regr_client->get_all_rows($name);
-            my $answer_ids = [
-                "Jubatus Regression Test A",
-                "Jubatus Regression Test B",
-                "Jubatus Regression Test C",
-            ];
-            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
-        };
+        my $is_train = $regr_client->train($name, \@data_arr);
 
         subtest 'Does model file dump ?' => sub {
             my $model_name = "regression_test";
@@ -464,27 +378,17 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $guard = $setup->($name);
         my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
 
-        {
-            my $row_id = "Jubatus Regression Test A";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
+        my @data_arr = ();
+        foreach my $data (@sample) {
+            my @vals = split / /, $data;
+            my $string_values = [["direction", "$vals[5]"],];
+            my $num_values = [["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $regr_client->update_row($name, $row_id, $datum);
+            my $rent = 0.0 + $vals[0];
+            my $data = [$rent, $datum->to_msgpack()];
+            push @data_arr, $data;
         }
-        {
-            my $row_id = "Jubatus Regression Test B";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $regr_client->update_row($name, $row_id, $datum);
-        }
-        {
-            my $row_id = "Jubatus Regression Test C";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $regr_client->update_row($name, $row_id, $datum);
-        }
+        my $is_train = $regr_client->train($name, \@data_arr);
 
         my $model_name = "regression_test";
         my $is_save = $regr_client->save($name, $model_name);
@@ -502,273 +406,39 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".js";
         my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
 
+        subtest 'test estimate() using learned model' => sub {
+            my $string_values = [];
+            my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
+            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
+            my $data = [$datum->to_msgpack()];
+            my $estimate_result = $regr_client->estimate($name, $data);
+            is(1, $estimate_result > 8, "Get estimate rent value");
+        };
+
         my $is_clear = $regr_client->clear($name);
-        subtest 'Does the saved rows delete ?' => sub {
-            my $result_ids = $regr_client->get_all_rows($name);
-            my $answer_ids = [];
-            is_deeply($answer_ids, $result_ids, "Check the row ids which are deleted by clear()");
+
+        subtest 'test estimate() for empty model' => sub {
+            my $string_values = [];
+            my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
+            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
+            my $data = [$datum->to_msgpack()];
+            my $estimate_result = $regr_client->estimate($name, $data);
+            is_deeply([0], $estimate_result, "Can't get estimate rent value");
         };
 
         subtest 'Does the saved rows load ?' => sub {
             my $is_load = $regr_client->load($name, $model_name);
             is (1, $is_save, "Call load()");
 
-
-            my $result_ids = $regr_client->get_all_rows($name);
-            my $answer_ids = [
-                "Jubatus Regression Test A",
-                "Jubatus Regression Test B",
-                "Jubatus Regression Test C",
-            ];
-            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which are loaded by load()");
-        };
-    };
-};
-
-subtest 'Test data deleter' => sub {
-    subtest 'test clear_row()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->($name);
-        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-
-        my $is_clear = $regr_client->clear($name);
-
-        my @row_ids_arr = (
-            "Jubatus Regression TestA",
-            "Jubatus Regression TestB",
-            "Jubatus Regression TestC",
-        );
-
-        foreach my $row_id (@row_ids_arr) {
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
+            my $string_values = [];
+            my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
             my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $regr_client->update_row($name, $row_id, $datum);
-        }
-
-        {
-            my $result_ids = $regr_client->get_all_rows($name);
-            my $answer_ids = [
-                @row_ids_arr,
-            ];
-            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
-        }
-
-        # my $is_not_clear_row = $regr_client->clear_row($name, $row_ids_arr[0]."noize");
-        # is ($is_not_clear_row, 0, "Call clear_row() with uninputted key");
-        my $is_clear_row = $regr_client->clear_row($name, $row_ids_arr[0]);
-        is (1, $is_clear_row, "Call clear_row() (It is meanless test. Because regression is always return true. delete_row() in storage/sparse_matrix_storage.cpp not return the error !!!)");
-
-        {
-            my $result_ids = $regr_client->get_all_rows($name);
-            my $answer_ids = [
-                $row_ids_arr[1],
-                $row_ids_arr[2],
-            ];
-        #    is_deeply($result_ids, $answer_ids, "Check row_id is deleted by clear_row()");
-        }
-    };
-
-};
-
-subtest 'Test data decoder' => sub {
-    subtest 'test decode_row()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->($name);
-        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-
-        my $is_clear = $regr_client->clear($name);
-
-        my @row_ids_arr = (
-            "Jubatus Regression TestA",
-            "Jubatus Regression TestB",
-            "Jubatus Regression TestC",
-        );
-
-        my $string_values = [["key1", "val1"], ["key2", "val2"],];
-        my $num_values = [["key1", 1.0], ["key2", 2.0],];
-        foreach my $row_id (@row_ids_arr) {
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $is_update = $regr_client->update_row($name, $row_id, $datum);
-        }
-
-        {
-            my $result_ids = $regr_client->get_all_rows($name);
-            my $answer_ids = [
-                @row_ids_arr,
-            ];
-            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
-        }
-
-        foreach my $row_id (@row_ids_arr) {
-            my $datum = $regr_client->decode_row($name, $row_id);
-            is (ref $datum, "Jubatus::Regression::Datum", "Call decode_row() and get Jubatus::Regression::Datum object");
-            is(exists $datum->{string_values}, 1, "Datum object 'datum' has string_values field");
-            is(exists $datum->{num_values}, 1, "Datum object 'datum' has num_values field");
-            is_deeply($datum->{string_values}, $string_values, "string_values field of Datum object is same as imput data structure");
-            is_deeply($datum->{num_values}, $num_values, "num_values field of Datum object is same as imput data structure");
-        }
-    };
-};
-
-subtest 'Test caluculator' => sub {
-    my $name = "cpan module test";
-    my $guard = $setup->($name);
-    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-
-    my $is_clear = $regr_client->clear($name);
-
-    my $string_values = [["key1", "val1"], ["key2", "val2"]];
-    my $num_values = [["key1", 1.0], ["key2", 2.0],];
-    my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-
-    subtest 'test calc_l2norm()' => sub {
-        my $l2norm = $regr_client->calc_l2norm($name, $datum);
-        is (1, (($l2norm > (sqrt(7) - 0.000001)) && ($l2norm < (sqrt(7) + 0.000001))) , "Check error value of l2norm is less than 0.000001");
-    };
-
-    subtest 'test calc_similarity()' => sub {
-        my $similarity = $regr_client->calc_similarity($name, $datum, $datum);
-        is (1, (($similarity > 0.999999) && ($similarity < 1.000001)) , "Check error value of similarity of self vector is less than 0.000001");
-    };
-};
-
-# Origin of this test is http://d.hatena.ne.jp/echizen_tm/20110721/1311253494
-subtest 'Test similarity caluculator' => sub {
-    my $name = "cpan module test";
-    my $guard = $setup->($name);
-    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-
-    my $is_clear = $regr_client->clear($name);
-
-    {
-        my $row_id = "red";
-        my $string_values = [["name", "red"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "blue";
-        my $string_values = [["name", "blue"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "cyan";
-        my $string_values = [["name", "cyan"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "magenta";
-        my $string_values = [["name", "magenta"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "yellow";
-        my $string_values = [["name", "yellow"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "green";
-        my $string_values = [["name", "green"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 0.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-
-        my $max_result_num = 10;
-        subtest 'test similar_row_from_datum()' => sub {
-            my $similarity = $regr_client->similar_row_from_datum($name, $datum, $max_result_num);
-            is ("cyan", $similarity->[0]->[0], "cyan is most similar than other colors");
-            is ("yellow", $similarity->[1]->[0], "yellow is more similar than blue");
-            is ("blue", $similarity->[2]->[0], "blue is more similar than red");
+            my $data = [$datum->to_msgpack()];
+            my $estimate_result = $regr_client->estimate($name, $data);
+            is(1, $estimate_result > 8, "Get estimate rent value from dumped model");
         };
-
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-
-        subtest 'test similar_row_from_id()' => sub {
-            my $similarity = $regr_client->similar_row_from_id($name, "green", $max_result_num);
-            is ("green", $similarity->[0]->[0], "green is itself");
-            is ("cyan", $similarity->[1]->[0], "cyan is most similar than other colors");
-            is ("yellow", $similarity->[2]->[0], "yellow is more similar than blue");
-            is ("blue", $similarity->[3]->[0], "blue is more similar than red");
-        };
-    }
+    };
 };
-
-subtest 'Test colmun data completer' => sub {
-
-    my $name = "cpan module test";
-    my $guard = $setup->($name);
-    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-
-    my $is_clear = $regr_client->clear($name);
-
-    {
-        my $row_id = "red";
-        my $string_values = [["name", "red"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "blue";
-        my $string_values = [["name", "blue"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "cyan";
-        my $string_values = [["name", "cyan"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "magenta";
-        my $string_values = [["name", "magenta"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "yellow";
-        my $string_values = [["name", "yellow"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-    }
-    {
-        my $row_id = "green";
-        my $string_values = [["name", "green"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 0.255], ["B", 0.0]];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-
-        subtest 'test complete_row_from_datum()' => sub {
-            my $completed = $regr_client->complete_row_from_datum($name, $datum);
-            is (1, ($completed->{num_values}->[0]->[1] > 0), "R is completed using average of weighted value");
-            is (1, ($completed->{num_values}->[1]->[1] > 0), "G is replace using average of weighted value");
-            is (1, ($completed->{num_values}->[2]->[1] > 0), "B is completed using average of weighted value");
-        };
-
-        my $is_update = $regr_client->update_row($name, $row_id, $datum);
-
-        subtest 'test similar_row_from_id()' => sub {
-            my $completed = $regr_client->complete_row_from_id($name, "green");
-            is (1, ($completed->{num_values}->[0]->[1] > 0), "R is completed using average of weighted value");
-            is (1, ($completed->{num_values}->[1]->[1] > 0), "G is replace using average of weighted value");
-            is (1, ($completed->{num_values}->[2]->[1] > 0), "B is completed using average of weighted value");
-          };
-    }
-};
-=cut
 
 done_testing();
 
