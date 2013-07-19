@@ -232,33 +232,6 @@ subtest 'Test classifier' => sub {
     };
 };
 
-
-=pod
-
-  def teardown
-    TestUtil.kill_process(@srv)
-  end
-
-  def test_classify
-    string_values = [["key1", "val1"], ["key2", "val2"]]
-    num_values = [["key1", 1.0], ["key2", 2.0]]
-    d = Jubatus::Classifier::Datum.new(string_values, num_values)
-    data = [d]
-    result = @cli.classify("name", data)
-  end
-
-  def test_save
-    assert_equal(@cli.save("name", "classifier.save_test.model"), true)
-  end
-
-  def test_load
-    model_name = "classifier.load_test.model"
-    @cli.save("name", model_name)
-    assert_equal(@cli.load("name", model_name), true)
-  end
-
-
-
 subtest 'Test data dumper and data loader of model' => sub {
     subtest 'test save()' => sub {
         my $name = "cpan module test";
@@ -266,18 +239,7 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $clas_client = Jubatus::Classifier::Client->new($host, $server->{port});
 
         my $is_clear = $clas_client->clear($name);
-
-        my @data_arr = ();
-        foreach my $data (@sample) {
-            my @vals = split / /, $data;
-            my $string_values = [["direction", "$vals[5]"],];
-            my $num_values = [["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
-            my $datum = Jubatus::Classifier::Datum->new($string_values, $num_values);
-            my $rent = 0.0 + $vals[0];
-            my $data = [$rent, $datum->to_msgpack()];
-            push @data_arr, $data;
-        }
-        my $is_train = $clas_client->train($name, \@data_arr);
+        my $is_train = $clas_client->train($name, \@sample);
 
         subtest 'Does model file dump ?' => sub {
             my $model_name = "classifier_test";
@@ -307,18 +269,7 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $guard = $setup->($name);
         my $clas_client = Jubatus::Classifier::Client->new($host, $server->{port});
 
-        my @data_arr = ();
-        foreach my $data (@sample) {
-            my @vals = split / /, $data;
-            my $string_values = [["direction", "$vals[5]"],];
-            my $num_values = [["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
-            my $datum = Jubatus::Classifier::Datum->new($string_values, $num_values);
-            my $rent = 0.0 + $vals[0];
-            my $data = [$rent, $datum->to_msgpack()];
-            push @data_arr, $data;
-        }
-        my $is_train = $clas_client->train($name, \@data_arr);
-
+        my $is_train = $clas_client->train($name, \@sample);
         my $model_name = "classifier_test";
         my $is_save = $clas_client->save($name, $model_name);
         my $datadir;
@@ -336,40 +287,71 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
 
         subtest 'test estimate() using learned model' => sub {
-            my $string_values = [];
-            my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
-            my $datum = Jubatus::Classifier::Datum->new($string_values, $num_values);
-            my $data = [$datum->to_msgpack()];
-            my $estimate_result = $clas_client->estimate($name, $data);
-            is(1, $estimate_result > 8, "Get estimate rent value");
+            my @answer_arr = (
+                ["徳川", Jubatus::Classifier::Datum->new([["name", "慶喜"]], [])->to_msgpack()],
+                ["足利", Jubatus::Classifier::Datum->new([["name", "義昭"]], [])->to_msgpack()],
+                ["北条", Jubatus::Classifier::Datum->new([["name", "守時"]], [])->to_msgpack()],
+            );
+
+            foreach my $answer (@answer_arr) {
+                my $data = [$answer->[1]];
+                my $classified_result = $clas_client->classify($name, $data);
+                my $max_att = 0;
+                for (my $i = 1; $i <= $#{$classified_result->[0]}; $i++) {
+                    if ($classified_result->[0][$i - 1]{score} < $classified_result->[0][$i]{score}) {
+                        $max_att = $i;
+                    }
+                }
+                is($answer->[0], $classified_result->[0][$max_att]{label}, "Get result of classifyer (is $answer->[0])");
+            }
         };
 
         my $is_clear = $clas_client->clear($name);
 
         subtest 'test estimate() for empty model' => sub {
-            my $string_values = [];
-            my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
-            my $datum = Jubatus::Classifier::Datum->new($string_values, $num_values);
-            my $data = [$datum->to_msgpack()];
-            my $estimate_result = $clas_client->estimate($name, $data);
-            is_deeply([0], $estimate_result, "Can't get estimate rent value");
+            my @answer_arr = (
+                ["徳川", Jubatus::Classifier::Datum->new([["name", "慶喜"]], [])->to_msgpack()],
+                ["足利", Jubatus::Classifier::Datum->new([["name", "義昭"]], [])->to_msgpack()],
+                ["北条", Jubatus::Classifier::Datum->new([["name", "守時"]], [])->to_msgpack()],
+            );
+
+            foreach my $answer (@answer_arr) {
+                my $data = [$answer->[1]];
+                my $classified_result = $clas_client->classify($name, $data);
+                my $max_att = 0;
+                for (my $i = 1; $i <= $#{$classified_result->[0]}; $i++) {
+                    if ($classified_result->[0][$i - 1]{score} < $classified_result->[0][$i]{score}) {
+                        $max_att = $i;
+                    }
+                }
+                is_deeply([], $classified_result->[0], "Get result of classifyer (is $answer->[0]) from empty model");
+            }
         };
 
         subtest 'Does the saved rows load ?' => sub {
             my $is_load = $clas_client->load($name, $model_name);
             is (1, $is_save, "Call load()");
 
-            my $string_values = [];
-            my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
-            my $datum = Jubatus::Classifier::Datum->new($string_values, $num_values);
-            my $data = [$datum->to_msgpack()];
-            my $estimate_result = $clas_client->estimate($name, $data);
-            is(1, $estimate_result > 8, "Get estimate rent value from dumped model");
+            my @answer_arr = (
+                ["徳川", Jubatus::Classifier::Datum->new([["name", "慶喜"]], [])->to_msgpack()],
+                ["足利", Jubatus::Classifier::Datum->new([["name", "義昭"]], [])->to_msgpack()],
+                ["北条", Jubatus::Classifier::Datum->new([["name", "守時"]], [])->to_msgpack()],
+            );
+
+            foreach my $answer (@answer_arr) {
+                my $data = [$answer->[1]];
+                my $classified_result = $clas_client->classify($name, $data);
+                my $max_att = 0;
+                for (my $i = 1; $i <= $#{$classified_result->[0]}; $i++) {
+                    if ($classified_result->[0][$i - 1]{score} < $classified_result->[0][$i]{score}) {
+                        $max_att = $i;
+                    }
+                }
+                is($answer->[0], $classified_result->[0][$max_att]{label}, "Get result of classifyer (is $answer->[0]) from dumped model");
+            }
         };
     };
 };
-
-=cut
 
 done_testing();
 
