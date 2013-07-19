@@ -123,6 +123,16 @@ subtest 'Test data writer' => sub {
     };
 };
 
+subtest 'Test model data updator' => sub {
+    my $name = "cpan module test";
+    my $guard = $setup->($name);
+    my $stat_client = Jubatus::Stat::Client->new($host, $server->{port});
+    subtest 'call clear()' => sub {
+        my $is_clear = $stat_client->clear($name);
+        is (1, $is_clear, "Call clear()");
+    };
+};
+
 subtest 'Test standard deviation culculator' => sub {
     subtest 'Test stddev()' => sub {
         my $name = "cpan module test";
@@ -222,10 +232,15 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $stat_client = Jubatus::Stat::Client->new($host, $server->{port});
 
         my $is_clear = $stat_client->clear($name);
-        my $is_train = $stat_client->train($name, \@sample);
+        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
+        my $key = "moment";
+        foreach my $val (@sample) {
+            my $is_push = $stat_client->push($name, $key, $val);
+        }
 
         subtest 'Does model file dump ?' => sub {
             my $model_name = "stat_test";
+
             my $is_save = $stat_client->save($name, $model_name);
             is (1, $is_save, "Call save()");
 
@@ -252,7 +267,13 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $guard = $setup->($name);
         my $stat_client = Jubatus::Stat::Client->new($host, $server->{port});
 
-        my $is_train = $stat_client->train($name, \@sample);
+        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
+        my $key = "moment";
+
+        foreach my $val (@sample) {
+            my $is_push = $stat_client->push($name, $key, $val);
+        }
+
         my $model_name = "stat_test";
         my $is_save = $stat_client->save($name, $model_name);
         my $datadir;
@@ -270,68 +291,34 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
 
         subtest 'test estimate() using learned model' => sub {
-            my @answer_arr = (
-                ["徳川", Jubatus::Stat::Datum->new([["name", "慶喜"]], [])->to_msgpack()],
-                ["足利", Jubatus::Stat::Datum->new([["name", "義昭"]], [])->to_msgpack()],
-                ["北条", Jubatus::Stat::Datum->new([["name", "守時"]], [])->to_msgpack()],
-            );
-
-            foreach my $answer (@answer_arr) {
-                my $data = [$answer->[1]];
-                my $statsified_result = $stat_client->classify($name, $data);
-                my $max_att = 0;
-                for (my $i = 1; $i <= $#{$statsified_result->[0]}; $i++) {
-                    if ($statsified_result->[0][$i - 1]{score} < $statsified_result->[0][$i]{score}) {
-                        $max_att = $i;
-                    }
-                }
-                is($answer->[0], $statsified_result->[0][$max_att]{label}, "Get result of classifyer (is $answer->[0])");
-            }
+            my $degree = 3;
+            my $center = 0.0;
+            my $result = $stat_client->moment($name, $key, $degree, $center);
+            is($result, 45.0, "Get result of moment");
         };
 
-        my $is_clear = $stat_client->clear($name);
-
-        subtest 'test estimate() for empty model' => sub {
-            my @answer_arr = (
-                ["徳川", Jubatus::Stat::Datum->new([["name", "慶喜"]], [])->to_msgpack()],
-                ["足利", Jubatus::Stat::Datum->new([["name", "義昭"]], [])->to_msgpack()],
-                ["北条", Jubatus::Stat::Datum->new([["name", "守時"]], [])->to_msgpack()],
-            );
-
-            foreach my $answer (@answer_arr) {
-                my $data = [$answer->[1]];
-                my $statsified_result = $stat_client->classify($name, $data);
-                my $max_att = 0;
-                for (my $i = 1; $i <= $#{$statsified_result->[0]}; $i++) {
-                    if ($statsified_result->[0][$i - 1]{score} < $statsified_result->[0][$i]{score}) {
-                        $max_att = $i;
-                    }
-                }
-                is_deeply([], $statsified_result->[0], "Get result of classifyer (is $answer->[0]) from empty model");
-            }
+        subtest 'test clear()' => sub {
+            my $is_clear = $stat_client->clear($name);
+            is($is_clear, 1, "Call clear()");
         };
+
+# Jubatus::Stas::Client is not return result of moment() using empty model
+#        subtest 'test estimate() for empty model' => sub {
+#            my $degree = 3;
+#            my $center = 0.0;
+#            my $result = $stat_client->moment($name, $key, $degree, $center);
+#            print Dump $result;
+#            is($result," min", "Get result of moment from empty model");
+#        };
 
         subtest 'Does the saved rows load ?' => sub {
             my $is_load = $stat_client->load($name, $model_name);
             is (1, $is_save, "Call load()");
 
-            my @answer_arr = (
-                ["徳川", Jubatus::Stat::Datum->new([["name", "慶喜"]], [])->to_msgpack()],
-                ["足利", Jubatus::Stat::Datum->new([["name", "義昭"]], [])->to_msgpack()],
-                ["北条", Jubatus::Stat::Datum->new([["name", "守時"]], [])->to_msgpack()],
-            );
-
-            foreach my $answer (@answer_arr) {
-                my $data = [$answer->[1]];
-                my $statsified_result = $stat_client->classify($name, $data);
-                my $max_att = 0;
-                for (my $i = 1; $i <= $#{$statsified_result->[0]}; $i++) {
-                    if ($statsified_result->[0][$i - 1]{score} < $statsified_result->[0][$i]{score}) {
-                        $max_att = $i;
-                    }
-                }
-                is($answer->[0], $statsified_result->[0][$max_att]{label}, "Get result of classifyer (is $answer->[0]) from dumped model");
-            }
+            my $degree = 3;
+            my $center = 0.0;
+            my $result = $stat_client->moment($name, $key, $degree, $center);
+            is($result, 45.0, "Get result of moment from empty model from dumped model");
         };
     };
 };
