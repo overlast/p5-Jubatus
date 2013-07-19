@@ -7,6 +7,7 @@ use Proc::ProcessTable;
 use Scope::Guard;
 
 use Jubatus::Classifier::Client;
+use List::Util;
 
 use YAML;
 
@@ -148,18 +149,94 @@ subtest 'Test model data updator' => sub {
     };
 };
 
+# Origin of this sample data is http://jubat.us/ja/tutorial/classifier_python.html#id2
+my @sample = (
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家康"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "秀忠"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家光"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家綱"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "綱吉"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家宣"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家継"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "吉宗"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家重"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家治"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家斉"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家慶"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家定"]], [])->to_msgpack()],
+    ["徳川",  Jubatus::Classifier::Datum->new([["name", "家茂"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "尊氏"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義詮"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義満"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義持"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義量"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義教"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義勝"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義政"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義尚"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義稙"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義澄"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義稙"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義晴"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義輝"]], [])->to_msgpack()],
+    ["足利",  Jubatus::Classifier::Datum->new([["name", "義栄"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "時政"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "義時"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "泰時"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "経時"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "時頼"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "長時"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "政村"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "時宗"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "貞時"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "師時"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "宗宣"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "煕時"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "基時"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "高時"]], [])->to_msgpack()],
+    ["北条",  Jubatus::Classifier::Datum->new([["name", "貞顕"]], [])->to_msgpack()],
+);
+@sample = List::Util::shuffle @sample;
+
+subtest 'Test classifier' => sub {
+    my $name = "cpan module test";
+    my $guard = $setup->($name);
+    my $clas_client = Jubatus::Classifier::Client->new($host, $server->{port});
+    subtest 'call clear()' => sub {
+        my $is_clear = $clas_client->clear($name);
+        is (1, $is_clear, "Call clear()");
+    };
+    subtest 'test train()' => sub {
+        my $is_train = $clas_client->train($name, \@sample);
+        print Dump $is_train;
+        is(44, $is_train, "train all samples (44 samples)")
+    };
+    subtest 'test classifier()' => sub {
+        my @answer_arr = (
+            ["徳川", Jubatus::Classifier::Datum->new([["name", "慶喜"]], [])->to_msgpack()],
+            ["足利", Jubatus::Classifier::Datum->new([["name", "義昭"]], [])->to_msgpack()],
+            ["北条", Jubatus::Classifier::Datum->new([["name", "守時"]], [])->to_msgpack()],
+        );
+
+        foreach my $answer (@answer_arr) {
+            my $data = [$answer->[1]];
+            my $classified_result = $clas_client->classify($name, $data);
+            my $max_att = 0;
+            for (my $i = 1; $i <= $#{$classified_result->[0]}; $i++) {
+                if ($classified_result->[0][$i - 1]{score} < $classified_result->[0][$i]{score}) {
+                    $max_att = $i;
+                }
+            }
+            is($answer->[0], $classified_result->[0][$max_att]{label}, "Get result of classifyer (is $answer->[0])");
+        }
+    };
+};
+
+
 =pod
 
   def teardown
     TestUtil.kill_process(@srv)
-  end
-
-  def test_train
-    string_values = [["key1", "val1"], ["key2", "val2"]]
-    num_values = [["key1", 1.0], ["key2", 2.0]]
-    d = Jubatus::Classifier::Datum.new(string_values, num_values)
-    data = [["label", d]]
-    assert_equal(@cli.train("name", data), 1)
   end
 
   def test_classify
@@ -181,189 +258,6 @@ subtest 'Test model data updator' => sub {
   end
 
 
-
-
-# Origin of this sample data is https://raw.github.com/jubatus/jubatus-example/master/rent/dat/rent-data.csv
-my @sample = (
-    "7.1 10.0 22.34 6.0 2.0 E",
-    "8.0 10.0 38.29 45.0 4.0 SE",
-    "4.5 26.0 18.23 24.0 2.0 W",
-    "4.75 7.0 15.0 24.0 3.0 SW",
-    "7.3 15.0 20.13 14.0 8.0 S",
-    "8.6 22.0 36.54 9.0 2.0 E",
-    "6.3 11.0 20.1 30.0 7.0 SE",
-    "9.6 10.0 30.03 0.0 5.0 SW",
-    "9.0 10.0 30.03 0.0 2.0 SE",
-    "9.0 10.0 30.03 0.0 2.0 SE",
-    "8.4 16.0 30.91 9.0 9.0 SE",
-    "9.2 12.0 30.03 0.0 2.0 SE",
-    "9.2 12.0 30.03 0.0 2.0 SE",
-    "9.2 12.0 30.03 0.0 2.0 SE",
-    "9.2 12.0 30.03 0.0 2.0 SE",
-    "8.8 10.0 30.03 0.0 1.0 W",
-    "5.05 7.0 15.0 24.0 10.0 E",
-    "5.05 7.0 15.0 24.0 10.0 E",
-    "5.05 7.0 15.0 24.0 10.0 E",
-    "5.05 7.0 15.0 24.0 10.0 E",
-    "6.0 15.0 29.48 24.0 4.0 NW",
-    "9.7 3.0 36.94 11.0 5.0 NW",
-    "9.22 10.0 30.03 0.0 2.0 SE",
-    "4.7 9.0 14.62 28.0 5.0 E",
-    "6.6 5.0 22.26 22.0 5.0 E",
-    "5.9 8.0 21.56 23.0 4.0 NE",
-    "5.9 8.0 21.56 23.0 4.0 NE",
-    "4.7 9.0 14.62 28.0 5.0 NE",
-    "12.3 8.0 40.12 9.0 7.0 SE",
-    "4.5 20.0 16.25 23.0 3.0 SW",
-    "9.2 10.0 30.03 0.0 4.0 SE",
-    "6.9 7.0 22.83 25.0 4.0 SW",
-    "5.8 2.0 17.24 29.0 9.0 E",
-    "6.1 5.0 20.43 22.0 3.0 SE",
-    "9.6 35.0 35.39 6.0 2.0 SW",
-    "9.6 10.0 30.03 0.0 5.0 SE",
-    "9.5 6.0 31.1 7.0 8.0 SW",
-    "7.8 15.0 23.37 5.0 10.0 NW",
-    "6.3 7.0 24.39 25.0 7.0 SE",
-    "4.7 1.0 16.35 21.0 4.0 SE",
-    "9.4 12.0 30.03 0.0 4.0 SE",
-    "9.4 10.0 30.03 0.0 4.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "9.3 10.0 30.03 0.0 3.0 SE",
-    "5.8 1.0 17.16 29.0 9.0 E",
-    "4.85 7.0 15.0 24.0 8.0 E",
-    "4.85 7.0 15.0 24.0 8.0 E",
-    "4.85 7.0 15.0 24.0 8.0 E",
-    "4.85 7.0 15.0 24.0 8.0 E",
-    "4.85 7.0 15.0 24.0 8.0 E",
-    "6.4 9.0 28.3 28.0 6.0 E",
-    "7.3 15.0 20.13 14.0 8.0 SE",
-    "7.8 5.0 25.03 6.0 2.0 SW",
-    "7.8 5.0 25.03 6.0 2.0 SW",
-    "7.2 25.0 25.33 23.0 3.0 SE",
-    "7.67 7.0 30.0 24.0 9.0 E",
-    "7.67 7.0 30.0 24.0 9.0 E",
-    "7.67 7.0 30.0 24.0 9.0 E",
-    "6.5 7.0 24.39 25.0 7.0 SE",
-    "4.75 7.0 15.0 24.0 3.0 W",
-    "7.5 25.0 22.82 23.0 4.0 SE",
-    "7.5 25.0 22.82 23.0 4.0 SE",
-    "5.3 7.0 18.07 25.0 06.0 SE",
-    "9.0 11.0 31.8 12.0 3.0 SE",
-    "7.3 12.0 23.09 12.0 3.0 S",
-    "5.5 1.0 17.59 29.0 8.0 S",
-    "9.2 10.0 30.03 0.0 2.0 SW",
-    "9.2 10.0 30.03 0.0 2.0 SW",
-    "6.3 8.0 21.56 23.0 2.0 N",
-    "8.8 10.0 30.03 0.0 1.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "9.2 10.0 30.03 0.0 2.0 SE",
-    "7.7 10.0 21.02 5.0 1.0 E",
-    "7.2 10.0 18.75 5.0 1.0 SW",
-    "7.2 10.0 18.75 5.0 1.0 SW",
-    "7.2 10.0 18.75 5.0 1.0 SW",
-    "7.7 10.0 18.75 5.0 1.0 W",
-    "4.75 7.0 15.0 24.0 3.0 E",
-    "4.75 7.0 15.0 24.0 3.0 E",
-    "4.75 7.0 15.0 24.0 3.0 E",
-    "4.75 7.0 15.0 24.0 3.0 E",
-    "4.75 7.0 15.0 24.0 3.0 E",
-    "5.6 20.0 21.14 7.0 3.0 SW",
-    "12.0 10.0 40.12 9.0 7.0 SE",
-    "10.6 3.0 37.18 11.0 9.0 NW",
-    "4.95 7.0 15.0 24.0 10.0 E",
-    "4.85 7.0 15.0 24.0 10.0 E",
-    "4.85 7.0 15.0 24.0 10.0 E",
-    "4.85 7.0 15.0 24.0 10.0 E",
-    "5.05 7.0 15.0 24.0 10.0 SW",
-    "9.5 5.0 30.0 13.0 8.0 NE",
-    "7.7 10.0 18.75 5.0 1.0 SW",
-    "9.3 12.0 30.03 0.0 3.0 SE",
-    "9.3 12.0 30.03 0.0 3.0 SE",
-    "9.3 12.0 30.03 0.0 3.0 SE",
-    "9.3 12.0 30.03 0.0 3.0 SE",
-    "9.3 12.0 30.03 0.0 3.0 SE",
-    "4.7 10.0 14.62 28.0 5.0 E",
-    "9.0 10.0 30.03 0.0 1.0 S",
-    "9.0 10.0 30.03 0.0 1.0 S",
-    "8.2 10.0 23.56 6.0 3.0 E",
-    "7.2 4.0 16.0 5.0 2.0 S",
-    "7.2 4.0 16.0 5.0 2.0 S",
-    "4.85 7.0 15.0 24.0 9.0 SE",
-    "6.6 5.0 22.26 22.0 5.0 SE",
-    "9.0 10.0 30.03 0.0 1.0 SE",
-    "9.0 10.0 30.03 0.0 1.0 SE",
-    "9.0 10.0 30.03 0.0 1.0 SE",
-    "9.0 10.0 30.03 0.0 1.0 SE",
-    "9.0 10.0 30.03 0.0 1.0 SE",
-    "8.3 9.0 32.18 24.0 3.0 S",
-    "7.8 10.0 21.02 5.0 4.0 W",
-    "6.8 25.0 25.33 23.0 3.0 SE",
-    "9.1 10.0 30.03 0.0 3.0 SE",
-    "9.1 10.0 30.03 0.0 3.0 SE",
-    "7.5 10.0 21.02 5.0 4.0 SW",
-    "8.3 9.0 32.18 24.0 3.0 E",
-    "10.3 3.0 36.94 11.0 7.0 SE",
-    "4.3 15.0 16.25 23.0 1.0 SW",
-    "25.0 15.0 74.96 10.0 15.0 E",
-    "4.6 17.0 16.32 18.0 4.0 SE",
-    "4.2 15.0 16.94 26.0 4.0 SW",
-    "6.5 5.0 22.83 25.0 4.0 NE",
-    "5.9 8.0 21.56 23.0 4.0 SW",
-);
-
-subtest 'Test estimater' => sub {
-    my $name = "cpan module test";
-    my $guard = $setup->($name);
-    my $clas_client = Jubatus::Classifier::Client->new($host, $server->{port});
-    subtest 'call clear()' => sub {
-        my $is_clear = $clas_client->clear($name);
-        is (1, $is_clear, "Call clear()");
-    };
-
-    my @data_arr = ();
-    foreach my $data (@sample) {
-        my @vals = split / /, $data;
-        my $string_values = [["direction", "$vals[5]"],];
-        my $num_values = [["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
-        my $datum = Jubatus::Classifier::Datum->new($string_values, $num_values);
-        my $rent = 0.0 + $vals[0];
-        my $data = [$rent, $datum->to_msgpack()];
-        push @data_arr, $data;
-    }
-    subtest 'test train()' => sub {
-        my $is_train = $clas_client->train($name, \@data_arr);
-        is(145, $is_train, "train all samples (145 samples)")
-    };
-    subtest 'test estimate()' => sub {
-        my $string_values = [];
-        my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
-        my $datum = Jubatus::Classifier::Datum->new($string_values, $num_values);
-        my $data = [$datum->to_msgpack()];
-        my $estimate_result = $clas_client->estimate($name, $data);
-        is(1, $estimate_result > 8, "Get estimate rent value");
-    };
-};
 
 subtest 'Test data dumper and data loader of model' => sub {
     subtest 'test save()' => sub {
