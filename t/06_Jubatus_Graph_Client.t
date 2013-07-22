@@ -374,6 +374,33 @@ subtest 'Test shotest path query initializer' => sub {
 };
 
 
+subtest 'Test centrality query inserter' => sub {
+    subtest 'Test add_centrality_query()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        my $edge_query = [];
+        my $node_query = [];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $is_add = $graph_client->add_centrality_query($name, $pq);
+        is($is_add, 1, "Make check on to call add_centrality_query()");
+    };
+};
+
+subtest 'Test centrality query initializer' => sub {
+    subtest 'Test remove_centrality_query()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        my $edge_query = [];
+        my $node_query = [];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $is_add = $graph_client->add_centrality_query($name, $pq);
+        my $is_remove = $graph_client->add_centrality_query($name, $pq);
+        is($is_add, 1, "Make check on to call remove_centrality_query()");
+    };
+};
+
 
 
 
