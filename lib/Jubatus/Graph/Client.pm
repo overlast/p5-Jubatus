@@ -55,14 +55,14 @@ sub update_node {
 sub create_edge {
   my ($self, $name, $node_id, $e) = @_;
   my $retval = $self->{client}->call('create_edge' => [ $name, $node_id,
-       $e ] )->recv;
+       $e->to_msgpack() ] )->recv;
   return $retval;
 }
 
 sub update_edge {
   my ($self, $name, $node_id, $edge_id, $e) = @_;
   my $retval = $self->{client}->call('update_edge' => [ $name, $node_id,
-       $edge_id, $e ] )->recv;
+       $edge_id, $e->to_msgpack() ] )->recv;
   return $retval;
 }
 
@@ -77,42 +77,42 @@ sub get_centrality {
   my ($self, $name, $node_id, $centrality_type,
      $query) = @_;
   my $retval = $self->{client}->call('get_centrality' => [ $name, $node_id,
-       $centrality_type, $query ] )->recv;
+       $centrality_type, $query->to_msgpack() ] )->recv;
   return $retval;
 }
 
 sub add_centrality_query {
   my ($self, $name, $query) = @_;
   my $retval = $self->{client}->call('add_centrality_query' => [ $name,
-       $query ] )->recv;
+       $query->to_msgpack() ] )->recv;
   return $retval;
 }
 
 sub add_shortest_path_query {
   my ($self, $name, $query) = @_;
   my $retval = $self->{client}->call('add_shortest_path_query' => [ $name,
-       $query ] )->recv;
+       $query->to_msgpack() ] )->recv;
   return $retval;
 }
 
 sub remove_centrality_query {
   my ($self, $name, $query) = @_;
   my $retval = $self->{client}->call('remove_centrality_query' => [ $name,
-       $query ] )->recv;
+       $query->to_msgpack() ] )->recv;
   return $retval;
 }
 
 sub remove_shortest_path_query {
   my ($self, $name, $query) = @_;
   my $retval = $self->{client}->call('remove_shortest_path_query' => [ $name,
-       $query ] )->recv;
+       $query->to_msgpack() ] )->recv;
   return $retval;
 }
 
 sub get_shortest_path {
   my ($self, $name, $query) = @_;
   my $retval = $self->{client}->call('get_shortest_path' => [ $name,
-       $query ] )->recv;
+       $query->to_msgpack() ] )->recv;
   return [ map { $_} @{ $retval } ];
 }
 
@@ -176,7 +176,7 @@ sub remove_global_node {
 sub create_edge_here {
   my ($self, $name, $edge_id, $e) = @_;
   my $retval = $self->{client}->call('create_edge_here' => [ $name, $edge_id,
-       $e ] )->recv;
+       $e->to_msgpack() ] )->recv;
   return $retval;
 }
 
