@@ -232,37 +232,38 @@ subtest 'Test edge creater' => sub {
         my $node_id_1 = $graph_client->create_node($name);
         my $node_id_2 = $graph_client->create_node($name);
         my $edge12 = Jubatus::Graph::Edge->new({}, $node_id_1, $node_id_2);
-        print Dump $edge12;
-#        my $edge21 = Jubatus::Graph::Edge({}, $node_id_2, $node_id_1);
-#        my $is_create_node_12 = $graph_client->create_node($name, $node_id, $edge12);
-
-#        my $is_create_node_21 = $graph_client->create_node($name, $node_id, $edge21);
-
-#            is ($i, $is_create_node, "Make check on to create node : $i");
-        is(1, 1);
-
-
+        my $edge21 = Jubatus::Graph::Edge->new({}, $node_id_2, $node_id_1);
+        my $edge_id = $graph_client->create_edge($name, $node_id_1, $edge12);
+        is (2, $edge_id, "Make check on to create edge");
     };
 };
 
-subtest 'Test node remover' => sub {
-    subtest 'Test remove_node()' => sub {
+subtest 'Test edge remover' => sub {
+    subtest 'Test remove_edge()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->();
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-        for (my $i = 0; $i < 10; $i++) {
-            my $node_id = $graph_client->create_node($name);
-            my $is_delete_node = $graph_client->remove_node($name, $node_id);
-            is (1, $is_delete_node, "Make check on to delete node : $node_id");
-
+        {
+            my $node_id_1 = $graph_client->create_node($name);
+            my $node_id_2 = $graph_client->create_node($name);
+            my $edge12 = Jubatus::Graph::Edge->new({}, $node_id_1, $node_id_2);
+            my $edge21 = Jubatus::Graph::Edge->new({}, $node_id_2, $node_id_1);
+            my $edge_id = $graph_client->create_edge($name, $node_id_1, $edge12);
+            my $is_remove_edge = $graph_client->remove_edge($name, $node_id_1, $edge_id);
+            is (1, $is_remove_edge, "Make check on to delete edge : $edge_id");
+        }
+#        {
             # if remove a node which is not there, Jubatus down by error.
             # my $is_there_node = $graph_client->remove_node($name, $node_id);
             # is (0, $is_there_node, "Make check on to finish to delete node : $node_id");
-
-        }
-        for (my $i = 10; $i < 20; $i++) {
-            my $is_create_node = $graph_client->create_node($name);
-            is ($i, $is_create_node, "Make check on to create node : $i (Can't use deleted ids)");
+ #       }
+        {
+            my $node_id_1 = $graph_client->create_node($name);
+            my $node_id_2 = $graph_client->create_node($name);
+            my $edge12 = Jubatus::Graph::Edge->new({}, $node_id_1, $node_id_2);
+            my $edge21 = Jubatus::Graph::Edge->new({}, $node_id_2, $node_id_1);
+            my $edge_id = $graph_client->create_edge($name, $node_id_1, $edge12);
+            is (5, $edge_id, "Make check on to create edge which has unrecycled id");
         }
     };
 };
