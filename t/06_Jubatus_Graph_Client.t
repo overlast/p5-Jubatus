@@ -202,9 +202,24 @@ subtest 'Test node updater' => sub {
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         for (my $i = 0; $i < 10; $i++) {
             my $node_id = $graph_client->create_node($name);
-            my $property = {"key1" => "val1", "key2" => "val2", };
-            my $is_update_node = $graph_client->update_node($name, $node_id, $property);
-            is (1, $is_update_node, "Make check on to update node : $i");
+            {
+                my $property = {"key1" => "val1", "key2" => "val2", };
+                my $is_update_node = $graph_client->update_node($name, $node_id, $property);
+                is (1, $is_update_node, "Make check on to update node : $i");
+            }
+            {
+                my $property = {"key3" => "val3", "key4" => "val4", };
+                my $is_update_node = $graph_client->update_node($name, $node_id, $property);
+                is (1, $is_update_node, "Make check on to update node : $i");
+            }
+            {
+                my $node_34 = $graph_client->get_node($name, $node_id);
+                my $new_node_id = $graph_client->create_node($name);
+                my $property = {"key3" => "val3", "key4" => "val4", };
+                my $is_update_node = $graph_client->update_node($name, $new_node_id, $property);
+                my $new_node = $graph_client->get_node($name, $new_node_id);
+                is_deeply ($new_node->{property}, $node_34->{property}, "Make check on to update node are same as new node using same property");
+            }
         }
     };
 };
@@ -285,6 +300,39 @@ subtest 'Test edge getter' => sub {
             is_deeply($edge->{property}, $edge12->{property}, "Make check on to get property field which is same as input edge's field");
             is($edge->{source}, $edge12->{source}, "Make check on to get source node id field which is same as input edge's field");
             is($edge->{target}, $edge12->{target}, "Make check on to get target node id field which is same as inout edge's field");
+        }
+    };
+};
+
+subtest 'Test edge updater' => sub {
+    subtest 'Test update_edge()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        {
+            my $node_id_1 = $graph_client->create_node($name);
+            my $node_id_2 = $graph_client->create_node($name);
+            my $node_id_3 = $graph_client->create_node($name);
+
+            my $edge12 = Jubatus::Graph::Edge->new({}, $node_id_1, $node_id_2);
+            my $edge21 = Jubatus::Graph::Edge->new({}, $node_id_2, $node_id_1);
+            my $edge13 = Jubatus::Graph::Edge->new({}, $node_id_1, $node_id_3);
+
+            my $edge_id_1 = $graph_client->create_edge($name, $node_id_1, $edge12);
+            my $edge_id_2 = $graph_client->create_edge($name, $node_id_2, $edge21);
+
+            my $is_update = $graph_client->update_edge($name, $node_id_1, $edge_id_1, $edge13);
+            is($is_update, 1, "Make check on to call update_edge()");
+
+            my $edge = $graph_client->get_edge($name, $node_id_1, $edge_id_1);
+            print Dump $edge;
+            is(1,1);
+
+
+#            is(ref $edge, "Jubatus::Graph::Edge", "Make check on to get Jubatus::Graph::Edge object");
+ #           is_deeply($edge->{property}, $edge12->{property}, "Make check on to get property field which is same as input edge's field");
+  #          is($edge->{source}, $edge12->{source}, "Make check on to get source node id field which is same as input edge's field");
+   #         is($edge->{target}, $edge12->{target}, "Make check on to get target node id field which is same as inout edge's field");
         }
     };
 };
