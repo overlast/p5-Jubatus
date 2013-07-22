@@ -93,8 +93,8 @@ sub get_all_rows {
 
 sub calc_similarity {
   my ($self, $name, $lhs, $rhs) = @_;
-  my $retval = $self->{client}->call('calc_similarity' => [ $name, $lhs,
-       $rhs ] )->recv;
+  my $retval = $self->{client}->call('calc_similarity' => [ $name,
+       $lhs->to_msgpack(), $rhs->to_msgpack() ] )->recv;
   return $retval;
 }
 
