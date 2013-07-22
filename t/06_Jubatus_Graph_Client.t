@@ -209,18 +209,66 @@ subtest 'Test node updater' => sub {
     };
 };
 
+subtest 'Test constructer of Jubatus::Graph::Edge' => sub {
+    subtest 'Test create_edge()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        my $node_id_1 = $graph_client->create_node($name);
+        my $node_id_2 = $graph_client->create_node($name);
+        my $edge12 = Jubatus::Graph::Edge->new({}, $node_id_1, $node_id_2);
+        is(ref $edge12, "Jubatus::Graph::Edge", "Make check on to get Jubatus::Graph::Edge object");
+        is_deeply($edge12->{property}, {}, "Make check on to get property field");
+        is($edge12->{source}, 0, "Make check on to get source node id field");
+        is($edge12->{target}, 1, "Make check on to get target node id field");
+    };
+};
 
+subtest 'Test edge creater' => sub {
+    subtest 'Test create_edge()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        my $node_id_1 = $graph_client->create_node($name);
+        my $node_id_2 = $graph_client->create_node($name);
+        my $edge12 = Jubatus::Graph::Edge->new({}, $node_id_1, $node_id_2);
+        print Dump $edge12;
+#        my $edge21 = Jubatus::Graph::Edge({}, $node_id_2, $node_id_1);
+#        my $is_create_node_12 = $graph_client->create_node($name, $node_id, $edge12);
+
+#        my $is_create_node_21 = $graph_client->create_node($name, $node_id, $edge21);
+
+#            is ($i, $is_create_node, "Make check on to create node : $i");
+        is(1, 1);
+
+
+    };
+};
+
+subtest 'Test node remover' => sub {
+    subtest 'Test remove_node()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        for (my $i = 0; $i < 10; $i++) {
+            my $node_id = $graph_client->create_node($name);
+            my $is_delete_node = $graph_client->remove_node($name, $node_id);
+            is (1, $is_delete_node, "Make check on to delete node : $node_id");
+
+            # if remove a node which is not there, Jubatus down by error.
+            # my $is_there_node = $graph_client->remove_node($name, $node_id);
+            # is (0, $is_there_node, "Make check on to finish to delete node : $node_id");
+
+        }
+        for (my $i = 10; $i < 20; $i++) {
+            my $is_create_node = $graph_client->create_node($name);
+            is ($i, $is_create_node, "Make check on to create node : $i (Can't use deleted ids)");
+        }
+    };
+};
 
 
 =pod
-
-  def test_update_node
-    name = "name"
-    @cli.clear(name)
-    nid = @cli.create_node(name)
-    prop = {"key1" => "val1", "key2" => "val2"}
-    assert_equal(@cli.update_node(name, nid, prop), true)
-  end
 
   def test_node_info
     edge_query = [["a", "b"], ["c", "d"], ["e", "f"]]
@@ -230,9 +278,6 @@ subtest 'Test node updater' => sub {
     out_edges = [0, 0]
     Jubatus::Graph::Node.new(p, in_edges, out_edges)
   end
-
-
-
 
   def test_create_edge
     name = "name"
