@@ -268,6 +268,29 @@ subtest 'Test edge remover' => sub {
     };
 };
 
+subtest 'Test edge getter' => sub {
+    subtest 'Test get_edge()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        {
+            my $node_id_1 = $graph_client->create_node($name);
+            my $node_id_2 = $graph_client->create_node($name);
+            my $edge12 = Jubatus::Graph::Edge->new({}, $node_id_1, $node_id_2);
+            my $edge21 = Jubatus::Graph::Edge->new({}, $node_id_2, $node_id_1);
+            my $edge_id = $graph_client->create_edge($name, $node_id_1, $edge12);
+            my $edge = $graph_client->get_edge($name, $node_id_1, $edge_id);
+
+            is(ref $edge, "Jubatus::Graph::Edge", "Make check on to get Jubatus::Graph::Edge object");
+            is_deeply($edge->{property}, $edge12->{property}, "Make check on to get property field which is same as input edge's field");
+            is($edge->{source}, $edge12->{source}, "Make check on to get source node id field which is same as input edge's field");
+            is($edge->{target}, $edge12->{target}, "Make check on to get target node id field which is same as inout edge's field");
+        }
+    };
+};
+
+
+
 
 =pod
 
