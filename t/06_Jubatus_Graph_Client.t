@@ -343,11 +343,35 @@ subtest 'Test constructer of Jubatus::Graph::PresetQuery' => sub {
         is(ref $pq, "Jubatus::Graph::PresetQuery", "Make check on to get Jubatus::Graph::PresetQuery object");
         is_deeply($pq->{edge_query}, [], "Make check on to get edge_query field");
         is_deeply($pq->{node_query}, [], "Make check on to get node_query field");
-
     };
 };
 
-  #  c.add_shortest_path_query(instance_name, pq)
+subtest 'Test shotest path query inserter' => sub {
+    subtest 'Test add_shortest_path_query()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        my $edge_query = [];
+        my $node_query = [];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $is_add = $graph_client->add_shortest_path_query($name, $pq);
+        is($is_add, 1, "Make check on to call add_shortest_path_query()");
+    };
+};
+
+subtest 'Test shotest path query initializer' => sub {
+    subtest 'Test remove_shortest_path_query()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        my $edge_query = [];
+        my $node_query = [];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $is_add = $graph_client->add_shortest_path_query($name, $pq);
+        my $is_remove = $graph_client->add_shortest_path_query($name, $pq);
+        is($is_add, 1, "Make check on to call remove_shortest_path_query()");
+    };
+};
 
 
 
