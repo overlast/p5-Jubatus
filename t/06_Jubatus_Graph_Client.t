@@ -179,14 +179,47 @@ subtest 'Test node remover' => sub {
     };
 };
 
+subtest 'Test node getter' => sub {
+    subtest 'Test get_node()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        for (my $i = 0; $i < 10; $i++) {
+            my $node_id = $graph_client->create_node($name);
+            my $node = $graph_client->get_node($name, $node_id,);
+            is(ref $node, "Jubatus::Graph::Node", "Make check on to get Jubatus::Graph::Node object");
+            is_deeply($node->{in_edges}, [], "Make check on to get in_edges field");
+            is_deeply($node->{out_edges}, [], "Make check on to get out_edges field");
+            is_deeply($node->{property}, {}, "Make check on to get property field");
+        }
+    };
+};
+
+subtest 'Test node updater' => sub {
+    subtest 'Test update_node()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        for (my $i = 0; $i < 10; $i++) {
+            my $node_id = $graph_client->create_node($name);
+            my $property = {"key1" => "val1", "key2" => "val2", };
+            my $is_update_node = $graph_client->update_node($name, $node_id, $property);
+            is (1, $is_update_node, "Make check on to update node : $i");
+        }
+    };
+};
+
+
+
 
 =pod
 
-  def test_create_node
+  def test_update_node
     name = "name"
     @cli.clear(name)
-    nid = @cli.create_node("sample_node")
-    assert_equal(nid.to_i.to_s, nid)
+    nid = @cli.create_node(name)
+    prop = {"key1" => "val1", "key2" => "val2"}
+    assert_equal(@cli.update_node(name, nid, prop), true)
   end
 
   def test_node_info
@@ -200,20 +233,6 @@ subtest 'Test node remover' => sub {
 
 
 
-  def test_remove_node
-    name = "name"
-    @cli.clear(name)
-    nid = @cli.create_node(name)
-    assert_equal(@cli.remove_node(name, nid), true)
-  end
-
-  def test_update_node
-    name = "name"
-    @cli.clear(name)
-    nid = @cli.create_node(name)
-    prop = {"key1" => "val1", "key2" => "val2"}
-    assert_equal(@cli.update_node(name, nid, prop), true)
-  end
 
   def test_create_edge
     name = "name"
