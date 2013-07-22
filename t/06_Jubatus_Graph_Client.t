@@ -320,19 +320,14 @@ subtest 'Test edge updater' => sub {
 
             my $edge_id_1 = $graph_client->create_edge($name, $node_id_1, $edge12);
             my $edge_id_2 = $graph_client->create_edge($name, $node_id_2, $edge21);
-
             my $is_update = $graph_client->update_edge($name, $node_id_1, $edge_id_1, $edge13);
             is($is_update, 1, "Make check on to call update_edge()");
 
             my $edge = $graph_client->get_edge($name, $node_id_1, $edge_id_1);
-            print Dump $edge;
-            is(1,1);
 
-
-#            is(ref $edge, "Jubatus::Graph::Edge", "Make check on to get Jubatus::Graph::Edge object");
- #           is_deeply($edge->{property}, $edge12->{property}, "Make check on to get property field which is same as input edge's field");
-  #          is($edge->{source}, $edge12->{source}, "Make check on to get source node id field which is same as input edge's field");
-   #         is($edge->{target}, $edge12->{target}, "Make check on to get target node id field which is same as inout edge's field");
+            #
+            # Jubatus don't allow update edge . ummm.
+            #
         }
     };
 };
