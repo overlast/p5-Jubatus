@@ -11,7 +11,7 @@ use List::Util;
 
 use YAML;
 
-my $server_name_suffix = "stat";
+my $server_name_suffix = "graph";
 my $config_path = $FindBin::Bin."/../conf/";
 my $server_name = "juba".$server_name_suffix;
 my $json_path = $config_path."/boot_".$server_name_suffix.".json";
@@ -113,20 +113,128 @@ subtest 'Test server status reader' => sub {
     };
 };
 
+my $sample_tsv = << "__YAMANOTE__";
+1130229	1130201	品川	大崎	35.62876	139.738999	35.619772	139.728439
+1130228	1130229	田町	品川	35.645736	139.747575	35.62876	139.738999
+1130227	1130228	浜松町	田町	35.655391	139.757135	35.645736	139.747575
+1130226	1130227	新橋	浜松町	35.666195	139.758587	35.655391	139.757135
+1130225	1130226	有楽町	新橋	35.675441	139.763806	35.666195	139.758587
+1130224	1130225	東京	有楽町	35.681391	139.766103	35.675441	139.763806
+1130223	1130224	神田	東京	35.691173	139.770641	35.681391	139.766103
+1130222	1130223	秋葉原	神田	35.698619	139.773288	35.691173	139.770641
+1130221	1130222	御徒町	秋葉原	35.707282	139.774727	35.698619	139.773288
+1130220	1130221	上野	御徒町	35.71379	139.777043	35.707282	139.774727
+1130219	1130220	鶯谷	上野	35.721484	139.778015	35.71379	139.777043
+1130218	1130219	日暮里	鶯谷	35.727908	139.771287	35.721484	139.778015
+1130217	1130218	西日暮里	日暮里	35.731954	139.766857	35.727908	139.771287
+1130216	1130217	田端	西日暮里	35.737781	139.761229	35.731954	139.766857
+1130215	1130216	駒込	田端	35.736825	139.748053	35.737781	139.761229
+1130214	1130215	巣鴨	駒込	35.733445	139.739303	35.736825	139.748053
+1130213	1130214	大塚	巣鴨	35.731412	139.728584	35.733445	139.739303
+1130212	1130213	池袋	大塚	35.730256	139.711086	35.731412	139.728584
+1130211	1130212	目白	池袋	35.720476	139.706228	35.730256	139.711086
+1130210	1130211	高田馬場	目白	35.712677	139.703715	35.720476	139.706228
+1130209	1130210	新大久保	高田馬場	35.700875	139.700261	35.712677	139.703715
+1130208	1130209	新宿	新大久保	35.689729	139.700464	35.700875	139.700261
+1130207	1130208	代々木	新宿	35.683061	139.702042	35.689729	139.700464
+1130206	1130207	原宿	代々木	35.670646	139.702592	35.683061	139.702042
+1130205	1130206	渋谷	原宿	35.658871	139.701238	35.670646	139.702592
+1130204	1130205	恵比寿	渋谷	35.646685	139.71007	35.658871	139.701238
+1130203	1130204	目黒	恵比寿	35.633923	139.715775	35.646685	139.71007
+1130202	1130203	五反田	目黒	35.625974	139.723822	35.633923	139.715775
+1130201	1130202	大崎	五反田	35.619772	139.728439	35.625974	139.723822
+__YAMANOTE__
 
+subtest 'Test node creater' => sub {
+    subtest 'Test create_node()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        for (my $i = 0; $i < 10; $i++) {
+            my $is_create_node = $graph_client->create_node($name);
+            is ($i, $is_create_node, "Make check on to create node : $i");
+        }
+    };
+};
+
+subtest 'Test node remover' => sub {
+    subtest 'Test remove_node()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        for (my $i = 0; $i < 10; $i++) {
+            my $node_id = $graph_client->create_node($name);
+            my $is_delete_node = $graph_client->remove_node($name, $node_id);
+            is (1, $is_delete_node, "Make check on to delete node : $node_id");
+
+            # if remove a node which is not there, Jubatus down by error.
+            # my $is_there_node = $graph_client->remove_node($name, $node_id);
+            # is (0, $is_there_node, "Make check on to finish to delete node : $node_id");
+
+        }
+        for (my $i = 10; $i < 20; $i++) {
+            my $is_create_node = $graph_client->create_node($name);
+            is ($i, $is_create_node, "Make check on to create node : $i (Can't use deleted ids)");
+        }
+    };
+};
 
 
 =pod
 
-subtest 'Test data writer' => sub {
-    subtest 'Test get_status()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->();
-        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-        my $is_push = $graph_client->push($name, "stddev", 1.0);
-        is(1, $is_push, "Data is pushed");
-    };
-};
+  def test_create_node
+    name = "name"
+    @cli.clear(name)
+    nid = @cli.create_node("sample_node")
+    assert_equal(nid.to_i.to_s, nid)
+  end
+
+  def test_node_info
+    edge_query = [["a", "b"], ["c", "d"], ["e", "f"]]
+    node_query = [["0", "1"], ["2", "3"]]
+    p = Jubatus::Graph::Preset_query.new(edge_query, node_query)
+    in_edges = [0, 0]
+    out_edges = [0, 0]
+    Jubatus::Graph::Node.new(p, in_edges, out_edges)
+  end
+
+
+
+  def test_remove_node
+    name = "name"
+    @cli.clear(name)
+    nid = @cli.create_node(name)
+    assert_equal(@cli.remove_node(name, nid), true)
+  end
+
+  def test_update_node
+    name = "name"
+    @cli.clear(name)
+    nid = @cli.create_node(name)
+    prop = {"key1" => "val1", "key2" => "val2"}
+    assert_equal(@cli.update_node(name, nid, prop), true)
+  end
+
+  def test_create_edge
+    name = "name"
+    @cli.clear(name)
+    src = @cli.create_node(name)
+    tgt = @cli.create_node(name)
+    prop = {"key1" => "val1", "key2" => "val2"}
+    ei = Jubatus::Graph::Edge.new(prop, src, tgt)
+    eid = @cli.create_edge("name", tgt, ei)
+  end
+
+  def test_create_edge
+    name = "name"
+    @cli.clear(name)
+    src = @cli.create_node(name)
+    tgt = @cli.create_node(name)
+    prop = {"key1" => "val1", "key2" => "val2"}
+    ei = Jubatus::Graph::Edge.new(prop, src, tgt)
+    eid = @cli.create_edge(src, tgt, ei)
+  end
+
 
 subtest 'Test model data updator' => sub {
     my $name = "cpan module test";
