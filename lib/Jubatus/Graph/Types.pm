@@ -141,7 +141,7 @@ sub to_msgpack {
         $self->{source},
         $self->{target},
         $self->{max_hop},
-        $self->{query},
+        $self->{query}->to_msgpack(),
    ];
 }
 
