@@ -395,21 +395,86 @@ subtest 'Test constructer of Jubatus::Graph::ShortestPathQuery' => sub {
     };
 };
 
-=pod
 subtest 'Test shotest path getter' => sub {
     subtest 'Test get_shortest_path()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->();
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-        my $edge_query = [["上野", "新宿"]];
-        my $node_query = [];
+
+        my @sample_tsv_lines = split /\n/, $sample_tsv;
+        my %nid2sid = ();
+        my %sid2nid = ();
+        my %sname2sid = ();
+        my %sname2nid = ();
+        my %sid2sname = ();
+        my %sname2eid = ();
+
+        foreach my $tsv_line (@sample_tsv_lines) {
+            my @colmuns = split /\t/, $tsv_line;
+            my $node_id_1;
+            if (exists $sid2nid{$colmuns[0]}) {
+                $node_id_1 = $sid2nid{$colmuns[0]};
+            }
+            else {
+                $node_id_1 = $graph_client->create_node($name);
+                $graph_client->update_node($name, $node_id_1, {"name" => $colmuns[2]});
+                $nid2sid{$node_id_1} = $colmuns[0];
+                $sid2nid{$colmuns[0]} = $node_id_1;
+            }
+
+            my $node_id_2;
+            if (exists $sid2nid{$colmuns[1]}) {
+                $node_id_2 = $sid2nid{$colmuns[1]};
+            }
+            else {
+                $node_id_2 = $graph_client->create_node($name);
+                $graph_client->update_node($name, $node_id_2, {"name" => $colmuns[3]});
+                $nid2sid{$node_id_2} = $colmuns[1];
+                $sid2nid{$colmuns[1]} = $node_id_2;
+            }
+
+            $sid2sname{$colmuns[0]} = $colmuns[2];
+            $sname2sid{$colmuns[2]} = $colmuns[0];
+            $sname2nid{$colmuns[2]} = $node_id_1;
+            $sid2sname{$colmuns[1]} = $colmuns[3];
+            $sname2sid{$colmuns[3]} = $colmuns[1];
+            $sname2nid{$colmuns[3]} = $node_id_2;
+
+            my $edge12 = Jubatus::Graph::Edge->new({}, $node_id_1, $node_id_2);
+            my $edge21 = Jubatus::Graph::Edge->new({}, $node_id_2, $node_id_1);
+
+            my $edge_id_1 = $graph_client->create_edge($name, $node_id_1, $edge12);
+            my $edge_id_2 = $graph_client->create_edge($name, $node_id_2, $edge21);
+            $sname2eid{$colmuns[2]}{1} = $edge_id_1;
+            $sname2eid{$colmuns[3]}{2} = $edge_id_2;
+
+            my $is_index = $graph_client->update_index($name);
+        }
+
+        my $source = $sname2nid{'新宿'};
+        my $target = $sname2nid{'原宿'};
+        my $max_hop = 100;
+        my $edge_query = [];
+        my $node_query = [["name",  "新宿"]];
         my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
         my $is_add = $graph_client->add_shortest_path_query($name, $pq);
-        my $is_remove = $graph_client->add_shortest_path_query($name, $pq);
-        is($is_add, 1, "Make check on to call remove_shortest_path_query()");
+
+        my $is_index = $graph_client->update_index($name);
+
+        my $sq = Jubatus::Graph::ShortestPathQuery->new($target, $source, $max_hop, $pq);
+        print Dump $sq;
+        is(ref $sq, "Jubatus::Graph::ShortestPathQuery", "Make check on to get Jubatus::Graph::ShortestPathQuery object");
+        is($sq->{target}, 64, "Make check on to get target field");
+        is($sq->{source}, 70, "Make check on to get source field");
+        is($sq->{max_hop}, 100, "Make check on to get max_hop field");
+
+        my $shortest_path = $graph_client->get_shortest_path($name, $sq);
+        print Dump $shortest_path;
+
+        # umm. Can't search. umm
+
     };
 };
-=cut
 
 subtest 'Test centrality query inserter' => sub {
     subtest 'Test add_centrality_query()' => sub {
