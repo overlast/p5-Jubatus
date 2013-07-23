@@ -373,6 +373,43 @@ subtest 'Test shotest path query initializer' => sub {
     };
 };
 
+subtest 'Test constructer of Jubatus::Graph::ShortestPathQuery' => sub {
+    subtest 'Test Jubatus::Graph::ShortestPathQuery->new()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        my $source = 0;
+        my $target = 1;
+        my $max_hop = 2;
+        my $edge_query = [];
+        my $node_query = [];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $sq = Jubatus::Graph::ShortestPathQuery->new($target, $source, $max_hop, $pq);
+        is(ref $sq, "Jubatus::Graph::ShortestPathQuery", "Make check on to get Jubatus::Graph::ShortestPathQuery object");
+        is($sq->{target}, 0, "Make check on to get target field");
+        is($sq->{source}, 1, "Make check on to get source field");
+        is($sq->{max_hop}, 2, "Make check on to get max_hop field");
+        is(ref $sq->{query}, "Jubatus::Graph::PresetQuery", "Make check on to get query field which include Jubatus::Graph::PresetQuery object");
+        is_deeply($sq->{query}->{edge_query}, [], "Make check on to get edge_query field");
+        is_deeply($sq->{query}->{node_query}, [], "Make check on to get node_query field");
+    };
+};
+
+=pod
+subtest 'Test shotest path getter' => sub {
+    subtest 'Test get_shortest_path()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+        my $edge_query = [["上野", "新宿"]];
+        my $node_query = [];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $is_add = $graph_client->add_shortest_path_query($name, $pq);
+        my $is_remove = $graph_client->add_shortest_path_query($name, $pq);
+        is($is_add, 1, "Make check on to call remove_shortest_path_query()");
+    };
+};
+=cut
 
 subtest 'Test centrality query inserter' => sub {
     subtest 'Test add_centrality_query()' => sub {
