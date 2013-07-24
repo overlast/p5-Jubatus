@@ -116,7 +116,7 @@ subtest 'Test server status reader' => sub {
 subtest 'Test node creater' => sub {
     subtest 'Test create_node()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         for (my $i = 0; $i < 10; $i++) {
             my $is_create_node = $graph_client->create_node($name);
@@ -128,7 +128,7 @@ subtest 'Test node creater' => sub {
 subtest 'Test node remover' => sub {
     subtest 'Test remove_node()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         for (my $i = 0; $i < 10; $i++) {
             my $node_id = $graph_client->create_node($name);
@@ -150,7 +150,7 @@ subtest 'Test node remover' => sub {
 subtest 'Test node getter' => sub {
     subtest 'Test get_node()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         for (my $i = 0; $i < 10; $i++) {
             my $node_id = $graph_client->create_node($name);
@@ -166,7 +166,7 @@ subtest 'Test node getter' => sub {
 subtest 'Test node updater' => sub {
     subtest 'Test update_node()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         for (my $i = 0; $i < 10; $i++) {
             my $node_id = $graph_client->create_node($name);
@@ -195,7 +195,7 @@ subtest 'Test node updater' => sub {
 subtest 'Test constructer of Jubatus::Graph::Edge' => sub {
     subtest 'Test Jubatus::Graph::Edge->new()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         my $node_id_1 = $graph_client->create_node($name);
         my $node_id_2 = $graph_client->create_node($name);
@@ -210,7 +210,7 @@ subtest 'Test constructer of Jubatus::Graph::Edge' => sub {
 subtest 'Test edge creater' => sub {
     subtest 'Test create_edge()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         my $node_id_1 = $graph_client->create_node($name);
         my $node_id_2 = $graph_client->create_node($name);
@@ -224,7 +224,7 @@ subtest 'Test edge creater' => sub {
 subtest 'Test edge remover' => sub {
     subtest 'Test remove_edge()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         {
             my $node_id_1 = $graph_client->create_node($name);
@@ -254,7 +254,7 @@ subtest 'Test edge remover' => sub {
 subtest 'Test edge getter' => sub {
     subtest 'Test get_edge()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         {
             my $node_id_1 = $graph_client->create_node($name);
@@ -275,7 +275,7 @@ subtest 'Test edge getter' => sub {
 subtest 'Test edge updater' => sub {
     subtest 'Test update_edge()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         {
             my $node_id_1 = $graph_client->create_node($name);
@@ -303,7 +303,7 @@ subtest 'Test edge updater' => sub {
 subtest 'Test constructer of Jubatus::Graph::PresetQuery' => sub {
     subtest 'Test Jubatus::Graph::PresetQuery->new()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         my $edge_query = [];
         my $node_query = [];
@@ -317,7 +317,7 @@ subtest 'Test constructer of Jubatus::Graph::PresetQuery' => sub {
 subtest 'Test shotest path query inserter' => sub {
     subtest 'Test add_shortest_path_query()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         my $edge_query = [];
         my $node_query = [];
@@ -330,7 +330,7 @@ subtest 'Test shotest path query inserter' => sub {
 subtest 'Test shotest path query initializer' => sub {
     subtest 'Test remove_shortest_path_query()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         my $edge_query = [];
         my $node_query = [];
@@ -344,7 +344,7 @@ subtest 'Test shotest path query initializer' => sub {
 subtest 'Test constructer of Jubatus::Graph::ShortestPathQuery' => sub {
     subtest 'Test Jubatus::Graph::ShortestPathQuery->new()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         my $source = 0;
         my $target = 1;
@@ -398,7 +398,7 @@ __YAMANOTE__
 subtest 'Test shotest path getter' => sub {
     subtest 'Test get_shortest_path()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
 
         my @sample_tsv_lines = split /\n/, $shortestpath_sample_tsv;
@@ -479,7 +479,7 @@ subtest 'Test shotest path getter' => sub {
 subtest 'Test centrality query inserter' => sub {
     subtest 'Test add_centrality_query()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         my $edge_query = [];
         my $node_query = [];
@@ -492,7 +492,7 @@ subtest 'Test centrality query inserter' => sub {
 subtest 'Test centrality query initializer' => sub {
     subtest 'Test remove_centrality_query()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
         my $edge_query = [];
         my $node_query = [];
@@ -516,9 +516,8 @@ __PAGERANK__
 subtest 'Test centrality getter' => sub {
     subtest 'Test get_centrality()' => sub {
         my $name = "cpan module test";
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-#        my $graph_client = Jubatus::Graph::Client->new($host, 53000);
 
         my @sample_tsv_lines = split /\n/, $centality_sample_tsv;
         my %nid2sid = ();
@@ -526,7 +525,7 @@ subtest 'Test centrality getter' => sub {
         my %sid2eid = ();
 
         my $edge_query = [];
-        my $node_query = [["name", "yamanote"]];
+        my $node_query = [];
         my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
         my $is_add = $graph_client->add_centrality_query($name, $pq);
 
@@ -539,7 +538,7 @@ subtest 'Test centrality getter' => sub {
             }
             else {
                 $node_id = $graph_client->create_node($name);
-                $graph_client->update_node($name, $node_id, {"name" => "yamanote"});
+                $graph_client->update_node($name, $node_id, {});
                 $nid2sid{$node_id} = $id;
                 $sid2nid{$id} = $node_id;
             }
@@ -552,7 +551,7 @@ subtest 'Test centrality getter' => sub {
                 }
                 else {
                     $target_node_id = $graph_client->create_node($name);
-                    $graph_client->update_node($name, $target_node_id, {"name" => "yamanote"});
+                    $graph_client->update_node($name, $target_node_id, {});
                     $nid2sid{$target_node_id} = $out_id;
                     $sid2nid{$out_id} = $target_node_id;
                 }
@@ -571,120 +570,13 @@ subtest 'Test centrality getter' => sub {
     };
 };
 
-
-
-
-
-=pod
-
-  def test_node_info
-    edge_query = [["a", "b"], ["c", "d"], ["e", "f"]]
-    node_query = [["0", "1"], ["2", "3"]]
-    p = Jubatus::Graph::Preset_query.new(edge_query, node_query)
-    in_edges = [0, 0]
-    out_edges = [0, 0]
-    Jubatus::Graph::Node.new(p, in_edges, out_edges)
-  end
-
-subtest 'Test model data updator' => sub {
+subtest 'Test model data clearer' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
     my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
     subtest 'call clear()' => sub {
         my $is_clear = $graph_client->clear($name);
         is (1, $is_clear, "Call clear()");
-    };
-};
-
-subtest 'Test standard deviation culculator' => sub {
-    subtest 'Test stddev()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->();
-        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
-        my $key = "stddev";
-        foreach my $val (@sample) {
-            my $is_push = $graph_client->push($name, $key, $val);
-        }
-        my $result = $graph_client->stddev($name, $key);
-        is(sqrt(2), $result, "Get standard deviation");
-    };
-};
-
-subtest 'Test summuation culculator' => sub {
-    subtest 'Test sum()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->();
-        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
-        my $key = "sum";
-        foreach my $val (@sample) {
-            my $is_push = $graph_client->push($name, $key, $val);
-        }
-        my $result = $graph_client->sum($name, $key);
-        is(15.0, $result, "Get summuation");
-    };
-};
-
-subtest 'Test max value searcher' => sub {
-    subtest 'Test max()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->();
-        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
-        my $key = "max";
-        foreach my $val (@sample) {
-            my $is_push = $graph_client->push($name, $key, $val);
-        }
-        my $result = $graph_client->max($name, $key);
-        is(5.0, $result, "Get max value");
-    };
-};
-
-subtest 'Test min value searcher' => sub {
-    subtest 'Test min()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->();
-        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
-        my $key = "min";
-        foreach my $val (@sample) {
-            my $is_push = $graph_client->push($name, $key, $val);
-        }
-        my $result = $graph_client->min($name, $key);
-        is(1.0, $result, "Get min value");
-    };
-};
-
-subtest 'Test entoropy calculator' => sub {
-    subtest 'Test entropy()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->();
-        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
-        my $key = "entropy";
-        foreach my $val (@sample) {
-            my $is_push = $graph_client->push($name, $key, $val);
-        }
-        my $result = $graph_client->min($name, $key);
-        is($result, 1.0, "Get entropy value");
-    };
-};
-
-subtest 'Test moment calculator' => sub {
-    subtest 'Test moment()' => sub {
-        my $name = "cpan module test";
-        my $guard = $setup->();
-        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
-        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
-        my $key = "moment";
-        my $degree = 3;
-        my $center = 0.0;
-        foreach my $val (@sample) {
-            my $is_push = $graph_client->push($name, $key, $val);
-        }
-        my $result = $graph_client->moment($name, $key, $degree, $center);
-        is($result, 45.0, "Get moment value");
     };
 };
 
@@ -695,10 +587,48 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
 
         my $is_clear = $graph_client->clear($name);
-        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
-        my $key = "moment";
-        foreach my $val (@sample) {
-            my $is_push = $graph_client->push($name, $key, $val);
+
+        my @sample_tsv_lines = split /\n/, $centality_sample_tsv;
+        my %nid2sid = ();
+        my %sid2nid = ();
+        my %sid2eid = ();
+
+        my $edge_query = [];
+        my $node_query = [];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $is_add = $graph_client->add_centrality_query($name, $pq);
+
+        foreach my $tsv_line (@sample_tsv_lines) {
+            my @colmuns = split /\t/, $tsv_line;
+            my $id = $colmuns[0];
+            my $node_id;
+            if (exists $sid2nid{$id}) {
+                $node_id = $sid2nid{$id};
+            }
+            else {
+                $node_id = $graph_client->create_node($name);
+                $graph_client->update_node($name, $node_id, {});
+                $nid2sid{$node_id} = $id;
+                $sid2nid{$id} = $node_id;
+            }
+
+            for (my $i = 1; $i <= $#colmuns; $i++) {
+                my $target_node_id;
+                my $out_id = $colmuns[$i];
+                if (exists $sid2nid{$out_id}) {
+                    $target_node_id = $sid2nid{$out_id};
+                }
+                else {
+                    $target_node_id = $graph_client->create_node($name);
+                    $graph_client->update_node($name, $target_node_id, {});
+                    $nid2sid{$target_node_id} = $out_id;
+                    $sid2nid{$out_id} = $target_node_id;
+                }
+                my $edge = Jubatus::Graph::Edge->new({}, $node_id, $target_node_id);
+                my $edge_id = $graph_client->create_edge($name, $node_id, $edge);
+                $sid2eid{$id}{$out_id} = $edge_id;
+            }
+            my $is_index = $graph_client->update_index($name);
         }
 
         subtest 'Does model file dump ?' => sub {
@@ -730,14 +660,50 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $guard = $setup->($name);
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
 
-        my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
-        my $key = "moment";
+        my @sample_tsv_lines = split /\n/, $centality_sample_tsv;
+        my %nid2sid = ();
+        my %sid2nid = ();
+        my %sid2eid = ();
 
-        foreach my $val (@sample) {
-            my $is_push = $graph_client->push($name, $key, $val);
+        my $edge_query = [];
+        my $node_query = [];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $is_add = $graph_client->add_centrality_query($name, $pq);
+
+        foreach my $tsv_line (@sample_tsv_lines) {
+            my @colmuns = split /\t/, $tsv_line;
+            my $id = $colmuns[0];
+            my $node_id;
+            if (exists $sid2nid{$id}) {
+                $node_id = $sid2nid{$id};
+            }
+            else {
+                $node_id = $graph_client->create_node($name);
+                $graph_client->update_node($name, $node_id, {});
+                $nid2sid{$node_id} = $id;
+                $sid2nid{$id} = $node_id;
+            }
+
+            for (my $i = 1; $i <= $#colmuns; $i++) {
+                my $target_node_id;
+                my $out_id = $colmuns[$i];
+                if (exists $sid2nid{$out_id}) {
+                    $target_node_id = $sid2nid{$out_id};
+                }
+                else {
+                    $target_node_id = $graph_client->create_node($name);
+                    $graph_client->update_node($name, $target_node_id, {});
+                    $nid2sid{$target_node_id} = $out_id;
+                    $sid2nid{$out_id} = $target_node_id;
+                }
+                my $edge = Jubatus::Graph::Edge->new({}, $node_id, $target_node_id);
+                my $edge_id = $graph_client->create_edge($name, $node_id, $edge);
+                $sid2eid{$id}{$out_id} = $edge_id;
+            }
+            my $is_index = $graph_client->update_index($name);
         }
 
-        my $model_name = "stat_test";
+        my $model_name = "graph_test";
         my $is_save = $graph_client->save($name, $model_name);
         my $datadir;
         my $status = $graph_client->get_status($name);
@@ -754,10 +720,12 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
 
         subtest 'test estimate() using learned model' => sub {
-            my $degree = 3;
-            my $center = 0.0;
-            my $result = $graph_client->moment($name, $key, $degree, $center);
-            is($result, 45.0, "Get result of moment");
+            my @result = (0, 2.1, 1.2, 0.96, 0.72, 1, 0.35, 0.54);
+            for (my $qid = 1; $qid <= ($#sample_tsv_lines + 1); $qid++) {
+                my $centrality_type = 0; # pagerank
+                my $centrality = $graph_client->get_centrality($name, $sid2nid{$qid}, $centrality_type, $pq);
+                is ($centrality > $result[$qid], 1, "Make check on to get centrality value of node $qid");
+            }
         };
 
         subtest 'test clear()' => sub {
@@ -765,28 +733,19 @@ subtest 'Test data dumper and data loader of model' => sub {
             is($is_clear, 1, "Call clear()");
         };
 
-# Jubatus::Stas::Client is not return result of moment() using empty model
-#        subtest 'test estimate() for empty model' => sub {
-#            my $degree = 3;
-#            my $center = 0.0;
-#            my $result = $graph_client->moment($name, $key, $degree, $center);
-#            print Dump $result;
-#            is($result," min", "Get result of moment from empty model");
-#        };
-
         subtest 'Does the saved rows load ?' => sub {
             my $is_load = $graph_client->load($name, $model_name);
             is (1, $is_save, "Call load()");
 
-            my $degree = 3;
-            my $center = 0.0;
-            my $result = $graph_client->moment($name, $key, $degree, $center);
-            is($result, 45.0, "Get result of moment from empty model from dumped model");
+            my @result = (0, 2.1, 1.2, 0.96, 0.72, 1, 0.35, 0.54);
+            for (my $qid = 1; $qid <= ($#sample_tsv_lines + 1); $qid++) {
+                my $centrality_type = 0; # pagerank
+                my $centrality = $graph_client->get_centrality($name, $sid2nid{$qid}, $centrality_type, $pq);
+                is ($centrality > $result[$qid], 1, "Make check on to get centrality value of node $qid");
+            }
         };
     };
 };
-
-=cut
 
 done_testing();
 
