@@ -215,8 +215,6 @@ subtest 'Test model data clearer' => sub {
     };
 };
 
-=pod
-
 subtest 'Test data dumper and data loader of model' => sub {
     subtest 'test save()' => sub {
         my $name = "cpan module test";
@@ -225,47 +223,9 @@ subtest 'Test data dumper and data loader of model' => sub {
 
         my $is_clear = $anom_client->clear($name);
 
-        my @sample_tsv_lines = split /\n/, $centality_sample_tsv;
-        my %nid2sid = ();
-        my %sid2nid = ();
-        my %sid2eid = ();
-
-        my $edge_query = [];
-        my $node_query = [];
-        my $pq = Jubatus::Anomaly::PresetQuery->new($edge_query, $node_query);
-        my $is_add = $anom_client->add_centrality_query($name, $pq);
-
-        foreach my $tsv_line (@sample_tsv_lines) {
-            my @colmuns = split /\t/, $tsv_line;
-            my $id = $colmuns[0];
-            my $node_id;
-            if (exists $sid2nid{$id}) {
-                $node_id = $sid2nid{$id};
-            }
-            else {
-                $node_id = $anom_client->create_node($name);
-                $anom_client->update_node($name, $node_id, {});
-                $nid2sid{$node_id} = $id;
-                $sid2nid{$id} = $node_id;
-            }
-
-            for (my $i = 1; $i <= $#colmuns; $i++) {
-                my $target_node_id;
-                my $out_id = $colmuns[$i];
-                if (exists $sid2nid{$out_id}) {
-                    $target_node_id = $sid2nid{$out_id};
-                }
-                else {
-                    $target_node_id = $anom_client->create_node($name);
-                    $anom_client->update_node($name, $target_node_id, {});
-                    $nid2sid{$target_node_id} = $out_id;
-                    $sid2nid{$out_id} = $target_node_id;
-                }
-                my $edge = Jubatus::Anomaly::Edge->new({}, $node_id, $target_node_id);
-                my $edge_id = $anom_client->create_edge($name, $node_id, $edge);
-                $sid2eid{$id}{$out_id} = $edge_id;
-            }
-            my $is_index = $anom_client->update_index($name);
+        for (1..10) {
+            my $datum = Jubatus::Anomaly::Datum->new([], [['val', 1.0]]);
+            my $add_result = $anom_client->add($name, $datum);
         }
 
         subtest 'Does model file dump ?' => sub {
@@ -297,47 +257,11 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $guard = $setup->($name);
         my $anom_client = Jubatus::Anomaly::Client->new($host, $server->{port});
 
-        my @sample_tsv_lines = split /\n/, $centality_sample_tsv;
-        my %nid2sid = ();
-        my %sid2nid = ();
-        my %sid2eid = ();
+        my $is_clear = $anom_client->clear($name);
 
-        my $edge_query = [];
-        my $node_query = [];
-        my $pq = Jubatus::Anomaly::PresetQuery->new($edge_query, $node_query);
-        my $is_add = $anom_client->add_centrality_query($name, $pq);
-
-        foreach my $tsv_line (@sample_tsv_lines) {
-            my @colmuns = split /\t/, $tsv_line;
-            my $id = $colmuns[0];
-            my $node_id;
-            if (exists $sid2nid{$id}) {
-                $node_id = $sid2nid{$id};
-            }
-            else {
-                $node_id = $anom_client->create_node($name);
-                $anom_client->update_node($name, $node_id, {});
-                $nid2sid{$node_id} = $id;
-                $sid2nid{$id} = $node_id;
-            }
-
-            for (my $i = 1; $i <= $#colmuns; $i++) {
-                my $target_node_id;
-                my $out_id = $colmuns[$i];
-                if (exists $sid2nid{$out_id}) {
-                    $target_node_id = $sid2nid{$out_id};
-                }
-                else {
-                    $target_node_id = $anom_client->create_node($name);
-                    $anom_client->update_node($name, $target_node_id, {});
-                    $nid2sid{$target_node_id} = $out_id;
-                    $sid2nid{$out_id} = $target_node_id;
-                }
-                my $edge = Jubatus::Anomaly::Edge->new({}, $node_id, $target_node_id);
-                my $edge_id = $anom_client->create_edge($name, $node_id, $edge);
-                $sid2eid{$id}{$out_id} = $edge_id;
-            }
-            my $is_index = $anom_client->update_index($name);
+        for (1..10) {
+            my $datum = Jubatus::Anomaly::Datum->new([], [['val', 1.0]]);
+            my $add_result = $anom_client->add($name, $datum);
         }
 
         my $model_name = "anom_test";
@@ -356,13 +280,11 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".js";
         my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
 
-        subtest 'test estimate() using learned model' => sub {
-            my @result = (0, 2.1, 1.2, 0.96, 0.72, 1, 0.35, 0.54);
-            for (my $qid = 1; $qid <= ($#sample_tsv_lines + 1); $qid++) {
-                my $centrality_type = 0; # pagerank
-                my $centrality = $anom_client->get_centrality($name, $sid2nid{$qid}, $centrality_type, $pq);
-                is ($centrality > $result[$qid], 1, "Make check on to get centrality value of node $qid");
-            }
+        subtest 'test get_all_rows() using learned model' => sub {
+            my $get_all_rows_result = $anom_client->get_all_rows($name);
+            my @result = sort {$a <=> $b} @{$get_all_rows_result};
+            my @answer = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            is_deeply(\@result, \@answer, "Make check on to get ids od all rows");
         };
 
         subtest 'test clear()' => sub {
@@ -374,17 +296,13 @@ subtest 'Test data dumper and data loader of model' => sub {
             my $is_load = $anom_client->load($name, $model_name);
             is (1, $is_save, "Call load()");
 
-            my @result = (0, 2.1, 1.2, 0.96, 0.72, 1, 0.35, 0.54);
-            for (my $qid = 1; $qid <= ($#sample_tsv_lines + 1); $qid++) {
-                my $centrality_type = 0; # pagerank
-                my $centrality = $anom_client->get_centrality($name, $sid2nid{$qid}, $centrality_type, $pq);
-                is ($centrality > $result[$qid], 1, "Make check on to get centrality value of node $qid");
-            }
+            my $get_all_rows_result = $anom_client->get_all_rows($name);
+            my @result = sort {$a <=> $b} @{$get_all_rows_result};
+            my @answer = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            is_deeply(\@result, \@answer, "Make check on to get ids od all rows using loaded model");
         };
     };
 };
-
-=cut
 
 done_testing();
 
