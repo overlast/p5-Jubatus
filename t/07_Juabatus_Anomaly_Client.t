@@ -113,7 +113,60 @@ subtest 'Test server status reader' => sub {
     };
 };
 
+subtest 'Test row creater' => sub {
+    subtest 'Test add()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->($name);
+        my $anom_client = Jubatus::Anomaly::Client->new($host, $server->{port});
+        my $datum = Jubatus::Anomaly::Datum->new([], [['val', 1.0]]);
+        my $add_result = $anom_client->add($name, $datum);
+        is($add_result->[0], 0, "Make check on to create first row : 0");
+        is($add_result->[1], "inf", "Make check on to get score of first row : inf");
+    };
+};
+
+subtest 'Test all rows getter' => sub {
+    subtest 'Test get_all_rows()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->($name);
+        my $anom_client = Jubatus::Anomaly::Client->new($host, $server->{port});
+        for (1..10) {
+            my $datum = Jubatus::Anomaly::Datum->new([], [['val', 1.0]]);
+            my $add_result = $anom_client->add($name, $datum);
+        }
+        my $get_all_rows_result = $anom_client->get_all_rows($name);
+        my @result = sort {$a <=> $b} @{$get_all_rows_result};
+        my @answer = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        is_deeply(\@result, \@answer, "Make check on to get ids od all rows");
+    };
+};
+
+
+
+
+
 =pod
+
+  def test_clear_row
+    d = Jubatus::Anomaly::Datum.new([], [])
+    (row_id, score) = @cli.add("name", d)
+    assert_equal(true, @cli.clear_row("name", row_id))
+  end
+
+  def test_update
+    d = Jubatus::Anomaly::Datum.new([], [])
+    (row_id, score) = @cli.add("name", d)
+    d = Jubatus::Anomaly::Datum.new([], [['val', 3.1]])
+    score = @cli.update("name", row_id, d)
+  end
+
+  def test_calc_score
+    d = Jubatus::Anomaly::Datum.new([], [['val', 1.1]])
+    (row_id, score) = @cli.add("name", d)
+    d = Jubatus::Anomaly::Datum.new([], [['val', 3.1]])
+    score = @cli.calc_score("name", d)
+  end
+
 
 subtest 'Test node creater' => sub {
     subtest 'Test create_node()' => sub {
