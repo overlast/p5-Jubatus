@@ -304,6 +304,39 @@ subtest 'Test data dumper and data loader of model' => sub {
     };
 };
 
+subtest 'Test anomaly detector' => sub {
+    subtest 'Test anomaly detection()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->($name);
+        my $anom_client = Jubatus::Anomaly::Client->new($host, $server->{port});
+        for (1..10) {
+            my $datum = Jubatus::Anomaly::Datum->new([], [['val', 1.0]]);
+            my $add_result = $anom_client->add($name, $datum);
+        }
+        my $val = 5.0;
+        my @result = ();
+        for (1..10) {
+            my $datum = Jubatus::Anomaly::Datum->new([], [['val', $val]]);
+            my $add_result = $anom_client->add($name, $datum);
+            push @result, $add_result->[1];
+            $val = 1.000001 + $val;
+        }
+        my @answer = (
+            "inf",
+            1,
+            0.899999976158142,
+            "inf",
+            1,
+            0.899999976158142,
+            0.933333337306976,
+            0.9375,
+            0.950000047683716,
+            0.954545438289642,
+        );
+        is_deeply(\@answer, \@result, "");
+    };
+};
+
 done_testing();
 
 sub kill_process {
