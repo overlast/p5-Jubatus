@@ -7,9 +7,6 @@ use Proc::ProcessTable;
 use Scope::Guard;
 
 use Jubatus::Graph::Client;
-use List::Util;
-
-use YAML;
 
 my $server_name_suffix = "graph";
 my $config_path = $FindBin::Bin."/../conf/";

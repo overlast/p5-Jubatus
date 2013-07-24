@@ -7,9 +7,6 @@ use Proc::ProcessTable;
 use Scope::Guard;
 
 use Jubatus::Classifier::Client;
-use List::Util;
-
-use YAML;
 
 my $server_name_suffix = "classifier";
 my $config_path = $FindBin::Bin."/../conf/";

@@ -7,7 +7,6 @@ use Proc::ProcessTable;
 use Scope::Guard;
 
 use Jubatus::Stat::Client;
-use List::Util;
 
 use YAML;
 

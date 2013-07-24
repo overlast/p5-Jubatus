@@ -7,9 +7,6 @@ use Proc::ProcessTable;
 use Scope::Guard;
 
 use Jubatus::Anomaly::Client;
-use List::Util;
-
-use YAML;
 
 my $server_name_suffix = "anomaly";
 my $config_path = $FindBin::Bin."/../conf/";

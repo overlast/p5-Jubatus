@@ -8,8 +8,6 @@ use Scope::Guard;
 
 use Jubatus::Regression::Client;
 
-use YAML;
-
 my $server_name_suffix = "regression";
 my $config_path = $FindBin::Bin."/../conf/";
 my $server_name = "juba".$server_name_suffix;
