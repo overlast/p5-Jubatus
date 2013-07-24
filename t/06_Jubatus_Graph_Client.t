@@ -300,38 +300,6 @@ subtest 'Test edge updater' => sub {
     };
 };
 
-my $sample_tsv = << "__YAMANOTE__";
-1130229	1130201	品川	大崎	35.62876	139.738999	35.619772	139.728439
-1130228	1130229	田町	品川	35.645736	139.747575	35.62876	139.738999
-1130227	1130228	浜松町	田町	35.655391	139.757135	35.645736	139.747575
-1130226	1130227	新橋	浜松町	35.666195	139.758587	35.655391	139.757135
-1130225	1130226	有楽町	新橋	35.675441	139.763806	35.666195	139.758587
-1130224	1130225	東京	有楽町	35.681391	139.766103	35.675441	139.763806
-1130223	1130224	神田	東京	35.691173	139.770641	35.681391	139.766103
-1130222	1130223	秋葉原	神田	35.698619	139.773288	35.691173	139.770641
-1130221	1130222	御徒町	秋葉原	35.707282	139.774727	35.698619	139.773288
-1130220	1130221	上野	御徒町	35.71379	139.777043	35.707282	139.774727
-1130219	1130220	鶯谷	上野	35.721484	139.778015	35.71379	139.777043
-1130218	1130219	日暮里	鶯谷	35.727908	139.771287	35.721484	139.778015
-1130217	1130218	西日暮里	日暮里	35.731954	139.766857	35.727908	139.771287
-1130216	1130217	田端	西日暮里	35.737781	139.761229	35.731954	139.766857
-1130215	1130216	駒込	田端	35.736825	139.748053	35.737781	139.761229
-1130214	1130215	巣鴨	駒込	35.733445	139.739303	35.736825	139.748053
-1130213	1130214	大塚	巣鴨	35.731412	139.728584	35.733445	139.739303
-1130212	1130213	池袋	大塚	35.730256	139.711086	35.731412	139.728584
-1130211	1130212	目白	池袋	35.720476	139.706228	35.730256	139.711086
-1130210	1130211	高田馬場	目白	35.712677	139.703715	35.720476	139.706228
-1130209	1130210	新大久保	高田馬場	35.700875	139.700261	35.712677	139.703715
-1130208	1130209	新宿	新大久保	35.689729	139.700464	35.700875	139.700261
-1130207	1130208	代々木	新宿	35.683061	139.702042	35.689729	139.700464
-1130206	1130207	原宿	代々木	35.670646	139.702592	35.683061	139.702042
-1130205	1130206	渋谷	原宿	35.658871	139.701238	35.670646	139.702592
-1130204	1130205	恵比寿	渋谷	35.646685	139.71007	35.658871	139.701238
-1130203	1130204	目黒	恵比寿	35.633923	139.715775	35.646685	139.71007
-1130202	1130203	五反田	目黒	35.625974	139.723822	35.633923	139.715775
-1130201	1130202	大崎	五反田	35.619772	139.728439	35.625974	139.723822
-__YAMANOTE__
-
 subtest 'Test constructer of Jubatus::Graph::PresetQuery' => sub {
     subtest 'Test Jubatus::Graph::PresetQuery->new()' => sub {
         my $name = "cpan module test";
@@ -395,19 +363,56 @@ subtest 'Test constructer of Jubatus::Graph::ShortestPathQuery' => sub {
     };
 };
 
+my $shortestpath_sample_tsv = << "__YAMANOTE__";
+1130229	1130201	品川	大崎	35.62876	139.738999	35.619772	139.728439
+1130228	1130229	田町	品川	35.645736	139.747575	35.62876	139.738999
+1130227	1130228	浜松町	田町	35.655391	139.757135	35.645736	139.747575
+1130226	1130227	新橋	浜松町	35.666195	139.758587	35.655391	139.757135
+1130225	1130226	有楽町	新橋	35.675441	139.763806	35.666195	139.758587
+1130224	1130225	東京	有楽町	35.681391	139.766103	35.675441	139.763806
+1130223	1130224	神田	東京	35.691173	139.770641	35.681391	139.766103
+1130222	1130223	秋葉原	神田	35.698619	139.773288	35.691173	139.770641
+1130221	1130222	御徒町	秋葉原	35.707282	139.774727	35.698619	139.773288
+1130220	1130221	上野	御徒町	35.71379	139.777043	35.707282	139.774727
+1130219	1130220	鶯谷	上野	35.721484	139.778015	35.71379	139.777043
+1130218	1130219	日暮里	鶯谷	35.727908	139.771287	35.721484	139.778015
+1130217	1130218	西日暮里	日暮里	35.731954	139.766857	35.727908	139.771287
+1130216	1130217	田端	西日暮里	35.737781	139.761229	35.731954	139.766857
+1130215	1130216	駒込	田端	35.736825	139.748053	35.737781	139.761229
+1130214	1130215	巣鴨	駒込	35.733445	139.739303	35.736825	139.748053
+1130213	1130214	大塚	巣鴨	35.731412	139.728584	35.733445	139.739303
+1130212	1130213	池袋	大塚	35.730256	139.711086	35.731412	139.728584
+1130211	1130212	目白	池袋	35.720476	139.706228	35.730256	139.711086
+1130210	1130211	高田馬場	目白	35.712677	139.703715	35.720476	139.706228
+1130209	1130210	新大久保	高田馬場	35.700875	139.700261	35.712677	139.703715
+1130208	1130209	新宿	新大久保	35.689729	139.700464	35.700875	139.700261
+1130207	1130208	代々木	新宿	35.683061	139.702042	35.689729	139.700464
+1130206	1130207	原宿	代々木	35.670646	139.702592	35.683061	139.702042
+1130205	1130206	渋谷	原宿	35.658871	139.701238	35.670646	139.702592
+1130204	1130205	恵比寿	渋谷	35.646685	139.71007	35.658871	139.701238
+1130203	1130204	目黒	恵比寿	35.633923	139.715775	35.646685	139.71007
+1130202	1130203	五反田	目黒	35.625974	139.723822	35.633923	139.715775
+1130201	1130202	大崎	五反田	35.619772	139.728439	35.625974	139.723822
+__YAMANOTE__
+
 subtest 'Test shotest path getter' => sub {
     subtest 'Test get_shortest_path()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->();
         my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
 
-        my @sample_tsv_lines = split /\n/, $sample_tsv;
+        my @sample_tsv_lines = split /\n/, $shortestpath_sample_tsv;
         my %nid2sid = ();
         my %sid2nid = ();
         my %sname2sid = ();
         my %sname2nid = ();
         my %sid2sname = ();
         my %sname2eid = ();
+
+        my $edge_query = [];
+        my $node_query = [["name", "yamanote"]];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $is_add = $graph_client->add_shortest_path_query($name, $pq);
 
         foreach my $tsv_line (@sample_tsv_lines) {
             my @colmuns = split /\t/, $tsv_line;
@@ -417,7 +422,7 @@ subtest 'Test shotest path getter' => sub {
             }
             else {
                 $node_id_1 = $graph_client->create_node($name);
-                $graph_client->update_node($name, $node_id_1, {"name" => $colmuns[2]});
+                $graph_client->update_node($name, $node_id_1, {"name" => "yamanote"});
                 $nid2sid{$node_id_1} = $colmuns[0];
                 $sid2nid{$colmuns[0]} = $node_id_1;
             }
@@ -428,7 +433,7 @@ subtest 'Test shotest path getter' => sub {
             }
             else {
                 $node_id_2 = $graph_client->create_node($name);
-                $graph_client->update_node($name, $node_id_2, {"name" => $colmuns[3]});
+                $graph_client->update_node($name, $node_id_2, {"name" => "yamanote"});
                 $nid2sid{$node_id_2} = $colmuns[1];
                 $sid2nid{$colmuns[1]} = $node_id_2;
             }
@@ -451,28 +456,23 @@ subtest 'Test shotest path getter' => sub {
             my $is_index = $graph_client->update_index($name);
         }
 
-        my $source = $sname2nid{'新宿'};
-        my $target = $sname2nid{'原宿'};
+        my $source = $sname2nid{'渋谷'};
+        my $target = $sname2nid{'新宿'};
         my $max_hop = 100;
-        my $edge_query = [];
-        my $node_query = [["name",  "新宿"]];
-        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
-        my $is_add = $graph_client->add_shortest_path_query($name, $pq);
-
         my $is_index = $graph_client->update_index($name);
 
         my $sq = Jubatus::Graph::ShortestPathQuery->new($target, $source, $max_hop, $pq);
-        print Dump $sq;
         is(ref $sq, "Jubatus::Graph::ShortestPathQuery", "Make check on to get Jubatus::Graph::ShortestPathQuery object");
-        is($sq->{target}, 64, "Make check on to get target field");
-        is($sq->{source}, 70, "Make check on to get source field");
+        is($sq->{source}, 64, "Make check on to get source field");
+        is($sq->{target}, 73, "Make check on to get target field");
         is($sq->{max_hop}, 100, "Make check on to get max_hop field");
 
         my $shortest_path = $graph_client->get_shortest_path($name, $sq);
-        print Dump $shortest_path;
 
-        # umm. Can't search. umm
-
+        is($sid2sname{$nid2sid{$shortest_path->[0]}}, "新宿", "Make check on to get node ID");
+        is($sid2sname{$nid2sid{$shortest_path->[1]}}, "代々木", "Make check on to get node ID");
+        is($sid2sname{$nid2sid{$shortest_path->[2]}}, "原宿", "Make check on to get node ID");
+        is($sid2sname{$nid2sid{$shortest_path->[3]}}, "渋谷", "Make check on to get node ID");
     };
 };
 
@@ -500,6 +500,74 @@ subtest 'Test centrality query initializer' => sub {
         my $is_add = $graph_client->add_centrality_query($name, $pq);
         my $is_remove = $graph_client->add_centrality_query($name, $pq);
         is($is_add, 1, "Make check on to call remove_centrality_query()");
+    };
+};
+
+my $centality_sample_tsv = << "__PAGERANK__";
+1	2	3	4	5	7
+2	1
+3	1	2
+4	2	3	5
+5	1	3	4	6
+6	1	5
+7	5
+__PAGERANK__
+
+subtest 'Test centrality getter' => sub {
+    subtest 'Test get_centrality()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+#        my $graph_client = Jubatus::Graph::Client->new($host, 53000);
+
+        my @sample_tsv_lines = split /\n/, $centality_sample_tsv;
+        my %nid2sid = ();
+        my %sid2nid = ();
+        my %sid2eid = ();
+
+        my $edge_query = [];
+        my $node_query = [["name", "yamanote"]];
+        my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+        my $is_add = $graph_client->add_centrality_query($name, $pq);
+
+        foreach my $tsv_line (@sample_tsv_lines) {
+            my @colmuns = split /\t/, $tsv_line;
+            my $id = $colmuns[0];
+            my $node_id;
+            if (exists $sid2nid{$id}) {
+                $node_id = $sid2nid{$id};
+            }
+            else {
+                $node_id = $graph_client->create_node($name);
+                $graph_client->update_node($name, $node_id, {"name" => "yamanote"});
+                $nid2sid{$node_id} = $id;
+                $sid2nid{$id} = $node_id;
+            }
+
+            for (my $i = 1; $i <= $#colmuns; $i++) {
+                my $target_node_id;
+                my $out_id = $colmuns[$i];
+                if (exists $sid2nid{$out_id}) {
+                    $target_node_id = $sid2nid{$out_id};
+                }
+                else {
+                    $target_node_id = $graph_client->create_node($name);
+                    $graph_client->update_node($name, $target_node_id, {"name" => "yamanote"});
+                    $nid2sid{$target_node_id} = $out_id;
+                    $sid2nid{$out_id} = $target_node_id;
+                }
+                my $edge = Jubatus::Graph::Edge->new({}, $node_id, $target_node_id);
+                my $edge_id = $graph_client->create_edge($name, $node_id, $edge);
+                $sid2eid{$id}{$out_id} = $edge_id;
+            }
+            my $is_index = $graph_client->update_index($name);
+        }
+        my @result = (0, 2.1, 1.2, 0.96, 0.72, 1, 0.35, 0.54);
+        for (my $qid = 1; $qid <= ($#sample_tsv_lines + 1); $qid++) {
+            my $centrality_type = 0; # pagerank
+            my $centrality = $graph_client->get_centrality($name, $sid2nid{$qid}, $centrality_type, $pq);
+            is ($centrality > $result[$qid], 1, "Make check on to get centrality value of node $qid");
+        }
     };
 };
 
