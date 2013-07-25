@@ -32,9 +32,12 @@ L<Jubatus> provide you a couple of export functions that are shortcut of L<Jubat
 One is C<get_client> to get Client object by specifying client type.
 Another is C<get_recommender_client> and C<get_regression_client>, C<get_classifier_client>, C<get_stst_client>, C<get_graph_client>, C<get_anomaly_client> to get a specific Client object explicitly.
 
-# FUNCTIONS
 
-## get_client $host, $port, $juba_client_type
+# METHODS
+
+## Functions
+
+### get_client $host, $port, $juba_client_type
 
 $juba_client_type is a value to specify the client type of jubatus.
 You can select from (recommender|regression|clasifier|stat|graph|anomaly).
@@ -57,7 +60,7 @@ The above code is equivalent to:
     my $port = '13714';
     Jubatus::Stat::Client->new($host, $port);
 
-## get_recommender_client $host, $port
+### get_recommender_client $host, $port
 
 This code will create Jubatus::Recommener::Client object and return it.
 You should set $host and $port in agreement to running jubarecommender server apprication.
@@ -75,7 +78,7 @@ The above code is equivalent to:
 
 See L<Jubatus::Recommender::Client> for more detail.
 
-## get_regression_client $host, $port
+### get_regression_client $host, $port
 
 This code will create Jubatus::Regression::Client object and return it.
 You should set $host and $port in agreement to running jubaregression server apprication.
@@ -93,7 +96,7 @@ The above code is equivalent to:
 
 See L<Jubatus::Regression::Client> for more detail.
 
-## get_classifier_client $host, $port
+### get_classifier_client $host, $port
 
 This code will create Jubatus::Classifier::Client object and return it.
 You should set $host and $port in agreement to running jubaclassifier server apprication.
@@ -111,7 +114,7 @@ The above code is equivalent to:
 
 See L<Jubatus::Classifier::Client> for more detail.
 
-## get_stat_client $host, $port
+### get_stat_client $host, $port
 
 This code will create Jubatus::Stat::Client object and return it.
 You should set $host and $port in agreement to running jubastat server apprication.
@@ -129,7 +132,7 @@ The above code is equivalent to:
 
 See L<Jubatus::Stat::Client> for more detail.
 
-## get_graph_client $host, $port
+### get_graph_client $host, $port
 
 This code will create Jubatus::Graph::Client object and return it.
 You should set $host and $port in agreement to running jubagraph server apprication.
@@ -147,7 +150,7 @@ The above code is equivalent to:
 
 See L<Jubatus::Graph::Client> for more detail.
 
-## get_anomaly_client $host, $port
+### get_anomaly_client $host, $port
 
 This code will create Jubatus::Anomaly::Client object and return it.
 You should set $host and $port in agreement to running jubaanomaly server apprication.
