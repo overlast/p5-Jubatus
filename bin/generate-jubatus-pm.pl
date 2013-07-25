@@ -31,7 +31,7 @@ sub main {
     my $use_auto_gen_module = join "\n", @use_modules;
     my $get_client_from_auto_gen_module = join "\n", @get_clients;
     my $get_client_from_auto_gen_module_using_parameter = &get_client_getter_using_parameter(\@module_names);
-    my $jubatus_pm_tmpl_path = $FindBin::Bin."/../jubatus_pm_tmpl";
+    my $jubatus_pm_tmpl_path = $FindBin::Bin."/../tmpl/jubatus_pm_tmpl";
     my $jubatus_pm_path = $FindBin::Bin."/../lib/Jubatus.pm";
     open my $in, "<:utf8", $jubatus_pm_tmpl_path;
     open my $out, ">:utf8", $jubatus_pm_path;
