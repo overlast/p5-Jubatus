@@ -9,3 +9,6 @@ USER_ID=`/usr/bin/id -u`
 
 $BASEDIR/../sh/generate-perl-client.sh develop
 $BASEDIR/../bin/generate-jubatus-pm.pl
+$BASEDIR/../bin/insert_pod.pl
+cd $BASEDIR/../
+prove -I ./lib
