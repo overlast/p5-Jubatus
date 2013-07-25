@@ -1,5 +1,5 @@
 package Jubatus;
-use 5.008005;
+use v5.10.1;
 use strict;
 use warnings;
 
@@ -49,7 +49,38 @@ sub get_anomaly_client {
 }
 
 
+sub get_client {
+    my ($self, $host, $port, $param) = @_;
+    my $client;
+    given ($param) {
+        when (/^Regression|regression$/) {
+            $client = Jubatus->get_regression_client($host, $port);
+        }
+        when (/^Recommender|recommender$/) {
+            $client = Jubatus->get_recommender_client($host, $port);
+        }
+        when (/^Classifier|classifier$/) {
+            $client = Jubatus->get_classifier_client($host, $port);
+        }
+        when (/^Stat|stat$/) {
+            $client = Jubatus->get_stat_client($host, $port);
+        }
+        when (/^Graph|graph$/) {
+            $client = Jubatus->get_graph_client($host, $port);
+        }
+        when (/^Anomaly|anomaly$/) {
+            $client = Jubatus->get_anomaly_client($host, $port);
+        }
+        default {
+            die "Jubatus::".$param."::Client.pm is not install.\n Please see Jubatus.pm !\n";
+        }
+    }
+    return $client;
+}
+
+
 1;
+
 __END__
 
 =encoding utf-8
