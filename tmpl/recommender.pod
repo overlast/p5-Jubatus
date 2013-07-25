@@ -1,6 +1,8 @@
 
 __END__
 
+=pod
+
 =encoding utf-8
 
 =head1 NAME
@@ -25,42 +27,42 @@ Jubatus::Recommender::Client - Perl extension for interfacing with recommendatio
 
     # In the following example, get maximum value from sample array using Jubatus::Recommender::Client object
 
-    my $is_clear = $reco_client->clear($name);
+    my $is_clear = $reco_client->clear($cluster_name);
 
     {
         my $row_id = "red";
         my $string_values = [["name", "red"], ["image", "warm"],];
         my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
         my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
     }
     {
         my $row_id = "blue";
         my $string_values = [["name", "blue"], ["image", "cold"],];
         my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
         my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
     }
     {
         my $row_id = "cyan";
         my $string_values = [["name", "cyan"], ["image", "cold"],];
         my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
         my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
     }
     {
         my $row_id = "magenta";
         my $string_values = [["name", "magenta"], ["image", "warm"],];
         my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
         my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
     }
     {
         my $row_id = "yellow";
         my $string_values = [["name", "yellow"], ["image", "warm"],];
         my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
         my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
     }
     {
         my $row_id = "green";
@@ -69,13 +71,13 @@ Jubatus::Recommender::Client - Perl extension for interfacing with recommendatio
         my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
 
         my $max_result_num = 10;
-        my $similar_row = $reco_client->similar_row_from_datum($name, $datum, $max_result_num);
+        my $similar_row = $reco_client->similar_row_from_datum($cluster_name, $datum, $max_result_num);
         # return cyan, yellow, blue
 
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
     }
     {
-        my $similar_row = $reco_client->similar_row_from_id($name, "green", $max_result_num);
+        my $similar_row = $reco_client->similar_row_from_id($cluster_name, "green", $max_result_num);
         # return green, cyan, yellow, blue
     }
 
@@ -91,7 +93,7 @@ Jubatus::Recommender::Client provide many methods.
 
 This constructors can die when invalid parameters are given.
 
-=head3 Jubatus::Recommender::Client->new($name, $port);
+=head3 Jubatus::Recommender::Client->new($host, $port);
 
 This code will create Jubatus::Recommender::Client object and return it.
 You should set $host and $port in agreement to running jubastat server apprication.

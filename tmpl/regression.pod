@@ -1,5 +1,7 @@
 
-__End__
+__END__
+
+=pod
 
 =encoding utf-8
 

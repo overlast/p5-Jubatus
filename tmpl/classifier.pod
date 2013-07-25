@@ -1,6 +1,8 @@
 
 __END__
 
+=pod
+
 =encoding utf-8
 
 =head1 NAME
@@ -25,7 +27,7 @@ Jubatus::Classifier::Client - Perl extension for interfacing with recommendation
 
     # In the following example, get maximum value from sample array using Jubatus::Classifier::Client object
 
-    my $is_clear = $clas_client->clear($name);
+    my $is_clear = $clas_client->clear($cluster_name);
 
     # Origin of this sample data is http://jubat.us/ja/tutorial/classifier_python.html#id2
     my @sample = (
@@ -76,7 +78,7 @@ Jubatus::Classifier::Client - Perl extension for interfacing with recommendation
     );
     @sample = List::Util::shuffle @sample;
 
-    my $is_train = $clas_client->train($name, \@sample);
+    my $is_train = $clas_client->train($cluster_name, \@sample);
 
     my @answer_arr = (
         ["徳川", Jubatus::Classifier::Datum->new([["name", "慶喜"]], [])->to_msgpack()],
@@ -86,7 +88,7 @@ Jubatus::Classifier::Client - Perl extension for interfacing with recommendation
 
     foreach my $answer (@answer_arr) {
         my $data = [$answer->[1]];
-        my $classified_result = $clas_client->classify($name, $data);
+        my $classified_result = $clas_client->classify($cluster_name, $data);
         my $max_att = 0;
         for (my $i = 1; $i <= $#{$classified_result->[0]}; $i++) {
             if ($classified_result->[0][$i - 1]{score} < $classified_result->[0][$i]{score}) {
@@ -110,7 +112,7 @@ Jubatus::Classifier::Client provide many methods.
 
 This constructors can die when invalid parameters are given.
 
-=head3 Jubatus::Classifier::Client->new($name, $port);
+=head3 Jubatus::Classifier::Client->new($host, $port);
 
 This code will create Jubatus::Classifier::Client object and return it.
 You should set $host and $port in agreement to running jubastat server apprication.

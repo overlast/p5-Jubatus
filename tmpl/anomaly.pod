@@ -1,6 +1,8 @@
 
 __END__
 
+=pod
+
 =encoding utf-8
 
 =head1 NAME
@@ -25,18 +27,18 @@ Jubatus::Anomaly::Client - Perl extension for interfacing with recommendation se
 
     # In the following example, get maximum value from sample array using Jubatus::Anomaly::Client object
 
-    my $is_clear = $anom_client->clear($name);
+    my $is_clear = $anom_client->clear($cluster_name);
 
     for (1..10) {
         my $datum = Jubatus::Anomaly::Datum->new([], [['val', 1.0]]);
-        my $add_result = $anom_client->add($name, $datum);
+        my $add_result = $anom_client->add($cluster_name, $datum);
     }
     my $val = 5.0;
     my @result = ();
 
     for (1..10) {
         my $datum = Jubatus::Anomaly::Datum->new([], [['val', $val]]);
-        my $add_result = $anom_client->add($name, $datum);
+        my $add_result = $anom_client->add($cluster_name, $datum);
         push @result, $add_result->[1];
         $val = 1.000001 + $val;
     }
@@ -67,7 +69,7 @@ Jubatus::Anomaly::Client provide many methods.
 
 This constructors can die when invalid parameters are given.
 
-=head3 Jubatus::Anomaly::Client->new($name, $port);
+=head3 Jubatus::Anomaly::Client->new($host, $port);
 
 This code will create Jubatus::Anomaly::Client object and return it.
 You should set $host and $port in agreement to running jubastat server apprication.
