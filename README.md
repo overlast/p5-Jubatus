@@ -1,22 +1,201 @@
 # NAME
 
-Jubatus - It's new $module
+Jubatus - Perl extension for interfacing with Jubatus, a distributed processing framework and streaming machine learning library.
 
 # SYNOPSIS
 
     use Jubatus;
 
+    my $cluster_name = "jubatus_perl_doc"; # even if it isn't in a distributed environment using ZooKeeper and Jubatus keepers.
+    my $host_name_or_ip_address = "localhost"; # master node's
+    my $port_number_of_juba_process = 13714; # meanless
+
+    my $juba_client_type = "stat"; # you can select from (recommender|regression|clasifier|stat|graph|anomaly)
+    my $graph_client = Jubatus->get_client($host_name_or_ip_address, $port_number_of_juba_process, $juba_client_type); # got Jubatus::Stat::Client object
+
+    # In the following example, get maximum value from sample array using Jubatus::Stat::Client object
+    my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
+    my $key = "sum";
+    foreach my $val (@sample) {
+        my $is_push = $stat_client->push($cluster_name, $key, $val);
+    }
+    my $result = $stat_client->sum($cluster_name, $key);
+
+    # $result is 15.0
+
 # DESCRIPTION
 
-Jubatus is ...
+This module provide a interface of Jubatus by TCP-based MessagePack RPC protocol using L<AnyEvent::MPRPC::Client>
+Jubatus is a distributed processing framework and streaming machine learning library.
+
+L<Jubatus> provide you a couple of export functions that are shortcut of L<Jubatus::Recommender::Client> and L<Jubatus::Regression::Client>, L<Jubatus::Classifier::Client>, L<Jubatus::Stat::Client>, L<Jubatus::Graph::Client>, L<Jubatus::Anomaly::Client>
+One is C<get_client> to get Client object by specifying client type.
+Another is C<get_recommender_client> and C<get_regression_client>, C<get_classifier_client>, C<get_stst_client>, C<get_graph_client>, C<get_anomaly_client> to get a specific Client object explicitly.
+
+# FUNCTIONS
+
+## get_client $host, $port, $juba_client_type
+
+$juba_client_type is a value to specify the client type of jubatus.
+You can select from (recommender|regression|clasifier|stat|graph|anomaly).
+You can also use (Recommender|Regression|Clasifier|Stat|Graph|Anomaly).
+
+If you select 'stat', you can get L<Jubatus::Stat::Client> object.
+
+    my $host = 'localhost';
+    my $port = '13714';
+    my $juba_client_type = 'stat';
+    my $stat_client = Jubatus->get_client($host, $port, $juba_client_type);
+
+This code will create Jubatus::Stat::Client object and return it.
+You should set $host and $port in agreement to running jubastat server apprication.
+
+The above code is equivalent to:
+
+    use Jubatus::Stat::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    Jubatus::Stat::Client->new($host, $port);
+
+## get_recommender_client $host, $port
+
+This code will create Jubatus::Recommener::Client object and return it.
+You should set $host and $port in agreement to running jubarecommender server apprication.
+
+    my $host = 'localhost';
+    my $port = '13714';
+    my $stat_client = Jubatus->get_recommender_client($host, $port);
+
+The above code is equivalent to:
+
+    use Jubatus::Recommender::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    Jubatus::Recommender::Client->new($host, $port);
+
+See L<Jubatus::Recommender::Client> for more detail.
+
+## get_regression_client $host, $port
+
+This code will create Jubatus::Regression::Client object and return it.
+You should set $host and $port in agreement to running jubaregression server apprication.
+
+    my $host = 'localhost';
+    my $port = '13714';
+    my $stat_client = Jubatus->get_regression_client($host, $port);
+
+The above code is equivalent to:
+
+    use Jubatus::Regression::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    Jubatus::Regression::Client->new($host, $port);
+
+See L<Jubatus::Regression::Client> for more detail.
+
+## get_classifier_client $host, $port
+
+This code will create Jubatus::Classifier::Client object and return it.
+You should set $host and $port in agreement to running jubaclassifier server apprication.
+
+    my $host = 'localhost';
+    my $port = '13714';
+    my $stat_client = Jubatus->get_classifier_client($host, $port);
+
+The above code is equivalent to:
+
+    use Jubatus::Classifier::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    Jubatus::Classifier::Client->new($host, $port);
+
+See L<Jubatus::Classifier::Client> for more detail.
+
+## get_stat_client $host, $port
+
+This code will create Jubatus::Stat::Client object and return it.
+You should set $host and $port in agreement to running jubastat server apprication.
+
+    my $host = 'localhost';
+    my $port = '13714';
+    my $stat_client = Jubatus->get_stat_client($host, $port);
+
+The above code is equivalent to:
+
+    use Jubatus::Stat::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    Jubatus::Stat::Client->new($host, $port);
+
+See L<Jubatus::Stat::Client> for more detail.
+
+## get_graph_client $host, $port
+
+This code will create Jubatus::Graph::Client object and return it.
+You should set $host and $port in agreement to running jubagraph server apprication.
+
+    my $host = 'localhost';
+    my $port = '13714';
+    my $graph_client = Jubatus->get_graph_client($host, $port);
+
+The above code is equivalent to:
+
+    use Jubatus::Graph::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    Jubatus::Graph::Client->new($host, $port);
+
+See L<Jubatus::Graph::Client> for more detail.
+
+## get_anomaly_client $host, $port
+
+This code will create Jubatus::Anomaly::Client object and return it.
+You should set $host and $port in agreement to running jubaanomaly server apprication.
+
+    my $host = 'localhost';
+    my $port = '13714';
+    my $anomaly_client = Jubatus->get_anomaly_client($host, $port);
+
+The above code is equivalent to:
+
+    use Jubatus::Anomaly::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    Jubatus::Anomaly::Client->new($host, $port);
+
+See L<Jubatus::Anomaly::Client> for more detail.
+
+# SEE ALSO
+
+L<http://jubat.us/>
+L<https://github.com/jubatus>
+
+L<AnyEvent::MPRPC>
+L<AnyEvent::MPRPC::Client>
+L<http://msgpack.org/>
+L<http://wiki.msgpack.org/display/MSGPACK/RPC+specification>
+
+L<https://github.com/overlast/p5-Jubatus>
 
 # LICENSE
 
-Copyright (C) Toshinori Sato (@overlast).
+Copyright (C) 2013 by Toshinori Sato (@overlast).
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
+The licence of Jubatus is LGPL 2.1.
+
+    Jubatus: Online machine learning framework for distributed environment
+    Copyright (C) 2011,2012 Preferred Infrastructure and Nippon Telegraph and Telephone Corporation.
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License version 2.1 as published by the Free Software Foundation.
+
+However Jubatus.pm and Jubatus::*.pm is the pure Perl modules.
+Therefor the licence of Jubatus.pm and Jubatus::*.pm is the Perl's licence.
+
 # AUTHOR
 
-Toshinori Sato (@overlast) <overlasting@gmail.com>
+Toshinori Sato (@overlast) E<lt>overlasting@gmail.comE<gt>
