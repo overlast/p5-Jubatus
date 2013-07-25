@@ -182,3 +182,166 @@ sub create_edge_here {
 
 1;
 
+__END__
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+Jubatus::Graph::Client - Perl extension for interfacing with recommendation server 'jubagraph'
+
+=head1 SYNOPSIS
+
+    use Jubatus;
+
+    my $cluster_name = "jubatus_perl_doc";
+    # even if it isn't in a distributed environment using ZooKeeper and Jubatus keepers.
+
+    my $host_name_or_ip_address = "localhost"; # master node's
+    my $port_number_of_juba_process = 13714; # meanless
+
+    my $juba_client_type = "graph";
+    # you can select from (recommender|regression|clasifier|stat|graph|anomaly)
+
+    my $graph_client = Jubatus->get_client($host_name_or_ip_address, $port_number_of_juba_process, $juba_client_type);
+    # got Jubatus::Graph::Client object
+
+    # In the following example, get maximum value from sample array using Jubatus::Graph::Client object
+
+    my $is_clear = $graph_client->clear($cluster_name);
+
+    my $centality_sample_tsv = << "__PAGERANK__";
+    1	2	3	4	5	7
+    2	1
+    3	1	2
+    4	2	3	5
+    5	1	3	4	6
+    6	1	5
+    7	5
+    __PAGERANK__
+
+    my $graph_client = Jubatus::Graph::Client->new($host, $server->{port});
+
+    my @sample_tsv_lines = split /\n/, $centality_sample_tsv;
+    my %nid2sid = ();
+    my %sid2nid = ();
+    my %sid2eid = ();
+
+    my $edge_query = [];
+    my $node_query = [];
+    my $pq = Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+    my $is_add = $graph_client->add_centrality_query($cluster_name, $pq);
+
+    foreach my $tsv_line (@sample_tsv_lines) {
+        my @colmuns = split /\t/, $tsv_line;
+        my $id = $colmuns[0];
+        my $node_id;
+        if (exists $sid2nid{$id}) {
+            $node_id = $sid2nid{$id};
+        }
+        else {
+            $node_id = $graph_client->create_node($cluster_name);
+            $graph_client->update_node($cluster_name, $node_id, {});
+            $nid2sid{$node_id} = $id;
+            $sid2nid{$id} = $node_id;
+        }
+
+        for (my $i = 1; $i <= $#colmuns; $i++) {
+            my $target_node_id;
+            my $out_id = $colmuns[$i];
+            if (exists $sid2nid{$out_id}) {
+                $target_node_id = $sid2nid{$out_id};
+            }
+            else {
+                $target_node_id = $graph_client->create_node($cluster_name);
+                $graph_client->update_node($cluster_name, $target_node_id, {});
+                $nid2sid{$target_node_id} = $out_id;
+                $sid2nid{$out_id} = $target_node_id;
+            }
+            my $edge = Jubatus::Graph::Edge->new({}, $node_id, $target_node_id);
+            my $edge_id = $graph_client->create_edge($cluster_name, $node_id, $edge);
+            $sid2eid{$id}{$out_id} = $edge_id;
+        }
+        my $is_index = $graph_client->update_index($cluster_name);
+    }
+    my @result = (0, 2.1, 1.2, 0.96, 0.72, 1, 0.35, 0.54);
+    for (my $qid = 1; $qid <= ($#sample_tsv_lines + 1); $qid++) {
+        my $centrality_type = 0; # pagerank
+        my $centrality = $graph_client->get_centrality($cluster_name, $sid2nid{$qid}, $centrality_type, $pq);
+
+        # $centrality equal $result[$qid]
+    }
+
+=head1 DESCRIPTION
+
+This module provide a interface of recommendation server 'jubagraph' by TCP-based MessagePack RPC protocol using L<AnyEvent::MPRPC::Client>
+
+=head1 METHODS
+
+Jubatus::Graph::Client provide many methods.
+
+=head2 Constructors
+
+This constructors can die when invalid parameters are given.
+
+=head3 Jubatus::Graph::Client->new($host, $port);
+
+This code will create Jubatus::Graph::Client object and return it.
+You should set $host and $port in agreement to running jubastat server apprication.
+
+    use Jubatus::Graph::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    my $obj = Jubatus::Graph::Client->new($host, $port);
+
+The above code is equivalent to:
+
+    use Jubatus;
+    my $host = 'localhost';
+    my $port = '13714';
+    my $juba_client_type = 'graph';
+    my $graph_client = Jubatus->get_client($host, $port, $juba_client_type);
+
+See L<Jubatus> for more detail.
+
+=head1 FUNCTIONS
+
+=head1 SEE ALSO
+
+L<http://jubat.us/>
+L<https://github.com/jubatus>
+
+L<AnyEvent::MPRPC>
+L<AnyEvent::MPRPC::Client>
+L<http://msgpack.org/>
+L<http://wiki.msgpack.org/display/MSGPACK/RPC+specification>
+
+L<https://github.com/overlast/p5-Jubatus>
+
+=head1 LICENSE
+
+Copyright (C) 2013 by Toshinori Sato (@overlast).
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+The licence of Jubatus is LGPL 2.1.
+
+    Jubatus: Online machine learning framework for distributed environment
+    Copyright (C) 2011,2012 Preferred Infrastructure and Nippon Telegraph and Telephone Corporation.
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License version 2.1 as published by the Free Software Foundation.
+
+However Jubatus.pm and Jubatus::*.pm is the pure Perl modules.
+Therefor the licence of Jubatus.pm and Jubatus::*.pm is the Perl's licence.
+
+=head1 AUTHOR
+
+Toshinori Sato (@overlast) E<lt>overlasting@gmail.comE<gt>
+
+=cut
+
