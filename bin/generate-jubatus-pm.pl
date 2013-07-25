@@ -93,7 +93,6 @@ __TMPL_BODY__
 __TMPL_TAIL__
 
     $getter .= $tmpl_tail;
-    print Dump $getter;
     return $getter;
 }
 
