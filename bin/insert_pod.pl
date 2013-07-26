@@ -53,14 +53,20 @@ sub replace_true_to_pod {
 
         my @pod_lines = <$pod_in>;
         my $pod = join "", @pod_lines;
-
+        my $is_package = 0;
         while (my $line = <$module_in>) {
-            if ($line =~ m|^1;$|) {
+            if (($is_package) && ($line =~ m|^1;$|)) {
                 print $module_out "1;\n";
                 print $module_out $pod;
             }
             else {
                 print $module_out $line;
+            }
+            if ($line =~ m|package Jubatus::.+::Client;|) {
+                $is_package = 1;
+            }
+            elsif ($line =~ m|package Jubatus::.+::Types;|) {
+                $is_package = 1;
             }
         }
 
