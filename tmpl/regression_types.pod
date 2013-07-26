@@ -8,7 +8,7 @@ __END__
 =head1 NAME
 
 Jubatus::Regression::Types - Perl extension for treating a data structure
-to use interface of recommendation server 'jubaregression'
+to use interface of linear regession server 'jubaregression'
 
 =head1 SYNOPSIS
 
@@ -42,13 +42,13 @@ If you want to use this package, all one need to do is write "use Jubatus::Regre
 Input:
 
     - $string_values is a array reference which are allowed to locate many array
-      references. Each of located arrry references should have two of string
+      references. Each of located arrry references should have two string
       value which are called "key" and "value".
 
     - $num_values is a array reference which are allowed to locate many array
-      references. Each of located arrry references should have first string
-      value which are called "key" and second float value which are called
-      "value".
+      references. Each of located arrry references should have two values.
+      First string value which are called "key" and second float value which
+      are called "value".
 
 Output:
 
@@ -75,12 +75,13 @@ Output:
       This array reference locate $string_values and $num_values which are given
       in constructor.
 
-      This array reference certainly locate two of array references. First
+      This array reference certainly locate two array references. First
       reference are allowed to locate many array references. Each of located
-      arrry references should have two of string value which are called "key"
+      arrry references should have two string value which are called "key"
       and "value". Second reference are allowed to locate many array references.
-      Each of located arrry references should have first string value which
-      are called "key" and second float value which are called "value".
+      Each of located arrry references should have two values. First string
+      value which are called "key" and second float value which are called
+      "value".
 
 =head5 from_msgpack->($return_value_from_msgpack)
 
@@ -88,12 +89,13 @@ Input:
 
     - $return_value_from_msgpack is a array reference.
 
-      This array reference certainly locate two of array references. First
+      This array reference certainly locate two array references. First
       reference are allowed to locate many array references. Each of located
-      arrry references should have two of string value which are called "key"
+      arrry references should have two string value which are called "key"
       and "value". Second reference are allowed to locate many array references.
-      Each of located arrry references should have first string value which
-      are called "key" and second float value which are called "value".
+      Each of located arrry references should have two values. First string
+      value which are called "key" and second float value which are called
+      "value".
 
 Output:
 
