@@ -42,7 +42,7 @@ There is not it now.
 
 =head1 SEE ALSO
 
-L<Jubatus::Stat::Clients>
+L<Jubatus::Stat::Client>
 
 L<http://jubat.us/>
 

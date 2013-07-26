@@ -385,7 +385,7 @@ Output:
 
 =head1 SEE ALSO
 
-L<Jubatus::Graph::Clients>
+L<Jubatus::Graph::Client>
 
 L<http://jubat.us/>
 L<https://github.com/jubatus>

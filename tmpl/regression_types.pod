@@ -103,7 +103,7 @@ Output:
 
 =head1 SEE ALSO
 
-L<Jubatus::Regression::Clients>
+L<Jubatus::Regression::Client>
 
 L<http://jubat.us/>
 L<https://github.com/jubatus>

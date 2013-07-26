@@ -156,7 +156,7 @@ Output:
 
 =head1 SEE ALSO
 
-L<Jubatus::Classifier::Clients>
+L<Jubatus::Classifier::Client>
 
 L<http://jubat.us/>
 L<https://github.com/jubatus>
