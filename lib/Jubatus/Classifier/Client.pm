@@ -79,7 +79,7 @@ __END__
 
 =head1 NAME
 
-Jubatus::Classifier::Client - Perl extension for interfacing with recommendation server 'jubaclassifier'
+Jubatus::Classifier::Client - Perl extension for interfacing with classification server 'jubaclassifier'
 
 =head1 SYNOPSIS
 

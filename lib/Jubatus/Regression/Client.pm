@@ -79,7 +79,7 @@ __END__
 
 =head1 NAME
 
-Jubatus::Regression::Client - Perl extension for interfacing with recommendation server 'jubaregression'
+Jubatus::Regression::Client - Perl extension for interfacing with linear regression server 'jubaregression'
 
 =head1 SYNOPSIS
 

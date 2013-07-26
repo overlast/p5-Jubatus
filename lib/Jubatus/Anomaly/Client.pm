@@ -99,7 +99,8 @@ __END__
 
 =head1 NAME
 
-Jubatus::Anomaly::Client - Perl extension for interfacing with recommendation server 'jubaanomaly'
+Jubatus::Anomaly::Client - Perl extension for interfacing with  anomaly values
+detection server 'jubaanomaly'
 
 =head1 SYNOPSIS
 
