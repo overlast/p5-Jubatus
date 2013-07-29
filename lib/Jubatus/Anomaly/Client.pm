@@ -99,7 +99,7 @@ __END__
 
 =head1 NAME
 
-Jubatus::Anomaly::Client - Perl extension for interfacing with  anomaly values
+Jubatus::Anomaly::Client - Perl extension for interfacing with anomaly values
 detection server 'jubaanomaly'
 
 =head1 SYNOPSIS
@@ -182,7 +182,109 @@ The above code is equivalent to:
 
 See L<Jubatus> for more detail.
 
-=head1 FUNCTIONS
+=head2 Functions
+
+=head3 get_client()
+
+Returns the reference to the Jubatus::Anomaly::Client object which has a "client"
+field. This field is a reference of AnyEvent::MPRPC::Client object to call a raw
+MessagePack-RPC client instance which is used by Jubatus client libraries. The
+functions of Jubatus::Anomaly::Client are wrapper of AnyEvent::MPRPC::Client.
+
+Input:
+
+    - None
+
+Output:
+
+    - Jubatus::Anomaly::Client object - Return a Jubatus::Anomaly::Client object
+      Which is used ad MessagePack-RPC client instance of jubaanomaly server.
+
+=head3 get_config($cluster_name)
+
+Returns a server configuration from a server which is belonging to the
+cluster which execute the $cluster_name tasks.
+
+Input:
+
+    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
+      cluster
+
+Output:
+
+    - JSON file formated string - Returns a server configuration from a server.
+      This configuration is same as the configuration file which was assigned
+      when you start the jubaanomaly server.
+
+=head3 get_status($cluster_name)
+
+Returns server status from all servers which are belonging to the cluster which
+execute the $cluster_name tasks. Each server is represented by a pair of
+a host name and a port number.
+
+Input:
+
+    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
+      cluster
+
+=head3 save($cluster_name, $save_file_name)
+
+Store the learing model as $save_file_name to the local disk of all servers
+which are belonging to the cluster which execute the $cluster_name tasks.
+
+Input:
+
+    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
+      cluster
+
+    - $save_file_name - File name to save
+
+Output:
+
+    - binary(1 or 0) - Return integer value 1 if this function saves files
+      successfully at all servers
+
+=head3 load($cluster_name, $load_file_name)
+
+Restore the saved model using $load_file_name at the local disk of all servers
+which are belonging to the cluster which execute the $cluster_name tasks.
+
+Input:
+
+    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
+      cluster
+
+    - $save_file_name - File name to restore
+
+Output:
+
+    - binary(1 or 0) - Return integer value 1 if this function restore saved
+      model successfully at all servers
+
+=head3 clear($cluster_name)
+
+Completely clears the learning model on the memory of all servers which are
+belonging to the cluster which execute the $cluster_name tasks.
+
+Input:
+
+    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
+      cluster
+
+Output:
+
+    - binary(1 or 0) - Return integer value 1 if this function clears the
+      saved model successfully at all servers
+
+Output:
+
+    - Hash reference which have a hash reference value - Returns a server
+      status from all servers which are belonging to the cluster which execute
+      the $cluster_name tasks. Each server is represented by a pair of host name
+      and a port number. This pair is used for a key of the return hash
+      reference. The value of the return hash reference is hash reference. The
+      keys of this hash reference are the server status name and each values are
+      the server status informations.
 
 =head1 SEE ALSO
 
