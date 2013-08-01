@@ -4,7 +4,7 @@ use v5.10.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.01";
+our $VERSION = "0.0.0_01";
 
 #### USE ALL AUTO GENERATE MODULES ####
 
