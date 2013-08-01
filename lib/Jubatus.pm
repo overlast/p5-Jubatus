@@ -4,14 +4,21 @@ use v5.10.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.01";
+our $VERSION = "0.0.0_01";
 
+use Jubatus::NearestNeighbor::Client;
 use Jubatus::Regression::Client;
 use Jubatus::Recommender::Client;
 use Jubatus::Classifier::Client;
 use Jubatus::Stat::Client;
 use Jubatus::Graph::Client;
 use Jubatus::Anomaly::Client;
+
+sub get_nearestneighbor_client {
+    my ($self, $host, $port) = @_;
+    my $client = Jubatus::NearestNeighbor::Client->new($host, $port);
+    return $client;
+}
 
 sub get_regression_client {
     my ($self, $host, $port) = @_;
@@ -54,6 +61,9 @@ sub get_client {
     my ($self, $host, $port, $param) = @_;
     my $client;
     given ($param) {
+        when (/^NearestNeighbor|nearestneighbor$/) {
+            $client = Jubatus->get_nearestneighbor_client($host, $port);
+        }
         when (/^Regression|regression$/) {
             $client = Jubatus->get_regression_client($host, $port);
         }

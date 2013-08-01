@@ -352,7 +352,7 @@ Input:
 
 =head3 save($cluster_name, $save_file_name)
 
-Store the learing model as $save_file_name to the local disk of all servers
+Stores the learing model as $save_file_name to the local disk of all servers
 which are belonging to the cluster which execute the $cluster_name tasks.
 
 Input:
@@ -369,7 +369,7 @@ Output:
 
 =head3 load($cluster_name, $load_file_name)
 
-Restore the saved model using $load_file_name at the local disk of all servers
+Restores the saved model using $load_file_name at the local disk of all servers
 which are belonging to the cluster which execute the $cluster_name tasks.
 
 Input:

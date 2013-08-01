@@ -12,9 +12,7 @@ use AnyEvent::MPRPC;
 
 sub new {
   my ($self, $property, $in_edges, $out_edges) = @_;
-  my $mp = Data::MessagePack->new();
   my %hash = (
-    'mp' => $mp,
     'property' => $property,
     'in_edges' => $in_edges,
     'out_edges' => $out_edges,
@@ -50,9 +48,7 @@ use AnyEvent::MPRPC;
 
 sub new {
   my ($self, $edge_query, $node_query) = @_;
-  my $mp = Data::MessagePack->new();
   my %hash = (
-    'mp' => $mp,
     'edge_query' => $edge_query,
     'node_query' => $node_query,
   );
@@ -87,9 +83,7 @@ use AnyEvent::MPRPC;
 
 sub new {
   my ($self, $property, $source, $target) = @_;
-  my $mp = Data::MessagePack->new();
   my %hash = (
-    'mp' => $mp,
     'property' => $property,
     'source' => $source,
     'target' => $target,
@@ -124,9 +118,7 @@ use AnyEvent::MPRPC;
 
 sub new {
   my ($self, $source, $target, $max_hop, $query) = @_;
-  my $mp = Data::MessagePack->new();
   my %hash = (
-    'mp' => $mp,
     'source' => $source,
     'target' => $target,
     'max_hop' => $max_hop,

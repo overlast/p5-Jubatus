@@ -12,9 +12,7 @@ use AnyEvent::MPRPC;
 
 sub new {
   my ($self, $string_values, $num_values) = @_;
-  my $mp = Data::MessagePack->new();
   my %hash = (
-    'mp' => $mp,
     'string_values' => $string_values,
     'num_values' => $num_values,
   );
@@ -49,9 +47,7 @@ use AnyEvent::MPRPC;
 
 sub new {
   my ($self, $label, $score) = @_;
-  my $mp = Data::MessagePack->new();
   my %hash = (
-    'mp' => $mp,
     'label' => $label,
     'score' => $score,
   );
