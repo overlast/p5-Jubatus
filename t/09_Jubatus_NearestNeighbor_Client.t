@@ -117,6 +117,8 @@ subtest 'Test model data updator' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
     my $near_client = Jubatus::NearestNeighbor::Client->new($host, $server->{port});
+
+ # jubanearest_neighbor is not implemented the clear().
  #   subtest 'call clear()' => sub {
  #       my $is_clear = $near_client->clear($name);
  #       is ($is_clear, 1, "Call clear()");
@@ -136,12 +138,15 @@ subtest 'Test model data updator' => sub {
     };
 
     my $row_id = "jubatus recommender test";
-    #  subtest 'test set_row()' => sub {
- #       my $is_update = $near_client->set_row($name, $row_id, $datum);
-  #      is (1, $is_update, "Call set_row()");
-  #  };
+    subtest 'test set_row()' => sub {
+        my $is_update = $near_client->set_row($name, $row_id, $datum);
+
+ # jubanearest_neighbor->set_row() always return 0.
+        is ($is_update, 0, "Call set_row()");
+    };
 };
 
+ # jubanearest_neighbor is not implemented the clear().
 #subtest 'Test all model data cleaner' => sub {
 #    subtest 'test clear()' => sub {
 #        my $name = "cpan module test";
