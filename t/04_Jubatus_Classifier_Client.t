@@ -205,7 +205,6 @@ subtest 'Test classifier' => sub {
     };
     subtest 'test train()' => sub {
         my $is_train = $clas_client->train($name, \@sample);
-        print Dump $is_train;
         is(44, $is_train, "train all samples (44 samples)")
     };
     subtest 'test classifier()' => sub {
