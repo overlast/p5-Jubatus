@@ -8,7 +8,7 @@ __END__
 =head1 NAME
 
 Jubatus::NearestNeighbor::Types - Perl extension for treating a data structure
-to use interface of recommendation server 'jubanearest_neighbor'
+to use interface of nearest neighbor analysis server 'jubanearest_neighbor'
 
 =head1 SYNOPSIS
 
