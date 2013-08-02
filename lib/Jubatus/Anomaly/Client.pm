@@ -120,7 +120,7 @@ detection server 'jubaanomaly'
     my $port_number_of_juba_process = 13714; # meanless
 
     my $juba_client_type = "anomaly";
-    # you can select from (recommender|regression|clasifier|stat|graph|anomaly)
+    # you can select from (recommender|regression|clasifier|stat|graph|anomaly|nearestneighbor)
 
     my $anom_client = Jubatus->get_client($host_name_or_ip_address, $port_number_of_juba_process, $juba_client_type);
     # got Jubatus::Anomaly::Client object

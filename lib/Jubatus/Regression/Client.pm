@@ -92,7 +92,7 @@ Jubatus::Regression::Client - Perl extension for interfacing with linear regress
     my $port_number_of_juba_process = 13714; # meanless
 
     my $juba_client_type = "regression";
-    # you can select from (recommender|regression|clasifier|stat|graph|anomaly)
+    # you can select from (recommender|regression|clasifier|stat|graph|anomaly|nearestneighbor)
 
     my $regr_client = Jubatus->get_client($host_name_or_ip_address, $port_number_of_juba_process, $juba_client_type);
     # got Jubatus::Regression::Client object

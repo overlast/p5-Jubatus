@@ -126,9 +126,17 @@ Jubatus - Perl extension for interfacing with Jubatus, a distributed processing 
 This module provide a interface of Jubatus by TCP-based MessagePack RPC protocol using L<AnyEvent::MPRPC::Client>
 Jubatus is a distributed processing framework and streaming machine learning library.
 
-L<Jubatus> provide you a couple of export functions that are shortcut of L<Jubatus::Recommender::Client> and L<Jubatus::Regression::Client>, L<Jubatus::Classifier::Client>, L<Jubatus::Stat::Client>, L<Jubatus::Graph::Client>, L<Jubatus::Anomaly::Client>
+L<Jubatus> provide you a couple of export functions that are shortcut of
+ L<Jubatus::Recommender::Client> and L<Jubatus::Regression::Client>,
+ L<Jubatus::Classifier::Client>, L<Jubatus::Stat::Client>,
+ L<Jubatus::Graph::Client>, L<Jubatus::Anomaly::Client>,
+ L<Jubatus:;NearestNeighbor::Client>,
+
 One is C<get_client> to get Client object by specifying client type.
-Another is C<get_recommender_client> and C<get_regression_client>, C<get_classifier_client>, C<get_stst_client>, C<get_graph_client>, C<get_anomaly_client> to get a specific Client object explicitly.
+Another is C<get_recommender_client> and C<get_regression_client>,
+ C<get_classifier_client>, C<get_stst_client>, C<get_graph_client>,
+ C<get_anomaly_client>, C<get_nearestneighbor_client> to get a specific Client
+  object explicitly.
 
 =head1 FUNCTIONS
 
@@ -262,6 +270,25 @@ The above code is equivalent to:
     Jubatus::Anomaly::Client->new($host, $port);
 
 See L<Jubatus::Anomaly::Client> for more detail.
+
+=head2 get_nearestneighbor_client $host, $port
+
+This code will create Jubatus::NearestNeighbor::Client object and return it.
+You should set $host and $port in agreement to running jubanearest_neighbor server apprication.
+
+    my $host = 'localhost';
+    my $port = '13714';
+    my $nearest_neighbor_client = Jubatus->get_nearestneighbor_client($host, $port);
+
+The above code is equivalent to:
+
+    use Jubatus::NearestNeighbor::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    Jubatus::NearestNeighbor::Client->new($host, $port);
+
+See L<Jubatus::NearestNeighbor::Client> for more detail.
+
 
 =head1 SEE ALSO
 
