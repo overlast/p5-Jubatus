@@ -70,7 +70,7 @@ sub get_status {
 }
 
 1;
-
+1
 __END__
 
 =pod
@@ -79,7 +79,8 @@ __END__
 
 =head1 NAME
 
-Jubatus::Regression::Client - Perl extension for interfacing with linear regression server 'jubaregression'
+Jubatus::Regression::Client - Perl extension for interfacing with linear
+ regression server 'jubaregression'
 
 =head1 SYNOPSIS
 
@@ -92,7 +93,7 @@ Jubatus::Regression::Client - Perl extension for interfacing with linear regress
     my $port_number_of_juba_process = 13714; # meanless
 
     my $juba_client_type = "regression";
-    # you can select from (recommender|regression|clasifier|stat|graph|anomaly|nearestneighbor)
+    # you can select from (recommender|regression|classifier|stat|graph|anomaly|nearestneighbor)
 
     my $regr_client = Jubatus->get_client($host_name_or_ip_address, $port_number_of_juba_process, $juba_client_type);
     # got Jubatus::Regression::Client object
@@ -288,7 +289,7 @@ This constructors can die when invalid parameters are given.
 =head3 Jubatus::Regression::Client->new($host, $port);
 
 This code will create Jubatus::Regression::Client object and return it.
-You should set $host and $port in agreement to running jubastat server apprication.
+You should set $host and $port in agreement to running jubastat server application.
 
     use Jubatus::Regression::Client;
     my $host = 'localhost';
@@ -352,7 +353,7 @@ Input:
 
 =head3 save($cluster_name, $save_file_name)
 
-Stores the learing model as $save_file_name to the local disk of all servers
+Stores the learning model as $save_file_name to the local disk of all servers
 which are belonging to the cluster which execute the $cluster_name tasks.
 
 Input:

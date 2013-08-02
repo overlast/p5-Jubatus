@@ -56,7 +56,7 @@ __END__
 =head1 NAME
 
 Jubatus::Regression::Types - Perl extension for treating a data structure
-to use interface of linear regession server 'jubaregression'
+to use interface of linear regression server 'jubaregression'
 
 =head1 SYNOPSIS
 
@@ -85,7 +85,7 @@ If you want to use this package, all one need to do is write "use Jubatus::Regre
 
 =head4 Constructors
 
-=head5 Jubatus::Regression::Datum->new($string_values, $num_values);
+=head4 Jubatus::Regression::Datum->new($string_values, $num_values);
 
 Input:
 
@@ -110,7 +110,7 @@ Output:
 
 =head4 Functions
 
-=head5 to_msgpack->()
+=head4 to_msgpack->()
 
 Input:
 
@@ -131,7 +131,7 @@ Output:
       value which are called "key" and second float value which are called
       "value".
 
-=head5 from_msgpack->($return_value_from_msgpack)
+=head4 from_msgpack->($return_value_from_msgpack)
 
 Input:
 

@@ -100,7 +100,7 @@ If you want to use this package, all one need to do is write "use Jubatus::Recom
 
 =head4 Constructors
 
-=head5 Jubatus::Recommender::Datum->new($string_values, $num_values);
+=head4 Jubatus::Recommender::Datum->new($string_values, $num_values);
 
 Input:
 
@@ -125,7 +125,7 @@ Output:
 
 =head4 Functions
 
-=head5 to_msgpack->()
+=head4 to_msgpack->()
 
 Input:
 
@@ -146,7 +146,7 @@ Output:
       value which are called "key" and second float value which are called
       "value".
 
-=head5 from_msgpack->($return_value_from_msgpack)
+=head4 from_msgpack->($return_value_from_msgpack)
 
 Input:
 
@@ -170,7 +170,7 @@ If you want to use this package, all one need to do is write "use Jubatus::Recom
 
 =head4 Functions
 
-=head5 from_msgpack->($return_value_from_msgpack)
+=head4 from_msgpack->($return_value_from_msgpack)
 
 Input:
 

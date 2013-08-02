@@ -108,7 +108,7 @@ Jubatus - Perl extension for interfacing with Jubatus, a distributed processing 
     my $host_name_or_ip_address = "localhost"; # master node's
     my $port_number_of_juba_process = 13714; # meanless
 
-    my $juba_client_type = "stat"; # you can select from (recommender|regression|clasifier|stat|graph|anomaly)
+    my $juba_client_type = "stat"; # you can select from (recommender|regression|classifier|stat|graph|anomaly)
     my $graph_client = Jubatus->get_client($host_name_or_ip_address, $port_number_of_juba_process, $juba_client_type); # got Jubatus::Stat::Client object
 
     # In the following example, get maximum value from sample array using Jubatus::Stat::Client object
@@ -143,8 +143,8 @@ Another is C<get_recommender_client> and C<get_regression_client>,
 =head2 get_client $host, $port, $juba_client_type
 
 $juba_client_type is a value to specify the client type of jubatus.
-You can select from (recommender|regression|clasifier|stat|graph|anomaly).
-You can also use (Recommender|Regression|Clasifier|Stat|Graph|Anomaly).
+You can select from (recommender|regression|classifier|stat|graph|anomaly).
+You can also use (Recommender|Regression|Classifier|Stat|Graph|Anomaly).
 
 If you select 'stat', you can get L<Jubatus::Stat::Client> object.
 
@@ -154,7 +154,7 @@ If you select 'stat', you can get L<Jubatus::Stat::Client> object.
     my $stat_client = Jubatus->get_client($host, $port, $juba_client_type);
 
 This code will create Jubatus::Stat::Client object and return it.
-You should set $host and $port in agreement to running jubastat server apprication.
+You should set $host and $port in agreement to running jubastat server application.
 
 The above code is equivalent to:
 
@@ -166,7 +166,7 @@ The above code is equivalent to:
 =head2 get_recommender_client $host, $port
 
 This code will create Jubatus::Recommener::Client object and return it.
-You should set $host and $port in agreement to running jubarecommender server apprication.
+You should set $host and $port in agreement to running jubarecommender server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -184,7 +184,7 @@ See L<Jubatus::Recommender::Client> for more detail.
 =head2 get_regression_client $host, $port
 
 This code will create Jubatus::Regression::Client object and return it.
-You should set $host and $port in agreement to running jubaregression server apprication.
+You should set $host and $port in agreement to running jubaregression server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -202,7 +202,7 @@ See L<Jubatus::Regression::Client> for more detail.
 =head2 get_classifier_client $host, $port
 
 This code will create Jubatus::Classifier::Client object and return it.
-You should set $host and $port in agreement to running jubaclassifier server apprication.
+You should set $host and $port in agreement to running jubaclassifier server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -220,7 +220,7 @@ See L<Jubatus::Classifier::Client> for more detail.
 =head2 get_stat_client $host, $port
 
 This code will create Jubatus::Stat::Client object and return it.
-You should set $host and $port in agreement to running jubastat server apprication.
+You should set $host and $port in agreement to running jubastat server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -238,7 +238,7 @@ See L<Jubatus::Stat::Client> for more detail.
 =head2 get_graph_client $host, $port
 
 This code will create Jubatus::Graph::Client object and return it.
-You should set $host and $port in agreement to running jubagraph server apprication.
+You should set $host and $port in agreement to running jubagraph server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -256,7 +256,7 @@ See L<Jubatus::Graph::Client> for more detail.
 =head2 get_anomaly_client $host, $port
 
 This code will create Jubatus::Anomaly::Client object and return it.
-You should set $host and $port in agreement to running jubaanomaly server apprication.
+You should set $host and $port in agreement to running jubaanomaly server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -274,7 +274,7 @@ See L<Jubatus::Anomaly::Client> for more detail.
 =head2 get_nearestneighbor_client $host, $port
 
 This code will create Jubatus::NearestNeighbor::Client object and return it.
-You should set $host and $port in agreement to running jubanearest_neighbor server apprication.
+You should set $host and $port in agreement to running jubanearest_neighbor server application.
 
     my $host = 'localhost';
     my $port = '13714';

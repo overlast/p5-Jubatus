@@ -195,7 +195,7 @@ If you want to use this package, all one need to do is write "use Jubatus::Graph
 
 =head4 Constructors
 
-=head5 Jubatus::Graph::Datum->new($string_values, $num_values);
+=head4 Jubatus::Graph::Datum->new($string_values, $num_values);
 
 Input:
 
@@ -220,7 +220,7 @@ Output:
 
 =head4 Functions
 
-=head5 to_msgpack->()
+=head4 to_msgpack->()
 
 Input:
 
@@ -241,7 +241,7 @@ Output:
       value which are called "key" and second float value which are called
       "value".
 
-=head5 from_msgpack->($return_value_from_msgpack)
+=head4 from_msgpack->($return_value_from_msgpack)
 
 Input:
 
@@ -265,7 +265,7 @@ If you want to use this package, all one need to do is write "use Jubatus::Graph
 
 =head4 Constructors
 
-=head5 Jubatus::Graph::Node->new($property, $in_edges, $out_edges);
+=head4 Jubatus::Graph::Node->new($property, $in_edges, $out_edges);
 
 Input:
     - $property is a hash reference which are allowed to contain many
@@ -299,7 +299,7 @@ Output:
 
 =head4 Functions
 
-=head5 from_msgpack->($return_value_from_msgpack)
+=head4 from_msgpack->($return_value_from_msgpack)
 
 Input:
 
@@ -319,7 +319,7 @@ Output:
 
     - Jubatus::Graph::Node object.
 
-=head5 to_msgpack->()
+=head4 to_msgpack->()
 
 Input:
 
@@ -338,7 +338,7 @@ If you want to use this package, all one need to do is write "use Jubatus::Graph
 
 =head4 Constructors
 
-=head5 Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
+=head4 Jubatus::Graph::PresetQuery->new($edge_query, $node_query);
 
 Input:
 
@@ -368,7 +368,7 @@ Output:
 
 =head4 Functions
 
-=head5 from_msgpack->($return_value_from_msgpack)
+=head4 from_msgpack->($return_value_from_msgpack)
 
 Input:
 
@@ -381,7 +381,7 @@ Output:
 
     - Jubatus::Graph::PresetQuery object
 
-=head5 to_msgpack->()
+=head4 to_msgpack->()
 
 Input:
 
@@ -400,7 +400,7 @@ If you want to use this package, all one need to do is write "use Jubatus::Graph
 
 =head4 Constructors
 
-=head5 Jubatus::Graph::Edge->new($property, $source, $target);
+=head4 Jubatus::Graph::Edge->new($property, $source, $target);
 
 Input:
 
@@ -435,7 +435,7 @@ Output:
 
 =head4 Functions
 
-=head5 from_msgpack->($return_value_from_msgpack)
+=head4 from_msgpack->($return_value_from_msgpack)
 
 Input:
 
@@ -455,7 +455,7 @@ Output:
 
     - Jubatus::Graph::Edge object.
 
-=head5 to_msgpack->()
+=head4 to_msgpack->()
 
 Input:
 
@@ -474,7 +474,7 @@ If you want to use this package, all one need to do is write "use Jubatus::Graph
 
 =head4 Constructors
 
-=head5 Jubatus::Graph::ShortestPathQuery->new($source, $target, $max_hop, $query);
+=head4 Jubatus::Graph::ShortestPathQuery->new($source, $target, $max_hop, $query);
 
 Input:
 
@@ -509,7 +509,7 @@ Output:
 
 =head4 Functions
 
-=head5 from_msgpack->($return_value_from_msgpack)
+=head4 from_msgpack->($return_value_from_msgpack)
 
 Input:
 
@@ -528,7 +528,7 @@ Output:
 
     - Jubatus::Graph::ShortestPathQuery object.
 
-=head5 to_msgpack->()
+=head4 to_msgpack->()
 
 Input:
 
