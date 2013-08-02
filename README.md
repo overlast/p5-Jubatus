@@ -10,7 +10,7 @@ Jubatus - Perl extension for interfacing with Jubatus, a distributed processing 
     my $host_name_or_ip_address = "localhost"; # master node's
     my $port_number_of_juba_process = 13714; # meanless
 
-    my $juba_client_type = "stat"; # you can select from (recommender|regression|clasifier|stat|graph|anomaly)
+    my $juba_client_type = "stat"; # you can select from (recommender|regression|classifier|stat|graph|anomaly)
     my $graph_client = Jubatus->get_client($host_name_or_ip_address, $port_number_of_juba_process, $juba_client_type); # got Jubatus::Stat::Client object
 
     # In the following example, get maximum value from sample array using Jubatus::Stat::Client object
@@ -25,25 +25,30 @@ Jubatus - Perl extension for interfacing with Jubatus, a distributed processing 
 
 # DESCRIPTION
 
-This module provide a interface of Jubatus by TCP-based MessagePack RPC protocol using L<AnyEvent::MPRPC::Client>
+This module provide a interface of Jubatus by TCP-based MessagePack RPC protocol using [AnyEvent::MPRPC::Client](http://search.cpan.org/perldoc?AnyEvent::MPRPC::Client)
 Jubatus is a distributed processing framework and streaming machine learning library.
 
-L<Jubatus> provide you a couple of export functions that are shortcut of L<Jubatus::Recommender::Client> and L<Jubatus::Regression::Client>, L<Jubatus::Classifier::Client>, L<Jubatus::Stat::Client>, L<Jubatus::Graph::Client>, L<Jubatus::Anomaly::Client>
-One is C<get_client> to get Client object by specifying client type.
-Another is C<get_recommender_client> and C<get_regression_client>, C<get_classifier_client>, C<get_stst_client>, C<get_graph_client>, C<get_anomaly_client> to get a specific Client object explicitly.
+[Jubatus](http://search.cpan.org/perldoc?Jubatus) provide you a couple of export functions that are shortcut of
+ [Jubatus::Recommender::Client](http://search.cpan.org/perldoc?Jubatus::Recommender::Client) and [Jubatus::Regression::Client](http://search.cpan.org/perldoc?Jubatus::Regression::Client),
+ [Jubatus::Classifier::Client](http://search.cpan.org/perldoc?Jubatus::Classifier::Client), [Jubatus::Stat::Client](http://search.cpan.org/perldoc?Jubatus::Stat::Client),
+ [Jubatus::Graph::Client](http://search.cpan.org/perldoc?Jubatus::Graph::Client), [Jubatus::Anomaly::Client](http://search.cpan.org/perldoc?Jubatus::Anomaly::Client),
+ [Jubatus:;NearestNeighbor::Client](Jubatus:;NearestNeighbor::Client),
 
+One is `get_client` to get Client object by specifying client type.
+Another is `get_recommender_client` and `get_regression_client`,
+ `get_classifier_client`, `get_stst_client`, `get_graph_client`,
+ `get_anomaly_client`, `get_nearestneighbor_client` to get a specific Client
+  object explicitly.
 
-# METHODS
+# FUNCTIONS
 
-## Functions
+## get\_client $host, $port, $juba\_client\_type
 
-### get_client $host, $port, $juba_client_type
+$juba\_client\_type is a value to specify the client type of jubatus.
+You can select from (recommender|regression|classifier|stat|graph|anomaly).
+You can also use (Recommender|Regression|Classifier|Stat|Graph|Anomaly).
 
-$juba_client_type is a value to specify the client type of jubatus.
-You can select from (recommender|regression|clasifier|stat|graph|anomaly).
-You can also use (Recommender|Regression|Clasifier|Stat|Graph|Anomaly).
-
-If you select 'stat', you can get L<Jubatus::Stat::Client> object.
+If you select 'stat', you can get [Jubatus::Stat::Client](http://search.cpan.org/perldoc?Jubatus::Stat::Client) object.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -51,7 +56,7 @@ If you select 'stat', you can get L<Jubatus::Stat::Client> object.
     my $stat_client = Jubatus->get_client($host, $port, $juba_client_type);
 
 This code will create Jubatus::Stat::Client object and return it.
-You should set $host and $port in agreement to running jubastat server apprication.
+You should set $host and $port in agreement to running jubastat server application.
 
 The above code is equivalent to:
 
@@ -60,10 +65,10 @@ The above code is equivalent to:
     my $port = '13714';
     Jubatus::Stat::Client->new($host, $port);
 
-### get_recommender_client $host, $port
+## get\_recommender\_client $host, $port
 
 This code will create Jubatus::Recommener::Client object and return it.
-You should set $host and $port in agreement to running jubarecommender server apprication.
+You should set $host and $port in agreement to running jubarecommender server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -76,12 +81,12 @@ The above code is equivalent to:
     my $port = '13714';
     Jubatus::Recommender::Client->new($host, $port);
 
-See L<Jubatus::Recommender::Client> for more detail.
+See [Jubatus::Recommender::Client](http://search.cpan.org/perldoc?Jubatus::Recommender::Client) for more detail.
 
-### get_regression_client $host, $port
+## get\_regression\_client $host, $port
 
 This code will create Jubatus::Regression::Client object and return it.
-You should set $host and $port in agreement to running jubaregression server apprication.
+You should set $host and $port in agreement to running jubaregression server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -94,12 +99,12 @@ The above code is equivalent to:
     my $port = '13714';
     Jubatus::Regression::Client->new($host, $port);
 
-See L<Jubatus::Regression::Client> for more detail.
+See [Jubatus::Regression::Client](http://search.cpan.org/perldoc?Jubatus::Regression::Client) for more detail.
 
-### get_classifier_client $host, $port
+## get\_classifier\_client $host, $port
 
 This code will create Jubatus::Classifier::Client object and return it.
-You should set $host and $port in agreement to running jubaclassifier server apprication.
+You should set $host and $port in agreement to running jubaclassifier server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -112,12 +117,12 @@ The above code is equivalent to:
     my $port = '13714';
     Jubatus::Classifier::Client->new($host, $port);
 
-See L<Jubatus::Classifier::Client> for more detail.
+See [Jubatus::Classifier::Client](http://search.cpan.org/perldoc?Jubatus::Classifier::Client) for more detail.
 
-### get_stat_client $host, $port
+## get\_stat\_client $host, $port
 
 This code will create Jubatus::Stat::Client object and return it.
-You should set $host and $port in agreement to running jubastat server apprication.
+You should set $host and $port in agreement to running jubastat server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -130,12 +135,12 @@ The above code is equivalent to:
     my $port = '13714';
     Jubatus::Stat::Client->new($host, $port);
 
-See L<Jubatus::Stat::Client> for more detail.
+See [Jubatus::Stat::Client](http://search.cpan.org/perldoc?Jubatus::Stat::Client) for more detail.
 
-### get_graph_client $host, $port
+## get\_graph\_client $host, $port
 
 This code will create Jubatus::Graph::Client object and return it.
-You should set $host and $port in agreement to running jubagraph server apprication.
+You should set $host and $port in agreement to running jubagraph server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -148,12 +153,12 @@ The above code is equivalent to:
     my $port = '13714';
     Jubatus::Graph::Client->new($host, $port);
 
-See L<Jubatus::Graph::Client> for more detail.
+See [Jubatus::Graph::Client](http://search.cpan.org/perldoc?Jubatus::Graph::Client) for more detail.
 
-### get_anomaly_client $host, $port
+## get\_anomaly\_client $host, $port
 
 This code will create Jubatus::Anomaly::Client object and return it.
-You should set $host and $port in agreement to running jubaanomaly server apprication.
+You should set $host and $port in agreement to running jubaanomaly server application.
 
     my $host = 'localhost';
     my $port = '13714';
@@ -166,19 +171,39 @@ The above code is equivalent to:
     my $port = '13714';
     Jubatus::Anomaly::Client->new($host, $port);
 
-See L<Jubatus::Anomaly::Client> for more detail.
+See [Jubatus::Anomaly::Client](http://search.cpan.org/perldoc?Jubatus::Anomaly::Client) for more detail.
+
+## get\_nearestneighbor\_client $host, $port
+
+This code will create Jubatus::NearestNeighbor::Client object and return it.
+You should set $host and $port in agreement to running jubanearest\_neighbor server application.
+
+    my $host = 'localhost';
+    my $port = '13714';
+    my $nearest_neighbor_client = Jubatus->get_nearestneighbor_client($host, $port);
+
+The above code is equivalent to:
+
+    use Jubatus::NearestNeighbor::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    Jubatus::NearestNeighbor::Client->new($host, $port);
+
+See [Jubatus::NearestNeighbor::Client](http://search.cpan.org/perldoc?Jubatus::NearestNeighbor::Client) for more detail.
+
+
 
 # SEE ALSO
 
-L<http://jubat.us/>
-L<https://github.com/jubatus>
+[http://jubat.us/](http://jubat.us/)
+[https://github.com/jubatus](https://github.com/jubatus)
 
-L<AnyEvent::MPRPC>
-L<AnyEvent::MPRPC::Client>
-L<http://msgpack.org/>
-L<http://wiki.msgpack.org/display/MSGPACK/RPC+specification>
+[AnyEvent::MPRPC](http://search.cpan.org/perldoc?AnyEvent::MPRPC)
+[AnyEvent::MPRPC::Client](http://search.cpan.org/perldoc?AnyEvent::MPRPC::Client)
+[http://msgpack.org/](http://msgpack.org/)
+[http://wiki.msgpack.org/display/MSGPACK/RPC+specification](http://wiki.msgpack.org/display/MSGPACK/RPC+specification)
 
-L<https://github.com/overlast/p5-Jubatus>
+[https://github.com/overlast/p5-Jubatus](https://github.com/overlast/p5-Jubatus)
 
 # LICENSE
 
@@ -196,9 +221,9 @@ The licence of Jubatus is LGPL 2.1.
     modify it under the terms of the GNU Lesser General Public
     License version 2.1 as published by the Free Software Foundation.
 
-However Jubatus.pm and Jubatus::*.pm is the pure Perl modules.
-Therefor the licence of Jubatus.pm and Jubatus::*.pm is the Perl's licence.
+However Jubatus.pm and Jubatus::\*.pm is the pure Perl modules.
+Therefor the licence of Jubatus.pm and Jubatus::\*.pm is the Perl's licence.
 
 # AUTHOR
 
-Toshinori Sato (@overlast) E<lt>overlasting@gmail.comE<gt>
+Toshinori Sato (@overlast) <overlasting@gmail.com>
