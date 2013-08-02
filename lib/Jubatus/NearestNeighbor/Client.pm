@@ -40,7 +40,8 @@ sub clear {
 
 sub set_row {
   my ($self, $name, $id, $d) = @_;
-  my $retval = $self->{client}->call('set_row' => [ $name, $id, $d->to_msgpack() ] )->recv;
+  my $retval = $self->{client}->call('set_row' => [ $name, $id, $d->to_msgpack(
+      ) ] )->recv;
   return $retval;
 }
 
@@ -91,3 +92,4 @@ sub get_status {
 }
 
 1;
+
