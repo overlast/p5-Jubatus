@@ -4,9 +4,10 @@ use v5.10.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.0.0_01";
+our $VERSION = "0.0.0_02";
 
 #### USE ALL AUTO GENERATE MODULES ####
+use Jubatus::Common::Datum;
 
 #### GET CLIENT FROM AUTO GENERATE MODULES ####
 
