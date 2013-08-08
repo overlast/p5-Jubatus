@@ -4,7 +4,7 @@ use v5.10.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.0.0_01";
+our $VERSION = "0.0.0_02";
 
 use Jubatus::NearestNeighbor::Client;
 use Jubatus::Regression::Client;
@@ -13,6 +13,7 @@ use Jubatus::Classifier::Client;
 use Jubatus::Stat::Client;
 use Jubatus::Graph::Client;
 use Jubatus::Anomaly::Client;
+use Jubatus::Common::Datum;
 
 sub get_nearestneighbor_client {
     my ($self, $host, $port) = @_;
