@@ -147,6 +147,30 @@ subtest 'Test standard deviation culculator' => sub {
     };
 };
 
+subtest 'Test standard deviation culculator' => sub {
+    subtest 'Test stddev()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $stat_client = Jubatus::Stat::Client->new($host, $server->{port});
+        {
+            my @sample = (10.0, 20.0, 30.0, 40.0, 50.0);
+            my $key = "stddev-noise";
+            foreach my $val (@sample) {
+                my $is_push = $stat_client->push($name, $key, $val);
+            }
+        }
+        {
+            my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
+            my $key = "stddev";
+            foreach my $val (@sample) {
+                my $is_push = $stat_client->push($name, $key, $val);
+            }
+            my $result = $stat_client->stddev($name, $key);
+            is(sqrt(2), $result, "Get standard deviation");
+        }
+    };
+};
+
 subtest 'Test summuation culculator' => sub {
     subtest 'Test sum()' => sub {
         my $name = "cpan module test";
