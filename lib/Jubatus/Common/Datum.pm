@@ -70,7 +70,7 @@ each Perl client modules of Jubatus.
 =head1 METHODS
 
 Jubatus::Common::Datum will provide many packages and constructors, methods.
-You can use these whth Jubatus or Jubatus::***::Clients.
+You can use these with Jubatus or Jubatus::***::Clients.
 
 =head2 Packages
 
