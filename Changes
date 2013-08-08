@@ -2,7 +2,10 @@ Revision history for Perl extension Jubatus
 
 {{$NEXT}}
 
+0.0.0_02 2013-08-08T21:40:18Z
+
+    - Add Jubatus::Common::Datum
+
 0.0.0_01 2013-08-02T05:24:24Z
 
     - original version
-
