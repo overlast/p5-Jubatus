@@ -71,7 +71,7 @@ subtest 'Test Jubatus::Common::Datum using Jubatus::Recommender::Client' => sub 
             "B" => 0.0,
         );
         my $datum = Jubatus::Common::Datum->new(\%string_hash, \%num_hash);
-        is(ref $datum, "Jubatus::Common::Datum", "Make check on to return Jubatus::Common::Datum object")
+        is(ref $datum, "Jubatus::Common::Datum", "Make check on to return Jubatus::Common::Datum object");
         my $is_update = $reco_client->update_row($name, $row_id, $datum);
         is($is_update, 1, "Make check on to update using Jubatus::Common::Datum object")
     }
