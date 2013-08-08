@@ -32,11 +32,13 @@ sub from_msgpack {
 
 sub hash_ref_to_array_ref {
     my ($self, $hash_ref) = @_;
-    my $array_ref;
-    foreach my $key (keys %{$hash_ref}) {
-        my $value = $hash_ref->{$key};
-        my $tmp_arr_ref = [$key, $value];
-        push @{$array_ref}, $tmp_arr_ref;
+    my $array_ref = [];
+    if ((defined $hash_ref) && (ref $hash_ref eq "HASH")) {
+        foreach my $key (keys %{$hash_ref}) {
+            my $value = $hash_ref->{$key};
+            my $tmp_arr_ref = [$key, $value];
+            push @{$array_ref}, $tmp_arr_ref;
+        }
     }
     return $array_ref;
 }
