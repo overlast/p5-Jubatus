@@ -20,9 +20,10 @@ foreach my $suffix (@server_name_suffix) {
         my $boot_port = "";
         my $json_path = $config_path."/boot_".$suffix.".json";
         my $server_name = "juba".$suffix;
+        my $port;
         my $juba = Test::TCP->new(
             code => sub {
-                my $port = shift;
+                $port = shift;
                 my $is_boot = exec ("$server_name -p $port -f $json_path 1>/dev/null 2>/dev/null \&");
                 is($is_boot, 0, "Boot $server_name");
             },
@@ -47,6 +48,6 @@ foreach my $suffix (@server_name_suffix) {
                 $kpid = $p->pid;
             }
         }
-        is($kpid, "", "Check $server_name was killed");
+        is((($kpid eq "") || $kpid ne $port), 1, "Check $server_name was killed");
     };
 };
