@@ -19,6 +19,8 @@ sub main {
     my @module_names;
     while (my $dir_path = $dir->next) {
         my $subdir = dir($dir_path);
+        my $dir = $subdir->{dirs}->[-1];
+        next if ($dir =~ m|^.+\.pm$|);
         while (my $subdir_path = $subdir->next) {
             if ((exists $subdir_path->{file}) && ($subdir_path->{file} =~ m|Client.pm|)){
                 my $module_name =  $subdir_path->{dir}->{dirs}->[-1];
