@@ -227,7 +227,6 @@ subtest 'Test standard deviation culculator' => sub {
     };
 };
 
-
 subtest 'Test summuation culculator' => sub {
     subtest 'Test sum()' => sub {
         my $name = "cpan module test";
