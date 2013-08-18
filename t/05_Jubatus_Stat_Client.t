@@ -227,6 +227,22 @@ subtest 'Test standard deviation culculator' => sub {
     };
 };
 
+subtest 'Test standard deviation culculator' => sub {
+    subtest 'Test stddev()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $stat_client = Jubatus::Stat::Client->new($host, $server->{port});
+        my @sample = (61.0, 74.0, 55.0, 85.0, 68.0, 72.0, 64.0, 80.0, 82.0, 59.0);
+        my $key = "stddev";
+        foreach my $val (@sample) {
+            my $is_push = $stat_client->push($name, $key, $val);
+        }
+        my $result = $stat_client->stddev($name, $key);
+        is(9.77752524926427, $result, "Get standard deviation");
+    };
+};
+
+
 subtest 'Test summuation culculator' => sub {
     subtest 'Test sum()' => sub {
         my $name = "cpan module test";
