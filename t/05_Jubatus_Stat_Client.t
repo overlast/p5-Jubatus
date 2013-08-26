@@ -147,6 +147,41 @@ subtest 'Test standard deviation culculator' => sub {
     };
 };
 
+subtest 'Test Connection by same item' => sub {
+    subtest 'Test a lot of push()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $stat_client = Jubatus::Stat::Client->new($host, $server->{port});
+        my $max_push = 10000;
+        my $key = "stddev";
+        for (my $i = 0; $i <= $max_push; $i++) {
+            my $val = 1.0;
+            my $is_push = $stat_client->push($name, $key, $val);
+        }
+        my $result = $stat_client->stddev($name, $key);
+        is(0, $result, "Get standard deviation");
+    };
+};
+
+subtest 'Test Connection by many keys' => sub {
+    subtest 'Test a lot of push()' => sub {
+        my $name = "cpan module test";
+        my $guard = $setup->();
+        my $stat_client = Jubatus::Stat::Client->new($host, $server->{port});
+        my $max_row = 100;
+        my $max_colmun = 100;
+        for (my $i = 0; $i <= $max_colmun; $i++) {
+            for (my $j = 0; $j <= $max_row; $j++) {
+                my $val = 1.0;
+                my $is_push = $stat_client->push($name, "$j", $val);
+            }
+        }
+        my $result = $stat_client->stddev($name, "$max_row");
+        is($result, 0, "Get standard deviation");
+    };
+};
+
+
 subtest 'Test standard deviation culculator' => sub {
     subtest 'Test stddev()' => sub {
         my $name = "cpan module test";
