@@ -91,5 +91,10 @@ sub get_status {
   return $retval;
 }
 
-1;
+sub get_config {
+  my ($self, $name) = @_;
+  my $retval = $self->{client}->call('get_config' => [ $name ] )->recv;
+  return $retval;
+}
 
+1;
