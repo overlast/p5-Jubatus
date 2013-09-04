@@ -62,12 +62,13 @@ subtest "Test to connect to the NearestNeighbor" => sub {
     };
 };
 
-=pod
 subtest 'Test JSON config file reader' => sub {
+        my $name = "cpan module test";
+
     subtest 'Test get_config() using null character string name (for standalone user)' => sub {
         my $guard = $setup->();
         my $near_client = Jubatus::NearestNeighbor::Client->new($host, $server->{port});
-        my $con = $near_client->get_config("");
+        my $con = $near_client->get_config($name);
         use YAML; print Dump $con;
         open my $in, '<', $json_path;
         my $content;
@@ -79,7 +80,6 @@ subtest 'Test JSON config file reader' => sub {
         is($con, $content, "Result is same as input configure file");
     };
     subtest 'test get_config() using not null character string name (for zookeeper user)' => sub {
-        my $name = "cpan module test";
         my $guard = $setup->($name);
         my $near_client = Jubatus::NearestNeighbor::Client->new($host, $server->{port});
         my $con = $near_client->get_config("");
@@ -93,7 +93,6 @@ subtest 'Test JSON config file reader' => sub {
         is($con, $content, "Result is same as input configure file");
     };
 };
-=cut
 
 subtest 'Test server status reader' => sub {
     subtest 'Test get_status()' => sub {
