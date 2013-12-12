@@ -307,7 +307,7 @@ sub to_msgpack {
 1;
 
 package Jubatus::Common::TRaw;
-# String value classes
+# Raw value classes
 
 use strict;
 use warnings;
@@ -319,7 +319,7 @@ use parent -norequire, 'Jubatus::Common::TString';
 1;
 
 package Jubatus::Common::TBoolean;
-# String value classes
+# Boolean value classes
 
 use strict;
 use warnings;
@@ -360,116 +360,53 @@ sub to_msgpack {
 
 1;
 
+package Jubatus::Common::TDatum;
+# Datum value classes
 
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::TPrimitive';
+
+use Jubatus::Common::Datum;
+
+# Constructor of J::C::TString
+sub new {
+    my ($class) = @_;
+    my $hash = {};
+    $hash->{type} = "Jubatus::Common::Datum";
+    bless $hash, $class;
+}
+
+# Only return an unpacked value of $m message pack object
+sub from_msgpack {
+    my ($self, $m) = @_;
+    return Jubatus::Common::Datum->from_msgpack($m);
+}
+
+# Check the matching of a label of $m object and the string value of $type
+sub to_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    # Return an packed value of $m using message pack protocol
+    return $m->to_msgpack();
+}
+
+1;
 
 =pod
-
-class TFloat < TPrimitive
-  def initialize
-    super([Float])
-  end
-end
-
-=cut
-
-=pod
-
-module Jubatus
-module Common
-
-class TypeError < Exception; end
-class ValueError < Exception; end
-
-def self.check_type(value, typ)
-  if not (typ === value)
-    raise TypeError, "type %s is expected, but %s is given" % [typ, value.class]
-  end
-end
-
-def self.check_types(value, types)
-  types.each do |t|
-    return if t === value
-  end
-  t = types.map { |t| t.to_s }.join(", ")
-  raise TypeError, "type %s is expected, but %s is given" % [t, value.class]
-end
-
-class TPrimitive
-  def initialize(types)
-    @types = types
-  end
-
-  def from_msgpack(m)
-    Jubatus::Common.check_types(m, @types)
-    return m
-  end
-
-  def to_msgpack(m)
-    Jubatus::Common.check_types(m, @types)
-    return m
-  end
-end
-
-class TInt < TPrimitive
-  def initialize(signed, byts)
-    if signed
-      @max = (1 << (8 * byts - 1)) - 1
-      @min = - (1 << (8 * byts - 1))
-    else
-      @max = (1 << (8 * byts)) - 1
-      @min = 0
-    end
-  end
-
-  def from_msgpack(m)
-    Jubatus::Common.check_type(m, Integer)
-    if not (@min <= m and m <= @max)
-      raise ValueError, "int value must be in (%d, %d), but %d is given" % [@min, @max, m]
-    end
-    return m
-  end
-
-  def to_msgpack(m)
-    Jubatus::Common.check_type(m, Integer)
-    if not (@min <= m and m <= @max)
-      raise ValueError, "int value must be in (%d, %d), but %d is given" % [@min, @max, m]
-    end
-    return m
-  end
-end
-
-class TFloat < TPrimitive
-  def initialize
-    super([Float])
-  end
-end
-
-class TBool < TPrimitive
-  def initialize
-    super([TrueClass, FalseClass])
-  end
-end
-
-class TString < TPrimitive
-  def initialize()
-    super([String])
-  end
-end
 
 class TDatum
   def from_msgpack(m)
-    Jubatus::Common::Datum.from_msgpack(m)
+
   end
 
   def to_msgpack(m)
     Jubatus::Common.check_type(m, Jubatus::Common::Datum)
     m.to_msgpack()
-  end
-end
-
-class TRaw < TPrimitive
-  def initialize()
-    super([String])
   end
 end
 
