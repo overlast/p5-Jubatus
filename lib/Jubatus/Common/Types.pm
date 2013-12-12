@@ -306,6 +306,18 @@ sub to_msgpack {
 
 1;
 
+package Jubatus::Common::TRaw;
+# String value classes
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::TString';
+
+1;
+
 package Jubatus::Common::TBoolean;
 # String value classes
 
