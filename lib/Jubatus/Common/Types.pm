@@ -117,24 +117,59 @@ sub check_types {
 
 1;
 
+package Jubatus::Common::TPrimitive;
+# A parent class of the T* classes
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+# Constructor of J::C::TPrimitive
+# Second argument $types should be an array reference
+sub new {
+    my ($class, $types) = @_;
+    my $hash = {
+        "types" => $types, # Use to check a type label of given object
+    };
+    bless $hash, $class;
+}
+
+# Only check of matching of a label of $m object and the string values in $self->{types} array reference
+sub from_msgpack {
+    my ($self, $m) = @_;
+    Jubatus::Common::Types::check_types($m, $self->{types});
+    return $m;
+}
+
+# Only check of matching of a label of $m object and the string values in $self->{types} array reference
+sub to_msgpack {
+    my ($self, $m) = @_;
+    Jubatus::Common::Types::check_types($m, $self->{types});
+    return $m;
+}
+
 =pod
 
-def self.check_type(value, typ)
-  if not (typ === value)
-    raise TypeError, "type %s is expected, but %s is given" % [typ, value.class]
+class TPrimitive
+  def initialize(types)
+    @types = types
+  end
+
+  def from_msgpack(m)
+    Jubatus::Common.check_types(m, @types)
+    return m
+  end
+
+  def to_msgpack(m)
+    Jubatus::Common.check_types(m, @types)
+    return m
   end
 end
 
-def self.check_types(value, types)
-  types.each do |t|
-    return if t === value
-  end
-  t = types.map { |t| t.to_s }.join(", ")
-  raise TypeError, "type %s is expected, but %s is given" % [t, value.class]
-end
+=cut
 
-1;
-
+=pod
 
 module Jubatus
 module Common
