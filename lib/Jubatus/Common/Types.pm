@@ -87,7 +87,7 @@ sub check_type {
     my $is_valid = 0;
     eval {
         try {
-            # Throw a exception when a label of $value object and a string of $type aren't matching
+            # Throw a exception when a label of $value object and a string value of $type aren't matching
             unless (ref $value eq $type) {
                 Jubatus::Common::TypeException->throw([ref $value, $type]);
             }
@@ -101,7 +101,7 @@ sub check_type {
     return $is_valid;
 }
 
-# Make check the matching of a label of $value object and each string of type in $types
+# Make check the matching of a label of $value object and each string value of type in $types
 sub check_types {
     my ($value, $types) = @_;
     my $is_valid = 0;
