@@ -7,6 +7,19 @@ use autodie;
 
 use parent 'Exception::Tiny';
 
+use constant JUBATUS_DEBUG => $ENV{JUBATUS_DEBUG};
+use Log::Minimal qw/debugf infof warnf critf/; # $ENV{LM_DEBUG}
+local $Log::Minimal::AUTODUMP = 1;
+local $Log::Minimal::COLOR = 1;
+local $Log::Minimal::LOG_LEVEL = "DEBUG";
+
+# It's used to show 'OtherException'
+sub show {
+    my ($e) = @_;
+    warnf ($e) if (JUBATUS_DEBUG);
+    return;
+}
+
 1;
 
 package Jubatus::Common::TypeException;
@@ -17,6 +30,20 @@ use utf8;
 use autodie;
 
 use parent -norequire, 'Jubatus::Common::Exception';
+
+use constant JUBATUS_DEBUG => $ENV{JUBATUS_DEBUG};
+use Log::Minimal qw/debugf infof warnf critf/; # $ENV{LM_DEBUG}
+local $Log::Minimal::AUTODUMP = 1;
+local $Log::Minimal::COLOR = 1;
+local $Log::Minimal::LOG_LEVEL = "DEBUG";
+
+# It's used to show 'TypeException'
+sub show {
+    my ($arr_ref) = @_;
+    my ($value, $type) = @{$arr_ref};
+    warnf ("Type %s is expected, but %s is given", $value, $type) if (JUBATUS_DEBUG);
+    return;
+}
 
 1;
 
@@ -29,6 +56,20 @@ use autodie;
 
 use parent -norequire, 'Jubatus::Common::Exception';
 
+use constant JUBATUS_DEBUG => $ENV{JUBATUS_DEBUG};
+use Log::Minimal qw/debugf infof warnf critf/; # $ENV{LM_DEBUG}
+local $Log::Minimal::AUTODUMP = 1;
+local $Log::Minimal::COLOR = 1;
+local $Log::Minimal::LOG_LEVEL = "DEBUG";
+
+# It's used to show 'ValueException'
+sub show {
+    my ($arr_ref) = @_;
+    my ($value, $type) = @{$arr_ref};
+    warnf ("Value %s is expected, but %s is given", $value, $type) if (JUBATUS_DEBUG);
+    return;
+}
+
 1;
 
 package Jubatus::Common::Types;
@@ -38,15 +79,39 @@ use warnings;
 use utf8;
 use autodie;
 
+use Try::Lite;
+
+# Make check the matching of a label of $value object and a string of $type
 sub check_type {
     my ($value, $type) = @_;
     my $is_valid = 0;
+    eval {
+        try {
+            # Throw a exception when a label of $value object and a string of $type aren't matching
+            unless (ref $value eq $type) {
+                Jubatus::Common::TypeException->throw([ref $value, $type]);
+            }
+            $is_valid = 1; # a label of $value object and string of $type is matching
+        } {
+            # Catch the thrown error in the above lines
+            'Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException::show()},
+        }
+    };
+    if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
     return $is_valid;
 }
 
+# Make check the matching of a label of $value object and each string of type in $types
 sub check_types {
     my ($value, $types) = @_;
     my $is_valid = 0;
+    foreach my $type (@{$types}) {
+        # Call check_type() to compare $value and $type
+        $is_valid = check_type($value, $type);
+        if ($is_valid) {
+            last; # a label of $value object and string of $type is matching
+        }
+    }
     return $is_valid;
 }
 
