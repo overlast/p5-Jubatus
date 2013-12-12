@@ -98,6 +98,8 @@ sub check_type {
                 my $flags = B::svref_2object( \$value )->FLAGS;
                 if (($type eq "Integer") && ($flags & B::SVf_IOK || $flags & B::SVp_IOK)) {
                 } elsif (($type eq "Float") && ($flags & B::SVf_NOK || $flags & B::SVp_NOK)) {
+                } elsif (($type eq "String") && ($flags & B::SVf_POK)) {
+                } elsif (($type eq "Boolean") && ($flags & B::SVf_POK)) {
                 } else {
                     Jubatus::Common::TypeException->throw([ref $value, $type]);
                 }
@@ -133,6 +135,7 @@ sub check_bound {
         try {
             # Throw a exception when a label of $value object and a string value of $type aren't matching
             if (($type eq "Integer") && ($min <= $value) && ($value <= $max)) {
+            } elsif (($type eq "Boolean") && (("1" eq $value) || ("0" eq $value))) {
             } else {
                 Jubatus::Common::TypeException->throw([$type, $value, $min, $max]);
             }
@@ -166,14 +169,14 @@ sub new {
     bless $hash, $class;
 }
 
-# Only check of matching of a label of $m object and the string values in $self->{types} array reference
+# Only check the matching of a label of $m object and one of string values in $self->{types} array reference
 sub from_msgpack {
     my ($self, $m) = @_;
     my $is_valid = Jubatus::Common::Types::check_types($m, $self->{types});
     return $m;
 }
 
-# Only check of matching of a label of $m object and the string values in $self->{types} array reference
+# Only check the matching of a label of $m object and one of string values in $self->{types} array reference
 sub to_msgpack {
     my ($self, $m) = @_;
     my $is_valid = Jubatus::Common::Types::check_types($m, $self->{types});
@@ -193,7 +196,6 @@ use autodie;
 use parent -norequire, 'Jubatus::Common::TPrimitive';
 
 # Constructor of J::C::TInt
-# Second argument $types should be an array reference
 sub new {
     my ($class, $signed, $bytes) = @_;
     my $hash = {};
@@ -211,7 +213,7 @@ sub new {
 sub from_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    # Check of matching of a label of $m object and the string value of $type
+    # Check the matching of IV flags of $m object and the string value of $type
     my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     if ($is_valid_type) { # Check of the lower bound and the upper bound
         my $is_valid_bound = Jubatus::Common::Types::check_bound($type, $m, $self->{max}. $self->{min});
@@ -222,7 +224,7 @@ sub from_msgpack {
 sub to_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    # Check of matching of a label of $m object and the string value of $type
+    # Check the matching of IV flags of $m object and the string value of $type
     my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     if ($is_valid_type) { # Check of the lower bound and the upper bound
         my $is_valid_bound = Jubatus::Common::Types::check_bound($type, $m, $self->{max}. $self->{min});
@@ -243,15 +245,14 @@ use autodie;
 use parent -norequire, 'Jubatus::Common::TPrimitive';
 
 # Constructor of J::C::TFloat
-# Second argument $types should be an array reference
 sub new {
-    my ($class, $signed, $bytes) = @_;
+    my ($class) = @_;
     my $hash = {};
     $hash->{type} = "Float";
     bless $hash, $class;
 }
 
-# Only check of matching of a label of $m object and the string values in $self->{types} array reference
+# Only check the matching of NV flags of $m object and the string value of $type
 sub from_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
@@ -259,7 +260,7 @@ sub from_msgpack {
     return $m;
 }
 
-# Only check of matching of a label of $m object and the string values in $self->{types} array reference
+# Only check the matching of NV flags of $m object and the string value of $type
 sub to_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
@@ -268,6 +269,85 @@ sub to_msgpack {
 }
 
 1;
+
+package Jubatus::Common::TString;
+# String value classes
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::TPrimitive';
+
+# Constructor of J::C::TString
+sub new {
+    my ($class) = @_;
+    my $hash = {};
+    $hash->{type} = "String";
+    bless $hash, $class;
+}
+
+# Only check the matching of PV flags of $m object and the string value of $type
+sub from_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    return $m;
+}
+
+# Only check the matching of PV flag of $m object and the string value of $type
+sub to_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    return $m;
+}
+
+1;
+
+package Jubatus::Common::TBoolean;
+# String value classes
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::TPrimitive';
+
+# Constructor of J::C::TBoolean
+sub new {
+    my ($class) = @_;
+    my $hash = {};
+    $hash->{type} = "Boolean";
+    bless $hash, $class;
+}
+
+sub from_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    # Check the matching of PV flags of $m object and the string value of $type
+    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    if ($is_valid_type) { # Check of $m is "0" as the false value or "1" as the true value
+        my $is_valid_bound = Jubatus::Common::Types::check_bound($type, $m);
+    }
+    return $m;
+}
+
+sub to_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    # Check the matching of PV flags of $m object and the string value of $type
+    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    if ($is_valid_type) { # Check of $m is "0" as the false value or "1" as the true value
+        my $is_valid_bound = Jubatus::Common::Types::check_bound($type, $m);
+    }
+    return $m;
+}
+
+1;
+
 
 
 =pod
