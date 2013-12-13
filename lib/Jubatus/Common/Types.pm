@@ -65,9 +65,9 @@ local $Log::Minimal::LOG_LEVEL = "DEBUG";
 # It's used to show 'ValueException'
 sub show {
     my ($arr_ref) = @_;
-    my ($type, $value, $min, $max) = @{$arr_ref};
+    my ($value, $min, $max, $type) = @{$arr_ref};
     if ($type) {
-        warnf ("%s value must be in (%d, %d), but %d is given", $type, $min, $max, $value) if (JUBATUS_DEBUG);
+        warnf ("%s value must be in (%d, %d), but %s is given", $value, $min, $max, $type) if (JUBATUS_DEBUG);
     } else {
         warnf ("Value %s is expected, but %s is given", $value, $type) if (JUBATUS_DEBUG);
     }
@@ -91,12 +91,12 @@ local $Log::Minimal::AUTODUMP = 1;
 local $Log::Minimal::COLOR = 1;
 local $Log::Minimal::LOG_LEVEL = "DEBUG";
 
-# It's used to show 'ItemPairException'
+# It's used to show 'ValuePairException'
 sub show {
     my ($arr_ref) = @_;
-    my ($type, $num1, $num2) = @{$arr_ref};
+    my ($num1, $num2, $type) = @{$arr_ref};
     if (($type) && ($num1) && ($num2)) {
-        warnf ("Two of %s values should have same number elements ,but (%d, %d) are given", $type, $num1, $num2) if (JUBATUS_DEBUG);
+        warnf ("Two of %s values should have same number elements ,but (%d, %d) are given", $num1, $num2, $type) if (JUBATUS_DEBUG);
     }
     return;
 }
@@ -158,7 +158,7 @@ sub check_types {
 }
 
 sub check_bound {
-    my ($type, $value, $max, $min) = @_;
+    my ($value, $max, $min, $type) = @_;
     my $is_valid = 0;
     eval {
         try {
@@ -166,7 +166,32 @@ sub check_bound {
             if (($type eq "Integer") && ($min <= $value) && ($value <= $max)) {
             } elsif (($type eq "Bool") && (("1" eq $value) || ("0" eq $value))) {
             } else {
-                Jubatus::Common::TypeException->throw([$type, $value, $min, $max]);
+                Jubatus::Common::TypeException->throw([$value, $max, $min, $type]);
+            }
+            $is_valid = 1; # a label of $value object and string of $type is matching
+        } {
+            # Catch the thrown error in the above lines
+            'Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException::show($@)},
+        }
+    };
+    if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+    return $is_valid;
+}
+
+sub compare_element_num {
+    my ($value1, $value2, $type) = @_;
+    my $is_valid = 0;
+    eval {
+        try {
+            # Throw a exception when a label of $value object and a string value of $type aren't matching
+            if ($type eq "Array") {
+                unless ($#{$value1} == $#{$value2}) {
+                    Jubatus::Common::ValuePairException->throw([$#{$value1}, $#{$value2}, $type]);
+                }
+            } elsif ($type eq "Hash") {
+                unless ( scalar(keys %{$value1}) == scalar(keys %{$value2})) {
+                    Jubatus::Common::ValuePairException->throw([scalar(keys %{$value1}), scalar(keys %{$value2}), $type]);
+                }
             }
             $is_valid = 1; # a label of $value object and string of $type is matching
         } {
@@ -245,7 +270,7 @@ sub from_msgpack {
     # Check the matching of IV flags of $m object and the string value of $type
     my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     if ($is_valid_type) { # Check of the lower bound and the upper bound
-        my $is_valid_bound = Jubatus::Common::Types::check_bound($type, $m, $self->{max}. $self->{min});
+        my $is_valid_bound = Jubatus::Common::Types::check_bound($m, $self->{max}. $self->{min}, $type);
     }
     return $m;
 }
@@ -256,7 +281,7 @@ sub to_msgpack {
     # Check the matching of IV flags of $m object and the string value of $type
     my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     if ($is_valid_type) { # Check of the lower bound and the upper bound
-        my $is_valid_bound = Jubatus::Common::Types::check_bound($type, $m, $self->{max}. $self->{min});
+        my $is_valid_bound = Jubatus::Common::Types::check_bound($m, $self->{max}. $self->{min}, $type);
     }
     return $m;
 }
@@ -371,7 +396,7 @@ sub from_msgpack {
     # Check the matching of PV flags of $m object and the string value of $type
     my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
     if ($is_valid_type) { # Check of $m is "0" as the false value or "1" as the true value
-        my $is_valid_bound = Jubatus::Common::Types::check_bound($type, $m);
+        my $is_valid_bound = Jubatus::Common::Types::check_bound($m, 1, 0, $type);
     }
     return $m;
 }
@@ -382,7 +407,7 @@ sub to_msgpack {
     # Check the matching of PV flags of $m object and the string value of $type
     my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
     if ($is_valid_type) { # Check of $m is "0" as the false value or "1" as the true value
-        my $is_valid_bound = Jubatus::Common::Types::check_bound($type, $m);
+        my $is_valid_bound = Jubatus::Common::Types::check_bound($m, 1, 0, $type);
     }
     return $m;
 }
@@ -544,81 +569,54 @@ use parent -norequire, 'Jubatus::Common::TPrimitive';
 # Constructor of J::C::TMap
 # Second argument must be a type string of an object which will use to call the methods of this class
 sub new {
-    my ($class, $key, $value) = @_;
+    my ($class, $key_type, $value_type) = @_;
     my $hash = {};
-    $hash->{key} = $key;
-    $hash->{value} = $value;
+    $hash->{key_type} = $key_type;
+    $hash->{value_type} = $value_type;
     bless $hash, $class;
 }
 
 # Call from_msgpack() which belong to Jubatus::Common::$type
 sub from_msgpack {
     my ($self, $m) = @_;
-    my $key = $self->{key};
-    my $value = $self->{value};
+    my $key_type = $self->{key_type};
+    my $value_type = $self->{value_type};
     my $result = {};
     # Check a data type of $m to push the data to an array reference
-    my $is_valid_key = Jubatus::Common::Types::check_types($key, "Hash");
-    my $is_valid_value = Jubatus::Common::Types::check_types($value, "Hash");
-    if (($is_valid_key) && ($is_valid_value)) { # If $key and $value are Hash reference value
-        foreach my $v (@{$m}) {
+    my $is_valid_type = Jubatus::Common::Types::check_types($m, "Hash");
+    if ($is_valid_type) { # If $m is hash reference value
+        foreach my $key (keys %{$m}) {
             eval {
-                my $tmp = "Jubatus::Common::$type"->from_msgpack($v);
-                push @{$result}, $tmp;
+                $result->{"Jubatus::Common::$key_type"->from_msgpack($key)} = "Jubatus::Common::$key_type"->from_msgpack($m->{$key});
             };
             if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
         }
     }
-    return $result; # Return an array reference
+    return $result; # Return an hash reference
 }
 
 # Call to_msgpack() which belong to Jubatus::Common::$type
 sub to_msgpack {
     my ($self, $m) = @_;
-    my $type = $self->{type};
+    my $key_type = $self->{key_type};
+    my $value_type = $self->{value_type};
     my $result = {};
     # Check a data type of $m to push the data to an array reference
     my $is_valid_type = Jubatus::Common::Types::check_types($m, "Hash");
-    if ($is_valid_type) { # If $m is Array value
-        foreach my $v (@{$m}) {
+    if ($is_valid_type) { # If $m is hash reference value
+        foreach my $key (keys %{$m}) {
             eval {
-                my $tmp = "Jubatus::Common::$type"->to_msgpack($v);
-                push @{$result}, $tmp;
+                $result->{"Jubatus::Common::$key_type"->to_msgpack($key)} = "Jubatus::Common::$key_type"->to_msgpack($m->{$key});
             };
             if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
         }
     }
-    return $result; # Return an array reference
+    return $result; # Return an hash reference
 }
 
 1;
 
 =pod
-
-class TMap
-  def initialize(key, value)
-    @key = key
-    @value = value
-  end
-
-  def from_msgpack(m)
-    Jubatus::Common.check_type(m, Hash)
-    dic = {}
-    m.each do |k, v|
-      dic[@key.from_msgpack(k)] = @value.from_msgpack(v)
-    end
-    return dic
-  end
-
-  def to_msgpack(m)
-    Jubatus::Common.check_type(m, Hash)
-    dic = {}
-    m.each do |k, v|
-      dic[@key.to_msgpack(k)] = @value.to_msgpack(v)
-    end
-    return dic
-  end
-end
 
 class TTuple
   def initialize(*types)
