@@ -99,7 +99,7 @@ sub check_type {
                 if (($type eq "Integer") && ($flags & B::SVf_IOK || $flags & B::SVp_IOK)) {
                 } elsif (($type eq "Float") && ($flags & B::SVf_NOK || $flags & B::SVp_NOK)) {
                 } elsif (($type eq "String") && ($flags & B::SVf_POK)) {
-                } elsif (($type eq "Boolean") && ($flags & B::SVf_POK)) {
+                } elsif (($type eq "Bool") && ($flags & B::SVf_POK)) {
                 } else {
                     Jubatus::Common::TypeException->throw([ref $value, $type]);
                 }
@@ -135,7 +135,7 @@ sub check_bound {
         try {
             # Throw a exception when a label of $value object and a string value of $type aren't matching
             if (($type eq "Integer") && ($min <= $value) && ($value <= $max)) {
-            } elsif (($type eq "Boolean") && (("1" eq $value) || ("0" eq $value))) {
+            } elsif (($type eq "Bool") && (("1" eq $value) || ("0" eq $value))) {
             } else {
                 Jubatus::Common::TypeException->throw([$type, $value, $min, $max]);
             }
@@ -318,7 +318,7 @@ use parent -norequire, 'Jubatus::Common::TString';
 
 1;
 
-package Jubatus::Common::TBoolean;
+package Jubatus::Common::TBool;
 # Boolean value classes
 
 use strict;
@@ -328,11 +328,11 @@ use autodie;
 
 use parent -norequire, 'Jubatus::Common::TPrimitive';
 
-# Constructor of J::C::TBoolean
+# Constructor of J::C::TBool
 sub new {
     my ($class) = @_;
     my $hash = {};
-    $hash->{type} = "Boolean";
+    $hash->{type} = "Bool";
     bless $hash, $class;
 }
 
@@ -398,17 +398,6 @@ sub to_msgpack {
 1;
 
 =pod
-
-class TDatum
-  def from_msgpack(m)
-
-  end
-
-  def to_msgpack(m)
-    Jubatus::Common.check_type(m, Jubatus::Common::Datum)
-    m.to_msgpack()
-  end
-end
 
 class TNullable
   def initialize(type)
