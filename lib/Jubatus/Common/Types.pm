@@ -100,6 +100,8 @@ sub check_type {
                 } elsif (($type eq "Float") && ($flags & B::SVf_NOK || $flags & B::SVp_NOK)) {
                 } elsif (($type eq "String") && ($flags & B::SVf_POK)) {
                 } elsif (($type eq "Bool") && ($flags & B::SVf_POK)) {
+                } elsif (($type eq "Array") && (ref $value eq "ARRAY")) {
+                } elsif (($type eq "Hash") && (ref $value eq "HASH")) {
                 } else {
                     Jubatus::Common::TypeException->throw([ref $value, $type]);
                 }
@@ -443,45 +445,66 @@ sub to_msgpack {
 
 1;
 
+package Jubatus::Common::TList;
+# Nullable value classes
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::TPrimitive';
+
+# Constructor of J::C::TList
+# Second argument must be a type string of an object which will use to call the methods of this class
+sub new {
+    my ($class, $type) = @_;
+    my $hash = {};
+    $hash->{type} = $type;
+    bless $hash, $class;
+}
+
+# Call from_msgpack() which belong to Jubatus::Common::$type
+sub from_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    my $result = [];
+    # Check a data type of $m to push the data to an array reference
+    my $is_valid_type = Jubatus::Common::Types::check_types($m, "Array");
+    if ($is_valid_type) { # If $m is Array value
+        foreach my $v (@{$m}) {
+            eval {
+                my $tmp = "Jubatus::Common::$type"->from_msgpack($v);
+                push @{$result}, $tmp;
+            };
+            if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+        }
+    }
+    return $result; # Return an array reference
+}
+
+# Call to_msgpack() which belong to Jubatus::Common::$type
+sub to_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    my $result = [];
+    # Check a data type of $m to push the data to an array reference
+    my $is_valid_type = Jubatus::Common::Types::check_types($m, "Array");
+    if ($is_valid_type) { # If $m is Array value
+        foreach my $v (@{$m}) {
+            eval {
+                my $tmp = "Jubatus::Common::$type"->to_msgpack($v);
+                push @{$result}, $tmp;
+            };
+            if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+        }
+    }
+    return $result; # Return an array reference
+}
+
+1;
+
 =pod
-
-class TNullable
-  def initialize(type)
-    @type = type
-  end
-
-  def from_msgpack(m)
-    if m.nil?
-      return nil
-    else
-      @type.from_msgpack(m)
-    end
-  end
-
-  def to_msgpack(m)
-    if m.nil?
-      nil
-    else
-      @type.to_msgpack(m)
-    end
-  end
-end
-
-class TList
-  def initialize(type)
-    @type = type
-  end
-
-  def from_msgpack(m)
-    Jubatus::Common.check_type(m, Array)
-    return m.map { |v| @type.from_msgpack(v) }
-  end
-
-  def to_msgpack(m)
-    Jubatus::Common.check_type(m, Array)
-    return m.map { |v| @type.to_msgpack(v) }
-  end
-end
 
 class TMap
   def initialize(key, value)
