@@ -397,6 +397,52 @@ sub to_msgpack {
 
 1;
 
+package Jubatus::Common::TNullable;
+# Nullable value classes
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::TPrimitive';
+
+# Constructor of J::C::TNullable
+# Second argument must be a type string of an object which will use to call the methods of this class
+sub new {
+    my ($class, $type) = @_;
+    my $hash = {};
+    $hash->{type} = $type;
+    bless $hash, $class;
+}
+
+# Call from_msgpack() which belong to Jubatus::Common::$type
+sub from_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    my $result = undef;
+    if (!(defined $m)) {
+    } else {
+        eval { $result = "Jubatus::Common::$type"->from_msgpack($m); };
+        if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+    }
+    return $result;
+}
+# Call to_msgpack() which belong to Jubatus::Common::$type
+sub to_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    my $result = undef;
+    if (!(defined $m)) {
+    } else {
+        eval { $result = "Jubatus::Common::$type"->to_msgpack($m); };
+        if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+    }
+    return $result;
+}
+
+1;
+
 =pod
 
 class TNullable
