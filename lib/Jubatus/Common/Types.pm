@@ -76,6 +76,33 @@ sub show {
 
 1;
 
+package Jubatus::Common::ValuePairException;
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::Exception';
+
+use constant JUBATUS_DEBUG => $ENV{JUBATUS_DEBUG};
+use Log::Minimal qw/debugf infof warnf critf/; # $ENV{LM_DEBUG}
+local $Log::Minimal::AUTODUMP = 1;
+local $Log::Minimal::COLOR = 1;
+local $Log::Minimal::LOG_LEVEL = "DEBUG";
+
+# It's used to show 'ItemPairException'
+sub show {
+    my ($arr_ref) = @_;
+    my ($type, $num1, $num2) = @{$arr_ref};
+    if (($type) && ($num1) && ($num2)) {
+        warnf ("Two of %s values should have same number elements ,but (%d, %d) are given", $type, $num1, $num2) if (JUBATUS_DEBUG);
+    }
+    return;
+}
+
+1;
+
 package Jubatus::Common::Types;
 
 use strict;
@@ -446,7 +473,7 @@ sub to_msgpack {
 1;
 
 package Jubatus::Common::TList;
-# Nullable value classes
+# List value classes
 
 use strict;
 use warnings;
@@ -471,7 +498,7 @@ sub from_msgpack {
     my $result = [];
     # Check a data type of $m to push the data to an array reference
     my $is_valid_type = Jubatus::Common::Types::check_types($m, "Array");
-    if ($is_valid_type) { # If $m is Array value
+    if ($is_valid_type) { # If $m is Array reference value
         foreach my $v (@{$m}) {
             eval {
                 my $tmp = "Jubatus::Common::$type"->from_msgpack($v);
@@ -490,6 +517,68 @@ sub to_msgpack {
     my $result = [];
     # Check a data type of $m to push the data to an array reference
     my $is_valid_type = Jubatus::Common::Types::check_types($m, "Array");
+    if ($is_valid_type) { # If $m is Array reference value
+        foreach my $v (@{$m}) {
+            eval {
+                my $tmp = "Jubatus::Common::$type"->to_msgpack($v);
+                push @{$result}, $tmp;
+            };
+            if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+        }
+    }
+    return $result; # Return an array reference
+}
+
+1;
+
+package Jubatus::Common::TMap;
+# Map value classes
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::TPrimitive';
+
+# Constructor of J::C::TMap
+# Second argument must be a type string of an object which will use to call the methods of this class
+sub new {
+    my ($class, $key, $value) = @_;
+    my $hash = {};
+    $hash->{key} = $key;
+    $hash->{value} = $value;
+    bless $hash, $class;
+}
+
+# Call from_msgpack() which belong to Jubatus::Common::$type
+sub from_msgpack {
+    my ($self, $m) = @_;
+    my $key = $self->{key};
+    my $value = $self->{value};
+    my $result = {};
+    # Check a data type of $m to push the data to an array reference
+    my $is_valid_key = Jubatus::Common::Types::check_types($key, "Hash");
+    my $is_valid_value = Jubatus::Common::Types::check_types($value, "Hash");
+    if (($is_valid_key) && ($is_valid_value)) { # If $key and $value are Hash reference value
+        foreach my $v (@{$m}) {
+            eval {
+                my $tmp = "Jubatus::Common::$type"->from_msgpack($v);
+                push @{$result}, $tmp;
+            };
+            if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+        }
+    }
+    return $result; # Return an array reference
+}
+
+# Call to_msgpack() which belong to Jubatus::Common::$type
+sub to_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    my $result = {};
+    # Check a data type of $m to push the data to an array reference
+    my $is_valid_type = Jubatus::Common::Types::check_types($m, "Hash");
     if ($is_valid_type) { # If $m is Array value
         foreach my $v (@{$m}) {
             eval {
