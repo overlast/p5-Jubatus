@@ -96,7 +96,7 @@ sub show {
     my ($arr_ref) = @_;
     my ($num1, $num2, $type) = @{$arr_ref};
     if (($type) && ($num1) && ($num2)) {
-        warnf ("Two of %s values should have same number elements ,but (%d, %d) are given", $num1, $num2, $type) if (JUBATUS_DEBUG);
+        warnf ("Two of %s values should have same number elements ,but (%d, %d) are given", $type, $num1, $num2) if (JUBATUS_DEBUG);
     }
     return;
 }
@@ -616,38 +616,88 @@ sub to_msgpack {
 
 1;
 
+package Jubatus::Common::TTuple;
+# Map value classes
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::TPrimitive';
+
+use List::MoreUtils;
+
+# Constructor of J::C::TTuple
+# Second argument must be an array reference of the type strings
+sub new {
+    my ($class, $types) = @_;
+    my $hash = {};
+    $hash->{types} = $types if Jubatus::Common::Types::check_type($types, "Array");
+    bless $hash, $class;
+}
+
+sub check_tuple {
+    my ($self, $m) =  @_;
+    my $is_valid = 0;
+    my $types = $self->{types};
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, "Array");
+    if ($is_valid_type) {
+        if ($#$m != $#$types) {
+            Jubatus::Common::ValuePairException->show($#$m, $#$types, "Array");
+        } else {
+            $is_valid = 1;
+        }
+    }
+    return $is_valid;
+}
+
+# Call from_msgpack() which belong to Jubatus::Common::$type
+sub from_msgpack {
+    my ($self, $m) = @_;
+    my $types = $self->{types};
+    # Check a data type and matching of the elements numbers of $m and $type
+    my $is_valid_tuple = $self->check_tuple($m);
+    my $result = [];
+    if ($is_valid_tuple) {
+        # Make type and value pairs
+        my @zipped = map {[$types->[$_], $m->[$_]]} (0 .. $#$m);
+        eval {
+            foreach my $pair (@zipped) {
+                my ($type, $value) = @{$pair};
+                push @{$result}, "Jubatus::Common::$type"->from_msgpack($value);
+            }
+        };
+        if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+    }
+    return $result; # Return an hash reference
+}
+
+# Call to_msgpack() which belong to Jubatus::Common::$type
+sub to_msgpack {
+    my ($self, $m) = @_;
+    my $types = $self->{types};
+    # Check a data type and matching of the elements numbers of $m and $type
+    my $is_valid_tuple = $self->check_tuple($m);
+    my $result = [];
+    if ($is_valid_tuple) {
+        # Make type and value pairs
+        my @zipped = map {[$types->[$_], $m->[$_]]} (0 .. $#$m);
+        eval {
+            foreach my $pair (@zipped) {
+                my ($type, $value) = @{$pair};
+                push @{$result}, "Jubatus::Common::$type"->to_msgpack($value);
+            }
+        };
+        if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+    }
+    return $result; # Return an hash reference
+}
+
+1;
+
+
 =pod
-
-class TTuple
-  def initialize(*types)
-    @types = types
-  end
-
-  def check_tuple(m)
-    Jubatus::Common.check_type(m, Array)
-    if m.size != @types.size
-      raise TypeError, "size of tuple is %d, but %d is expected: %s" % [m.size, @types.size, m.to_s]
-    end
-  end
-
-  def from_msgpack(m)
-    check_tuple(m)
-    tpl = []
-    @types.zip(m).each do |type, x|
-      tpl << type.from_msgpack(x)
-    end
-    return tpl
-  end
-
-  def to_msgpack(m)
-    check_tuple(m)
-    tpl = []
-    @types.zip(m).each do |type, x|
-      tpl << type.to_msgpack(x)
-    end
-    return tpl
-  end
-end
 
 class TUserDef
   def initialize(type)
