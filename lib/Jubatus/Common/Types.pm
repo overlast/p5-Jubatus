@@ -626,8 +626,6 @@ use autodie;
 
 use parent -norequire, 'Jubatus::Common::TPrimitive';
 
-use List::MoreUtils;
-
 # Constructor of J::C::TTuple
 # Second argument must be an array reference of the type strings
 sub new {
@@ -696,6 +694,28 @@ sub to_msgpack {
 
 1;
 
+package Jubatus::Common::TObject;
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::TPrimitive';
+
+# Non check returning
+sub from_msgpack {
+    my ($self, $m) = @_;
+    return $m;
+}
+
+# Non check returning
+sub to_msgpack {
+    my ($self, $m) = @_;
+    return $m;
+}
+
+1;
 
 =pod
 
