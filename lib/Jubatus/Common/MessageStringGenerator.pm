@@ -5,6 +5,54 @@ use warnings;
 use utf8;
 use autodie;
 
+our $OPEN = "{";
+our $COLON = ": ";
+our $DELIMITER = ", ";
+our $CLOSE = "}";
+
+# Constructor of J::C::MessageStringGenerator
+sub new {
+    my ($class) = @_;
+    my $hash = {
+        "buf" => [],
+        "first" => "1",
+    };
+    bless $hash, $class;
+}
+
+# Initialize $self->{buffer} with type name and bracket character
+sub open_buf {
+    my ($self, $type) = @_;
+    push @{$self->{buf}}, "$type";
+    push @{$self->{buf}}, $OPEN;
+}
+
+# Insert the key-value pairs to $self->{buffer}
+sub add_buf {
+    my ($self, $key, $value) = @_;
+    if ((exists $self->{first}) && ($self->{first})) {
+        $self->{first} = "0";
+    } else {
+        push @{$self->{buf}}, $DELIMITER;
+    }
+    push @{$self->{buf}}, "$key";
+    push @{$self->{buf}}, $COLON;
+    push @{$self->{buf}}, "$value";
+}
+
+# Finalize $self->{buffer} with bracket character
+sub close_buf {
+    my ($self) = @_;
+    push @{$self->{buf}}, $CLOSE;
+}
+
+# Convert an array reference to a string value
+sub to_str {
+    my ($self) = @_;
+    my $string = join "", @{$self->{buf}};
+    return $string;
+}
+
 1;
 
 __END__
