@@ -103,6 +103,36 @@ sub show {
 
 1;
 
+package Jubatus::Common::NotFoundException;
+
+use strict;
+use warnings;
+use utf8;
+use autodie;
+
+use parent -norequire, 'Jubatus::Common::Exception';
+
+use constant JUBATUS_DEBUG => $ENV{JUBATUS_DEBUG};
+use Log::Minimal qw/debugf infof warnf critf/; # $ENV{LM_DEBUG}
+local $Log::Minimal::AUTODUMP = 1;
+local $Log::Minimal::COLOR = 1;
+local $Log::Minimal::LOG_LEVEL = "DEBUG";
+
+# It's used to show 'ValuePairException'
+sub show {
+    my ($arr_ref) = @_;
+    my ($data, $value, $type) = @{$arr_ref};
+    if (($data) && ($value) && ($type)) {
+        if (JUBATUS_DEBUG) {
+            warnf ("%s object should contain %s in data", $type, $value);
+            warnf ("data : $data");
+        }
+    }
+    return;
+}
+
+1;
+
 package Jubatus::Common::Types;
 
 use strict;
@@ -666,7 +696,7 @@ sub from_msgpack {
                 push @{$result}, "Jubatus::Common::$type"->from_msgpack($value);
             }
         };
-        if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+        if ($@) { Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     }
     return $result; # Return an hash reference
 }
@@ -676,8 +706,9 @@ sub to_msgpack {
     my ($self, $m) = @_;
     my $types = $self->{types};
     # Check a data type and matching of the elements numbers of $m and $type
-    my $is_valid_tuple = $self->check_tuple($m);
     my $result = [];
+
+    my $is_valid_tuple = $self->check_tuple($m);
     if ($is_valid_tuple) {
         # Make type and value pairs
         my @zipped = map {[$types->[$_], $m->[$_]]} (0 .. $#$m);
@@ -687,7 +718,7 @@ sub to_msgpack {
                 push @{$result}, "Jubatus::Common::$type"->to_msgpack($value);
             }
         };
-        if ($@) { Jubatus::Common::Exception::show($@); } # Catch the re-thrown exception
+        if ($@) { Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     }
     return $result; # Return an hash reference
 }
@@ -717,66 +748,137 @@ sub to_msgpack {
 
 1;
 
-=pod
 
-class TUserDef
-  def initialize(type)
-    @type = type
-  end
+package Jubatus::Common::TEnum;
+# Enum value classes
 
-  def from_msgpack(m)
-    return @type.from_msgpack(m)
-  end
+use strict;
+use warnings;
+use utf8;
+use autodie;
 
-  def to_msgpack(m)
-    if @type === m
-      return m.to_msgpack()
-    elsif Array === m
-      return @type::TYPE.to_msgpack(m)
-    else
-      raise TypeError, "type %s or Array are expected, but %s is given" % [@type, m.class]
-    end
-  end
-end
+use parent -norequire, 'Jubatus::Common::TPrimitive';
 
-class TObject
-  def from_msgpack(m)
-    return m
-  end
+use Try::Lite;
 
-  def to_msgpack(m)
-    return m
-  end
-end
+# Constructor of J::C::TEnum
+sub new {
+    my ($class, $values) = @_;
+    my $hash = {};
+    try {
+        my $is_valid_type = Jubatus::Common::Types::check_type($values, "Array");
+        unless ($is_valid_type) {
+            Jubatus::Common::TypeException->throw([ref $values, "Array"]);
+        }
+        foreach my $value (@{$values}) {
+            my $is_valid_value = Jubatus::Common::Types::check_type($value, "Integer");
+            unless ($is_valid_value) {
+                Jubatus::Common::TypeException->throw([ref $value, "Integer"]);
+            }
+        }
+        $hash->{values} = $values;
+    } {
+        # Catch the thrown error in the above lines
+        'Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException::show($@)},
+    };
+    bless $hash, $class;
+}
 
-class TEnum
-  def initialize(values)
-    @values = values
-  end
+sub from_msgpack {
+    my ($self, $m) = @_;
+    my $values = $self->{values};
+    # Check the matching of IV flags of $m object and the string value of $type
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, "Integer");
+    my $is_found = 0;
+    try {
+        foreach my $value (@{$values}) {
+            if ($value == $m) {
+                $is_found = 1;
+                last;
+            }
+        }
+        unless ($is_found) {
+            Jubatus::Common::NotFoundException->throw([$values, $m, "Integer"]);
+        }
+    } {
+        'Jubatus::Common::NotFoundException' => sub {Jubatus::Common::NotFoundException::show($@)},
+    };
+    return $m;
+}
 
-  def from_msgpack(m)
-    Jubatus::Common.check_type(m, Integer)
-    if not (@values.include?(m))
-      raise ValueError
-    end
-    return m
-  end
+sub to_msgpack {
+    my ($self, $m) = @_;
+    my $values = $self->{values};
+    # Check the matching of IV flags of $m object and the string value of $type
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, "Integer");
+    my $is_found = 0;
+    try {
+        foreach my $value (@{$values}) {
+            if ($value == $m) {
+                $is_found = 1;
+                last;
+            }
+        }
+        unless ($is_found) {
+            Jubatus::Common::NotFoundException->show([$values, $m, "Integer"]);
+        }
+    } {
+        'Jubatus::Common::NotFoundException' => sub {Jubatus::Common::NotFoundException::show($@)},
+    };
+    return $m;
+}
 
-  def to_msgpack(m)
-    Jubatus::Common.check_type(m, Integer)
-    if not (@values.inlcude?(m))
-      raise ValueError
-    end
-    return m
-  end
-end
+1;
 
-end
-end
+package Jubatus::Common::TUserDef;
+# EUserDef value classes
 
+use strict;
+use warnings;
+use utf8;
+use autodie;
 
-=cut
+use parent -norequire, 'Jubatus::Common::TPrimitive';
 
+use Try::Lite;
+
+# Constructor of J::C::TUserDef
+sub new {
+    my ($class, $type) = @_;
+    my $hash = {};
+    $hash->{type} = $type;
+    bless $hash, $class;
+}
+
+sub from_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    my $is_valid_type = "Jubatus::Common::$type"->from_msgpack($m);
+    return $m;
+}
+
+sub to_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type};
+    our $CACHE = { map { $_ => 1 } qw/HASH SCALAR ARRAY GLOB CODE REF/,'' };
+    try {
+        if ($CACHE->{ref $m}) {
+            return "Jubatus::Common::$type"->to_msgpack($m);
+        } else {
+            if ($m->isa($type)) {
+                return "Jubatus::Common::$type"->from_msgpack($m);
+            } else {
+                Jubatus::Common::NotFoundException->throw([$m, $type]);
+            }
+        }
+    } {
+        # Catch the thrown error in the above lines
+        'Jubatus::Common::NotFoundException' => sub {Jubatus::Common::NotFoundException::show($@)},
+    };
+    return $m;
+}
+
+1;
 
 __END__
 
