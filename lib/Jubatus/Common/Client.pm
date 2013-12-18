@@ -5,6 +5,115 @@ use warnings;
 use utf8;
 use autodie;
 
+use Try::Lite;
+use AnyEvent::MPRPC;
+
+use Jubatus::Common::Types;
+
+sub new {
+    my ($class, $host, $port, $name, $timeout) = @_;
+    $timeout = 10 unless ((defined $timeout) && ($timeout >= 0));
+    my $hash = {
+        "host" => $host,
+        "port" => $port,
+        "name" => $name,
+        "client" => AnyEvent::MPRPC::Client->new(
+            'host' => $host,
+            'port' => $port,
+            "on_error" => sub {
+                my ($hdl, $fatal, $msg) = @_;
+                $hdl->destroy;
+                _error_handler($msg);
+            },
+            "timeout" => $timeout,
+        ),
+    };
+    bless $hash, $class;
+}
+
+sub _error_handler {
+    my ($e) = @_;
+    if ($e == 1) {
+        Jubatus::Common::Exception::API::UnknownMethod::show($e);
+    } elsif ($e == 2) {
+        Jubatus::Common::Exception::API::TypeMismatch::show($e);
+    } else {
+        Jubatus::Common::Exception::show("Something RPC exception : $e");
+    }
+    return;
+}
+
+sub _call {
+    my ($self, $method, $ret_type, $args, $arg_types) = @_;
+    my $res;
+    if (Jubatus::Common::Types::compare_element_num($args, $arg_types, "Array")) {
+        my $name = $self->{name};
+        my $values = [$name];
+        for (my $i = 0; $i <= $#$args; $i++) {
+            my $arg = $args->[$i];
+            my $arg_type = $arg_types->[$i];
+            push @{$values}, "Jubatus::Common::$arg_type"->to_msgpack($arg);
+        }
+        try {
+            # {client}->handler->**で送れる。
+            my $retval = $self->{client}->call($method, $values)->cb(
+                sub { my $res = $_[0]->recv; }
+            );
+            $res = $ret_type->from_msgpack($retval) if (defined $ret_type);
+        } {
+            "*" => Jubatus::Common::Exception($@),
+        };
+    }
+    return;
+}
+
+sub get_client {
+    my ($self) = @_;
+    return $self->{client};
+}
+
+sub get_config {
+    my ($self) = @_;
+    my $retval = $self->_call("get_config",
+                              Jubatus::Common::TString->new(),
+                              [],
+                              [],);
+    return $retval;
+}
+
+sub get_status {
+    my ($self) = @_;
+    my $retval = $self->_call("get_status",
+                              Jubatus::Common::TMap->new(
+                                  Jubatus::Common::TString->new(),
+                                  Jubatus::Common::TMap->new(
+                                      Jubatus::Common::TString->new(),
+                                      Jubatus::Common::TString->new(),
+                                  ),
+                              ),
+                              [],
+                              [],);
+    return $retval;
+}
+
+sub save {
+    my ($self, $id) = @_;
+    my $retval = $self->_call("save",
+                              Jubatus::Common::TBool->new(),
+                              [$id],
+                              [Jubatus::Common::TString->new()]);
+    return $retval;
+}
+
+sub load {
+    my ($self, $id) = @_;
+    my $retval = $self->_call("load",
+                              Jubatus::Common::TBool->new(),
+                              [$id],
+                              [Jubatus::Common::TString->new()]);
+    return $retval;
+}
+
 1;
 
 __END__
@@ -51,7 +160,7 @@ The MIT License (MIT)
 
 Copyright (c) 2013 by Toshinori Sato (@overlast).
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
+_Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
