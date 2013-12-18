@@ -14,64 +14,75 @@ sub new {
     my ($class, $host, $port, $name, $timeout) = @_;
     $timeout = 10 unless ((defined $timeout) && ($timeout >= 0));
     my $hash = {
-        "host" => $host,
-        "port" => $port,
-        "name" => $name,
-        "client" => AnyEvent::MPRPC::Client->new(
+        "host" => $host, # hostname of jubatus server
+        "port" => $port, # port number of jubatus server
+        "name" => $name, # name of jubatus application
+        "client" => AnyEvent::MPRPC::Client->new( # MPRPC client
             'host' => $host,
             'port' => $port,
-            "on_error" => sub {
+            "on_error" => sub { # to wrap an error handle
                 my ($hdl, $fatal, $msg) = @_;
                 $hdl->destroy;
                 _error_handler($msg);
             },
-            "timeout" => $timeout,
+            "timeout" => $timeout, # default time out = 10 sec
         ),
     };
     bless $hash, $class;
 }
 
+# Replace the naive error message with readable error message
 sub _error_handler {
     my ($e) = @_;
     if ($e == 1) {
-        Jubatus::Common::Exception::API::UnknownMethod::show($e);
+        Jubatus::Common::Exception::show("Unknown method exception : $e");
     } elsif ($e == 2) {
-        Jubatus::Common::Exception::API::TypeMismatch::show($e);
+        Jubatus::Common::Exception::show("API mismatch exception : $e");
     } else {
         Jubatus::Common::Exception::show("Something RPC exception : $e");
     }
     return;
 }
 
+# Wrap AnyEvent::MPRPC::Client->call() to reduce $name from argument values
 sub _call {
     my ($self, $method, $ret_type, $args, $arg_types) = @_;
     my $res;
+    # Check matching of argument types and the types of argument value
     if (Jubatus::Common::Types::compare_element_num($args, $arg_types, "Array")) {
         my $name = $self->{name};
         my $values = [$name];
-        for (my $i = 0; $i <= $#$args; $i++) {
+        for (my $i = 0; $i <= $#$args; $i++) { # zip()
             my $arg = $args->[$i];
             my $arg_type = $arg_types->[$i];
-            push @{$values}, "Jubatus::Common::$arg_type"->to_msgpack($arg);
+            push @{$values}, $arg_type->to_msgpack($arg); # to_msgpackがtype checkする
         }
         try {
-            # {client}->handler->**で送れる。
-            my $retval = $self->{client}->call($method, $values)->cb(
-                sub { my $res = $_[0]->recv; }
+            # {client}->handler->**で諸々設定できる。
+            my $retval;
+            $self->{client}->call($method, $values)->cb( # async callback
+                sub {
+                    my $tmp = $_[0]->recv;
+                    $retval = $tmp;
+                }
             );
-            $res = $ret_type->from_msgpack($retval) if (defined $ret_type);
+            if ((defined $retval) && (defined $ret_type)) {
+                $res = $ret_type->from_msgpack($retval); # from_msgpackがtype checkする
+            }
         } {
             "*" => Jubatus::Common::Exception($@),
         };
     }
-    return;
+    return $res;
 }
 
+# Get AnyEvent::MPRPC::Client instance
 sub get_client {
     my ($self) = @_;
     return $self->{client};
 }
 
+# Get JSON configure data from Jubatus server
 sub get_config {
     my ($self) = @_;
     my $retval = $self->_call("get_config",
@@ -81,6 +92,7 @@ sub get_config {
     return $retval;
 }
 
+# Get JSON status data from Jubatus server
 sub get_status {
     my ($self) = @_;
     my $retval = $self->_call("get_status",
@@ -96,6 +108,7 @@ sub get_status {
     return $retval;
 }
 
+# Dump the model data from current Jubatus server process
 sub save {
     my ($self, $id) = @_;
     my $retval = $self->_call("save",
@@ -105,6 +118,7 @@ sub save {
     return $retval;
 }
 
+# Load the model data to current Jubatus server process
 sub load {
     my ($self, $id) = @_;
     my $retval = $self->_call("load",
