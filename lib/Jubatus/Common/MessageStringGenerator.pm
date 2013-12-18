@@ -23,7 +23,8 @@ sub new {
 # Initialize $self->{buffer} with type name and bracket character
 sub open_buf {
     my ($self, $type) = @_;
-    push @{$self->{buf}}, "$type";
+    my $type_str = ref $type; # Get type string
+    push @{$self->{buf}}, $type_str;
     push @{$self->{buf}}, $OPEN;
 }
 
