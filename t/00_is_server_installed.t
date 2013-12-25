@@ -1,13 +1,30 @@
 use strict;
-use Test::More tests => 6;
+use Test::More;
 
 my @server_name_suffix = (
-    "regression",
-    "recommender",
-    "classifier",
-    "stat",
-    "graph",
     "anomaly",
+    "anomaly_keeper",
+    "anomaly_proxy",
+    "classifier",
+    "classifier_keeper",
+    "classifier_proxy",
+    "clustering",
+    "clustering_proxy",
+    "graph",
+    "graph_keeper",
+    "graph_proxy",
+    "nearest_neighbor",
+    "nearest_neighbor_keeper",
+    "nearest_neighbor_proxy",
+    "recommender",
+    "recommender_keeper",
+    "recommender_proxy",
+    "regression",
+    "regression_keeper",
+    "regression_proxy",
+    "stat",
+    "stat_keeper",
+    "stat_proxy",
 );
 
 foreach my $suffix (@server_name_suffix) {
@@ -17,3 +34,5 @@ foreach my $suffix (@server_name_suffix) {
         is($is_there, 0, "Is $server_name there ?");
     };
 }
+
+done_testing;
