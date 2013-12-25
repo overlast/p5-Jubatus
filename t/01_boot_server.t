@@ -3,15 +3,17 @@ use strict;
 use Proc::ProcessTable;
 use Test::TCP;
 use FindBin;
-use Test::More tests => 6;
+use Test::More;
 
 my @server_name_suffix = (
-    "regression",
-    "recommender",
-    "classifier",
-    "stat",
-    "graph",
     "anomaly",
+    "classifier",
+    "clustering",
+    "graph",
+    "nearest_neighbor",
+    "recommender",
+    "regression",
+    "stat",
 );
 my $config_path = $FindBin::Bin."/../conf";
 
@@ -24,7 +26,7 @@ foreach my $suffix (@server_name_suffix) {
         my $juba = Test::TCP->new(
             code => sub {
                 $port = shift;
-                my $is_boot = exec ("$server_name -p $port -f $json_path 1>/dev/null 2>/dev/null \&");
+                my $is_boot = exec ("$server_name -p $port -f $json_path");# 1>/dev/null 2>/dev/null \&");
                 is($is_boot, 0, "Boot $server_name");
             },
         );
@@ -32,7 +34,7 @@ foreach my $suffix (@server_name_suffix) {
         my $bt = new Proc::ProcessTable;
         my $bpid = "";
         foreach my $p ( @{$bt->table} ){
-            if ($p->cmndline =~ m|$json_path|) {
+            if (($p->cmndline =~ m|$port|) && ($p->cmndline =~ m|$json_path|)) {
                 ok(1, "Get PID of $server_name");
                 $bpid = $p->pid;
                 last;
@@ -44,10 +46,12 @@ foreach my $suffix (@server_name_suffix) {
         my $kt = new Proc::ProcessTable;
         my $kpid = "";
         foreach my $p ( @{$kt->table} ){
-            if ($p->cmndline =~ m|$server_name|) {
+            if (($p->cmndline =~ m|$port|) && ($p->cmndline =~ m|$server_name|)) {
                 $kpid = $p->pid;
             }
         }
         is((($kpid eq "") || $kpid ne $port), 1, "Check $server_name was killed");
     };
 };
+
+done_testing;
