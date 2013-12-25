@@ -19,10 +19,11 @@ my $server;
 my $setup = sub {
     my ($name) = @_;
     my $pid = "";
+    my $port;
     if (defined $name) {
         $server = Test::TCP->new(
             code => sub {
-                my $port = shift;
+                $port = shift;
                 my $is_boot = exec ("$server_name -p $port -f $json_path -n '$name' 1>/dev/null 2>/dev/null \&");
             },
         );
@@ -30,7 +31,7 @@ my $setup = sub {
     else {
         $server = Test::TCP->new(
             code => sub {
-                my $port = shift;
+                $port = shift;
                 my $is_boot = exec ("$server_name -p $port -f $json_path 1>/dev/null 2>/dev/null \&");
             },
         );
@@ -38,7 +39,7 @@ my $setup = sub {
 
     my $bt = Proc::ProcessTable->new();
     foreach my $p ( @{$bt->table} ){
-        if ($p->cmndline =~ m|$json_path|) {
+        if (($p->cmndline =~ m|$port|) && ($p->cmndline =~ m|$json_path|)) {
             $pid = $p->pid;
             last;
         }
@@ -52,7 +53,9 @@ my $setup = sub {
 
 subtest "Test to connect to the Recommender" => sub {
     my $guard = $setup->();
-    my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+    my $name = "cpan module test";
+    my $timeout = 10;
+    my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
     subtest "Give hostname & ort number" => sub {
         is ("Jubatus::Recommender::Client", ref $reco_client, "Get Jubatus::Recommender::Client object");
     };
@@ -64,9 +67,11 @@ subtest "Test to connect to the Recommender" => sub {
 
 subtest 'Test JSON config file reader' => sub {
     subtest 'Test get_config() using null character string name (for standalone user)' => sub {
+        my $name = "cpan module test";
+        my $timeout = 10;
         my $guard = $setup->();
         my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
-        my $con = $reco_client->get_config("");
+        my $con = $reco_client->get_config();
         open my $in, '<', $json_path;
         my $content;
         {
@@ -78,9 +83,10 @@ subtest 'Test JSON config file reader' => sub {
     };
     subtest 'test get_config() using not null character string name (for zookeeper user)' => sub {
         my $name = "cpan module test";
+        my $timeout = 10;
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
-        my $con = $reco_client->get_config("");
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
+        my $con = $reco_client->get_config();
         open my $in, '<', $json_path;
         my $content;
         {
@@ -91,6 +97,9 @@ subtest 'Test JSON config file reader' => sub {
         is($con, $content, "Result is same as input configure file");
     };
 };
+
+die;
+done_testing;
 
 subtest 'Test server status reader' => sub {
     subtest 'Test get_status()' => sub {
