@@ -165,7 +165,7 @@ sub check_type {
                 }
             }
         }
- #           # Catch the thrown error in the above lines
+            # Catch the thrown error in the above lines
             'Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)};
     };
     if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
@@ -202,7 +202,7 @@ sub check_value {
                 Jubatus::Common::TypeException->throw([ref $value, $type]);
             }
         }
-#           # Catch the thrown error in the above lines
+            # Catch the thrown error in the above lines
             ' Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)};
     };
     if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
@@ -562,7 +562,7 @@ sub from_msgpack {
     my $result = undef;
     if (!(defined $m)) {
     } else {
-        $result = "Jubatus::Common::$type"->from_msgpack($m);
+        $result = $type->from_msgpack($m);
     }
     return $result;
 }
@@ -573,7 +573,7 @@ sub to_msgpack {
     my $result = undef;
     if (!(defined $m)) {
     } else {
-        $result = "Jubatus::Common::$type"->to_msgpack($m);
+        $result = $type->to_msgpack($m);
     }
     return $result;
 }
@@ -608,7 +608,7 @@ sub from_msgpack {
     my $is_valid_type = Jubatus::Common::Types::check_type($m, "Array");
     if ($is_valid_type) { # If $m is Array reference value
         foreach my $v (@{$m}) {
-            my $tmp = "Jubatus::Common::$type"->from_msgpack($v);
+            my $tmp = $type->from_msgpack($v);
             push @{$result}, $tmp;
         }
     }
@@ -624,7 +624,7 @@ sub to_msgpack {
     my $is_valid_type = Jubatus::Common::Types::check_type($m, "Array");
     if ($is_valid_type) { # If $m is Array reference value
         foreach my $v (@{$m}) {
-            my $tmp = "Jubatus::Common::$type"->to_msgpack($v);
+            my $tmp = $type->to_msgpack($v);
             push @{$result}, $tmp;
         }
     }
@@ -663,7 +663,7 @@ sub from_msgpack {
     my $is_valid_type = Jubatus::Common::Types::check_type($m, "Hash");
     if ($is_valid_type) { # If $m is hash reference value
         foreach my $key (keys %{$m}) {
-            $result->{"Jubatus::Common::$key_type"->from_msgpack($key)} = "Jubatus::Common::$key_type"->from_msgpack($m->{$key});
+            $result->{$key_type->from_msgpack($key)} = $value_type->from_msgpack($m->{$key});
         }
     }
     return $result; # Return an hash reference
@@ -679,7 +679,7 @@ sub to_msgpack {
     my $is_valid_type = Jubatus::Common::Types::check_type($m, "Hash");
     if ($is_valid_type) { # If $m is hash reference value
         foreach my $key (keys %{$m}) {
-            $result->{"Jubatus::Common::$key_type"->to_msgpack($key)} = "Jubatus::Common::$key_type"->to_msgpack($m->{$key});
+            $result->{$key_type->to_msgpack($key)} = $value_type->to_msgpack($m->{$key});
         }
     }
     return $result; # Return an hash reference
@@ -727,7 +727,7 @@ sub from_msgpack {
         for (my $i = 0; $i <= $#$m; $i++) {
             my $type = $types->[$i];
             my $value = $m->[$i];
-            push @{$result}, "Jubatus::Common::$type"->from_msgpack($value);
+            push @{$result}, $type->from_msgpack($value);
         }
     }
     return $result; # Return an hash reference
@@ -744,7 +744,7 @@ sub to_msgpack {
         for (my $i = 0; $i <= $#$m; $i++) {
             my $type = $types->[$i];
             my $value = $m->[$i];
-            push @{$result}, "Jubatus::Common::$type"->to_msgpack($value);
+            push @{$result}, $type->to_msgpack($value);
         }
     }
     return $result; # Return an hash reference
@@ -852,7 +852,7 @@ sub new {
 sub from_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    my $is_valid_type = "Jubatus::Common::$type"->from_msgpack($m);
+    my $is_valid_type = $type->from_msgpack($m);
     return $m;
 }
 
@@ -862,10 +862,10 @@ sub to_msgpack {
     our $CACHE = { map { $_ => 1 } qw/HASH SCALAR ARRAY GLOB CODE REF/,'' };
     try {
         if ($CACHE->{ref $m}) {
-            return "Jubatus::Common::$type"->to_msgpack($m);
+            return $type->to_msgpack($m);
         } else {
             if ($m->isa($type)) {
-                return "Jubatus::Common::$type"->to_msgpack($m);
+                return $type->to_msgpack($m);
             } else {
                 Jubatus::Common::NotFoundException->throw([ref $m, $type]);
             }
