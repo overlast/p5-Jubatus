@@ -146,7 +146,7 @@ use Try::Lite;
 # Make check the matching of a label of $value object and a string of $type
 sub check_type {
     my ($value, $type) = @_;
-    my $is_valid = 0;
+    my $is_valid = 1;  # a label of $value object and string of $type is matching
     eval {
         try {
             # Throw a exception when a label of $value object and a string value of $type aren't matching
@@ -160,16 +160,15 @@ sub check_type {
                 } elsif (($type eq "Array") && (ref $value eq "ARRAY")) {
                 } elsif (($type eq "Hash") && (ref $value eq "HASH")) {
                 } else {
+                    $is_valid = 0;
                     Jubatus::Common::TypeException->throw([ref $value, $type]);
                 }
             }
-            $is_valid = 1; # a label of $value object and string of $type is matching
-        } {
-            # Catch the thrown error in the above lines
-            'Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)},
         }
+ #           # Catch the thrown error in the above lines
+            'Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)};
     };
-    if ($@) { Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
+    if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
 }
 
@@ -190,7 +189,7 @@ sub check_types {
 # Make check the matching of $value and $query_value
 sub check_value {
     my ($value, $query_value, $type) = @_;
-    my $is_valid = 0;
+    my $is_valid = 1; # a label of $value object and string of $type is matching
     eval {
         try {
             # Throw a exception when a label of $value object and a string value of $type aren't matching
@@ -199,96 +198,93 @@ sub check_value {
             } elsif (($type eq "String") && ($value eq $query_value)){
             } elsif (($type eq "Bool") && ($value eq $query_value)){
             } else {
+                $is_valid = 0;
                 Jubatus::Common::TypeException->throw([ref $value, $type]);
             }
-            $is_valid = 1; # a label of $value object and string of $type is matching
-        } {
-            # Catch the thrown error in the above lines
-            ' Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)},
         }
+#           # Catch the thrown error in the above lines
+            ' Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)};
     };
-    if ($@) { Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
+    if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
 }
 
 # Make check the matching one of value in a $values object and value of the target object
 sub check_values {
     my ($values, $query_value, $type) = @_;
-    my $is_valid = 0;
+    my $is_valid = 1;
     eval {
         try {
             if (ref $values eq "ARRAY") {
                 foreach my $value (@{$values}) {
                     # Call check_type() to compare $value and $type
                     $is_valid = check_value($value, $query_value, $type);
-                    if ($is_valid) {
-                        last; # a label of $value object and string of $type is matching
-                    }
+                    last if ($is_valid); # a label of $value object and string of $type is matching
                 }
             } elsif (ref $values eq "HASH") {
                 foreach my $key (keys @{$values}) {
                     my $value = $values->{$key};
                     # Call check_type() to compare $value and $type
                     $is_valid = check_value($value, $query_value, $type);
-                    if ($is_valid) {
-                        last; # a label of $value object and string of $type is matching
-                    }
+                    last if ($is_valid); # a label of $value object and string of $type is matching
                 }
             } else {
+                $is_valid = 0;
                 Jubatus::Common::TypeException->throw([ref $values, "ARRAY or HASH"]);
             }
-        } {
-            "Jubatus::Common::TypeException" => Jubatus::Common::TypeException->show($@),
-        };
+        }
+            "Jubatus::Common::TypeException" => Jubatus::Common::TypeException->show($@);
     };
-    if ($@) { Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
+    if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
 }
 
 sub check_bound {
     my ($value, $max, $min, $type) = @_;
-    my $is_valid = 0;
+    my $is_valid = 1; # a label of $value object and string of $type is matching
     eval {
         try {
             # Throw a exception when a label of $value object and a string value of $type aren't matching
             if (($type eq "Integer") && ($min <= $value) && ($value <= $max)) {
             } elsif (($type eq "Bool") && (("1" eq $value) || ("0" eq $value))) {
             } else {
+                $is_valid = 0;
                 Jubatus::Common::ValueException->throw([ref $value, $max, $min, $type]);
             }
-            $is_valid = 1; # a label of $value object and string of $type is matching
-
-        } {
-            # Catch the thrown error in the above lines
-            'Jubatus::Common::ValueException' => sub {Jubatus::Common::ValueException->show($@)},
         }
+            # Catch the thrown error in the above lines
+            'Jubatus::Common::ValueException' => sub {Jubatus::Common::ValueException->show($@)};
     };
-    if ($@) { Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
+    if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
 }
 
 sub compare_element_num {
     my ($value1, $value2, $type) = @_;
-    my $is_valid = 0;
+    my $is_valid = 1; # a label of $value object and string of $type is matching
     eval {
         try {
             # Throw a exception when a label of $value object and a string value of $type aren't matching
             if ($type eq "Array") {
                 unless ($#{$value1} == $#{$value2}) {
+                    $is_valid = 0;
                     Jubatus::Common::ValuePairException->throw([$#{$value1}, $#{$value2}, $type]);
                 }
             } elsif ($type eq "Hash") {
                 unless ( scalar(keys %{$value1}) == scalar(keys %{$value2})) {
+                    $is_valid = 0;
                     Jubatus::Common::ValuePairException->throw([scalar(keys %{$value1}), scalar(keys %{$value2}), $type]);
                 }
+            } else {
+                $is_valid = 0;
+                Jubatus::Common::TypeException->throw([$type, "ARRAY or HASH"]);
             }
-            $is_valid = 1; # a label of $value object and string of $type is matching
-        } {
-            # Catch the thrown error in the above lines
-            'Jubatus::Common::ValuePairException' => sub {Jubatus::Common::ValuePairException->show($@)},
         }
+            # Catch the thrown error in the above lines
+            'Jubatus::Common::ValuePairException' => sub {Jubatus::Common::ValuePairException->show($@)};
+
     };
-    if ($@) { Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
+    if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
 }
 
@@ -399,7 +395,7 @@ sub new {
 sub from_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     return $m;
 }
 
@@ -407,7 +403,7 @@ sub from_msgpack {
 sub to_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     return $m;
 }
 
@@ -435,7 +431,7 @@ sub new {
 sub from_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     return $m;
 }
 
@@ -443,7 +439,7 @@ sub from_msgpack {
 sub to_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     return $m;
 }
 
@@ -483,7 +479,7 @@ sub from_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
     # Check the matching of PV flags of $m object and the string value of $type
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     if ($is_valid_type) { # Check of $m is "0" as the false value or "1" as the true value
         my $is_valid_bound = Jubatus::Common::Types::check_bound($m, 1, 0, $type);
     }
@@ -494,7 +490,7 @@ sub to_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
     # Check the matching of PV flags of $m object and the string value of $type
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     if ($is_valid_type) { # Check of $m is "0" as the false value or "1" as the true value
         my $is_valid_bound = Jubatus::Common::Types::check_bound($m, 1, 0, $type);
     }
@@ -533,7 +529,7 @@ sub from_msgpack {
 sub to_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, $type);
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     # Return an packed value of $m using message pack protocol
     return $m->to_msgpack();
 }
@@ -609,7 +605,7 @@ sub from_msgpack {
     my $type = $self->{type};
     my $result = [];
     # Check a data type of $m to push the data to an array reference
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, "Array");
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, "Array");
     if ($is_valid_type) { # If $m is Array reference value
         foreach my $v (@{$m}) {
             my $tmp = "Jubatus::Common::$type"->from_msgpack($v);
@@ -625,7 +621,7 @@ sub to_msgpack {
     my $type = $self->{type};
     my $result = [];
     # Check a data type of $m to push the data to an array reference
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, "Array");
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, "Array");
     if ($is_valid_type) { # If $m is Array reference value
         foreach my $v (@{$m}) {
             my $tmp = "Jubatus::Common::$type"->to_msgpack($v);
@@ -664,7 +660,7 @@ sub from_msgpack {
     my $value_type = $self->{value_type};
     my $result = {};
     # Check a data type of $m to push the data to an array reference
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, "Hash");
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, "Hash");
     if ($is_valid_type) { # If $m is hash reference value
         foreach my $key (keys %{$m}) {
             $result->{"Jubatus::Common::$key_type"->from_msgpack($key)} = "Jubatus::Common::$key_type"->from_msgpack($m->{$key});
@@ -680,7 +676,7 @@ sub to_msgpack {
     my $value_type = $self->{value_type};
     my $result = {};
     # Check a data type of $m to push the data to an array reference
-    my $is_valid_type = Jubatus::Common::Types::check_types($m, "Hash");
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, "Hash");
     if ($is_valid_type) { # If $m is hash reference value
         foreach my $key (keys %{$m}) {
             $result->{"Jubatus::Common::$key_type"->to_msgpack($key)} = "Jubatus::Common::$key_type"->to_msgpack($m->{$key});

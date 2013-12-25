@@ -50,7 +50,7 @@ sub _call {
     my $res;
     # Check matching of argument types and the types of argument value
     if (Jubatus::Common::Types::compare_element_num($args, $arg_types, "Array")) {
-        my $name = $self->{name};
+        my $name = $self->{name} || "";
         my $values = [$name];
         for (my $i = 0; $i <= $#$args; $i++) { # zip()
             my $arg = $args->[$i];
@@ -59,19 +59,12 @@ sub _call {
         }
         try {
             # {client}->handler->**で諸々設定できる。
-            my $retval;
-            $self->{client}->call($method, $values)->cb( # async callback
-                sub {
-                    my $tmp = $_[0]->recv;
-                    $retval = $tmp;
-                }
-            );
+            my $retval = $self->{client}->call($method, $values)->recv;
             if ((defined $retval) && (defined $ret_type)) {
                 $res = $ret_type->from_msgpack($retval); # from_msgpackがtype checkする
             }
-        } {
-            "*" => Jubatus::Common::Exception($@),
-        };
+       }
+       "*" => sub { Jubatus::Common::Exception::show($@) };
     }
     return $res;
 }
