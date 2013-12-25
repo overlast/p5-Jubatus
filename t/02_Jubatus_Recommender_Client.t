@@ -98,14 +98,13 @@ subtest 'Test JSON config file reader' => sub {
     };
 };
 
-die;
-done_testing;
-
 subtest 'Test server status reader' => sub {
     subtest 'Test get_status()' => sub {
+        my $name = "cpan module test";
+        my $timeout = 10;
         my $guard = $setup->();
-        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
-        my $status = $reco_client->get_status("");
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
+        my $status = $reco_client->get_status();
         my $program_name = "";
         foreach my $key (keys %{$status}) {
             foreach my $item (keys %{$status->{$key}}) {
@@ -118,6 +117,10 @@ subtest 'Test server status reader' => sub {
         is($server_name, $program_name, "PROGNAME(server_name) is $server_name");
     };
 };
+
+die;
+done_testing;
+
 
 subtest 'Test model data updator' => sub {
     my $name = "cpan module test";
