@@ -50,6 +50,46 @@ sub new {
     bless \%hash, $self;
 }
 
+sub add_string {
+    my ($self, $key, $value) = @_;
+    my $done_add = 0;
+    if (Jubatus::Common::Type::check_type($key, "String")) {
+        if (Jubatus::Common::Type::check_type($value, "String")) {
+            push @{$self->{string_values}}, [$key, $value];
+            $done_add = 1;
+        }
+    }
+    return $done_add;
+}
+
+sub add_number {
+    my ($self, $key, $value) = @_;
+    my $done_add = 0;
+    if (Jubatus::Common::Type::check_type($key, "String")) {
+        my $value_type = (Jubatus::Common::Type::estimate_type($value));
+        if ($value_type eq "Float") {
+            push @{$self->{num_values}}, [$key, $value];
+            $done_add = 1;
+        } elsif ($value_type eq "Integer") {
+            push @{$self->{num_values}}, [$key, 0.0 + $value];
+            $done_add = 1;
+        }
+    }
+    return $done_add;
+}
+
+sub add_binary {
+    my ($self, $key, $value) = @_;
+    my $done_add = 0;
+    if (Jubatus::Common::Type::check_type($key, "String")) {
+        if (Jubatus::Common::Type::check_type($value, "Bool")) {
+            push @{$self->{binary_values}}, [$key, $value];
+            $done_add = 1;
+        }
+    }
+    return $done_add;
+}
+
 sub to_msgpack {
     my ($self) = @_;
     return [
