@@ -144,6 +144,37 @@ use B;
 use Try::Lite;
 
 # Make check the matching of a label of $value object and a string of $type
+sub estimate_type {
+    my ($value) = @_;
+    my $type;  # a label of $value object and string of $type is matching
+    eval {
+        try {
+            # Throw a exception when a label of $value object and a string value of $type aren't matching
+            my $flags = B::svref_2object( \$value )->FLAGS;
+            if (ref $value eq "ARRAY") {
+                $type = "Array";
+            } elsif (ref $value eq "HASH") {
+                $type = "Hash";
+            } elsif ($flags & B::SVf_NOK || $flags & B::SVp_NOK) {
+                $type = "Integer";
+            } elsif ($flags & B::SVf_IOK || $flags & B::SVp_IOK) {
+                $type = "Float";
+            } elsif ($flags & B::SVf_POK) {
+                $type = "String";
+            } elsif (ref $value ne "") {
+                $type = ref $value;
+            } else {
+                Jubatus::Common::TypeException->throw([ref $value, "Something type"]);
+            }
+        }
+            # Catch the thrown error in the above lines
+            'Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)};
+    };
+    if ($@) { Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
+    return $type;
+}
+
+# Make check the matching of a label of $value object and a string of $type
 sub check_type {
     my ($value, $type) = @_;
     my $is_valid = 1;  # a label of $value object and string of $type is matching
