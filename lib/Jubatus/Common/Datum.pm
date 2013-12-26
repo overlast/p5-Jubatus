@@ -5,21 +5,57 @@ use warnings;
 use utf8;
 use autodie;
 
+require Jubatus::Common::Types;
+require Jubatus::Common::TypeException;
+use Jubatus::Common::MessageStringGenerator;
+
+our $TYPE = Jubatus::Common::TTuple->new(
+    Jubatus::Common::TList->new(
+        Jubatus::Common::TTuple->new(
+            Jubatus::Common::TString->new(), Jubatus::Common::TString->new())),
+    Jubatus::Common::TList->new(
+        Jubatus::Common::TTuple->new(
+            Jubatus::Common::TString->new(), Jubatus::Common::TFloat->new())),
+    Jubatus::Common::TList->new(
+        Jubatus::Common::TTuple->new(
+            Jubatus::Common::TString->new(), Jubatus::Common::TRaw->new())),
+);
+
 sub new {
-  my ($self, $string_values, $num_values) = @_;
-  my %hash = (
-    'string_values' => $self->hash_ref_to_array_ref($string_values),
-    'num_values' => $self->hash_ref_to_array_ref($num_values),
-  );
-  bless \%hash, $self;
+    my ($self, $label_value_pairs) = @_;
+    my ($string_values, $num_values, $binary_values) = ([], [], []);
+    # $self->hash_ref_to_array_ref($string_values),
+    if ((defined $label_value_pairs) && (ref $label_value_pairs eq "ARRAY")) {
+        for (my $i = 0; $i <= $#$label_value_pairs; $i++) {
+            # $label_value_pairs->[$i] = [label(String), value(Any type)]
+            my $type = Jubatus::Common::Types::estimate_type($label_value_pairs->[$i]->[1]);
+            if ($type eq "String") {
+                push @{$string_values}, $label_value_pairs->[$i];
+            } elsif ($type eq "Integer") {
+                $label_value_pairs->[$i]->[1] = 0.0 + $label_value_pairs->[$i]->[1];
+                push @{$num_values}, $label_value_pairs->[$i];
+            } elsif ($type eq "Float") {
+                push @{$num_values}, $label_value_pairs->[$i];
+            } else {
+                Jubatus::Common::TypeException::show([$label_value_pairs->[$i]->[1], $type]);
+            }
+        }
+    }
+    my %hash = (
+        'type' => "Jubatus::Common::Datum",
+        'string_values' => $string_values,
+        'num_values' => $num_values,
+        'binary_values' => $binary_values,
+    );
+    bless \%hash, $self;
 }
 
 sub to_msgpack {
-  my ($self) = @_;
-  return [
+    my ($self) = @_;
+    return [
         $self->{string_values},
         $self->{num_values},
-   ];
+    ];
 }
 
 sub from_msgpack {
