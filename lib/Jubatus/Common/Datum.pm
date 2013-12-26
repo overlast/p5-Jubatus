@@ -95,15 +95,15 @@ sub to_msgpack {
     return [
         $self->{string_values},
         $self->{num_values},
+        $self->{binary_values},
     ];
 }
 
 sub from_msgpack {
-  my ($self, $arg) = @_;
-  my $datum = Jubatus::Common::Datum->new({ map { $_->[0] =>
-       $_->[1] } @{ $arg->[0] } }, { map { $_->[0] =>
-       $_->[1] } @{ $arg->[1] } });
-  return $datum;
+    my ($arg) = @_;
+    my $value = $TYPE->from_msgpack($arg);
+    my $datum = Jubatus::Common::Datum->new($value->[0], $value->[1], $value->[2]);
+    return $datum;
 }
 
 sub hash_ref_to_array_ref {
