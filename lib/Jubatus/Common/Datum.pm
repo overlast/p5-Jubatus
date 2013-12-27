@@ -106,18 +106,16 @@ sub from_msgpack {
     return $datum;
 }
 
-sub hash_ref_to_array_ref {
-    my ($self, $hash_ref) = @_;
-    my $array_ref = [];
-    if ((defined $hash_ref) && (ref $hash_ref eq "HASH")) {
-        foreach my $key (keys %{$hash_ref}) {
-            my $value = $hash_ref->{$key};
-            my $tmp_arr_ref = [$key, $value];
-            push @{$array_ref}, $tmp_arr_ref;
-        }
-    }
-    return $array_ref;
-}
+sub to_s {
+    my ($self) = @_;
+    my $gen = Jubatus::Common::MessageStringGenerator->new();
+    $gen->open_buf("datum");
+    $gen->add_buf("string_values", $self->{string_values});
+    $gen->add_buf("num_values", $self->{num_values});
+    $gen->add_buf("binary_values", $self->{binary_values});
+    $gen->close_buf();
+    return $gen->to_str();
+ }
 
 1;
 
