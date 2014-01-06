@@ -134,8 +134,8 @@ subtest 'Test model data updator' => sub {
     subtest 'test Jubatus::Common::Datum->new()' => sub {
         $datum = Jubatus::Common::Datum->new($values);
         is("Jubatus::Common::Datum", ref $datum, "Get Jubatus::Recommender::Datum object");
-        is(1, exists $datum->{string_values}, "Datum object has string_values field");
-        is(1, exists $datum->{num_values}, "Datum object has num_values field");
+        is(exists $datum->{string_values}, 1, "Datum object has string_values field");
+        is(exists $datum->{num_values}, 1, "Datum object has num_values field");
         is($datum->{string_values}->[0]->[1], "val1",  "Check value of string_values field of Datum object");
         is($datum->{num_values}->[0]->[1], "1", "Check value of num_values field of Datum object");
     };
@@ -143,31 +143,39 @@ subtest 'Test model data updator' => sub {
     my $row_id = "jubatus recommender test";
     subtest 'test update_row()' => sub {
         my $is_update = $reco_client->update_row($row_id, $datum);
-        is (1, $is_update, "Call update_row()");
+        is ($is_update, 1, "Call update_row()");
     };
 
     subtest 'test get_all_rows()' => sub {
         my $result_ids = $reco_client->get_all_rows();
         my $answer_ids = [$row_id];
-        is_deeply($answer_ids, $result_ids, "Check the row ids which are same as '$row_id' which input by update_row()");
+        is_deeply($result_ids, $answer_ids, "Check the row ids which are same as '$row_id' which input by update_row()");
     };
 };
-
-die;
-done_testing;
 
 subtest 'Test all model data cleaner' => sub {
     subtest 'test clear()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
-        my $is_clear = $reco_client->clear($name);
-        is (1, $is_clear, "Call clear()");
-        my $result_rows = $reco_client->get_all_rows($name);
+        my $timeout = 10;
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
+
+            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0],];
+
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $row_id = "jubatus recommender test";
+        my $is_update = $reco_client->update_row($row_id, $datum);
+
+        my $is_clear = $reco_client->clear();
+        is ($is_clear, 1, "Call clear()");
+        my $result_rows = $reco_client->get_all_rows();
         my $answer_rows = [];
         is_deeply($answer_rows, $result_rows, "Check the all row ids are cleared");
     };
 };
+
+die;
+done_testing;
 
 subtest 'Test model data updator by write multi row ids' => sub {
     my $name = "cpan module test";
