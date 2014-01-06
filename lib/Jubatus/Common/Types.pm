@@ -156,9 +156,9 @@ sub estimate_type {
             } elsif (ref $value eq "HASH") {
                 $type = "Hash";
             } elsif ($flags & B::SVf_NOK || $flags & B::SVp_NOK) {
-                $type = "Integer";
-            } elsif ($flags & B::SVf_IOK || $flags & B::SVp_IOK) {
                 $type = "Float";
+            } elsif ($flags & B::SVf_IOK || $flags & B::SVp_IOK) {
+                $type = "Integer";
             } elsif ($flags & B::SVf_POK) {
                 $type = "String";
             } elsif (ref $value ne "") {
@@ -538,28 +538,15 @@ use warnings;
 use utf8;
 use autodie;
 
-use parent -norequire, 'Jubatus::Common::TPrimitive';
+use parent -norequire, 'Jubatus::Common::Datum';
 
-use Jubatus::Common::Datum;
-
-# Constructor of J::C::TString
-sub new {
-    my ($class) = @_;
-    my $hash = {};
-    $hash->{type} = "Jubatus::Common::Datum";
-    bless $hash, $class;
-}
-
-# Only return an unpacked value of $m message pack object
-sub from_msgpack {
-    my ($self, $m) = @_;
-    return Jubatus::Common::Datum->from_msgpack($m);
-}
+# sub new {}
+# sub from_msgpack() {}
 
 # Check the matching of a label of $m object and the string value of $type
 sub to_msgpack {
     my ($self, $m) = @_;
-    my $type = $self->{type};
+    my $type = $self->{type}; # = "Jubatus::Common::Datum" which set on new()
     my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     # Return an packed value of $m using message pack protocol
     return $m->to_msgpack();
