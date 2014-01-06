@@ -164,11 +164,15 @@ sub estimate_type {
             } elsif (ref $value ne "") {
                 $type = ref $value;
             } else {
-                Jubatus::Common::TypeException->throw([ref $value, "Something type"]);
+                Jubatus::Common::TypeException->throw("data" => [ref $value, "Something type"]);
             }
-        }
+        } (
             # Catch the thrown error in the above lines
-            'Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)};
+            'Jubatus::Common::TypeException' => sub {
+                my $data = $@->{data};
+                Jubatus::Common::TypeException->show($data);
+            },
+        ),
     };
     if ($@) { Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $type;
@@ -181,23 +185,27 @@ sub check_type {
     eval {
         try {
             # Throw a exception when a label of $value object and a string value of $type aren't matching
-            if (ref $value eq ref $type) {
+            if (ref $value eq $type) {
             } else {
                 my $flags = B::svref_2object( \$value )->FLAGS;
                 if (($type eq "Integer") && ($flags & B::SVf_IOK || $flags & B::SVp_IOK)) {
                 } elsif (($type eq "Float") && ($flags & B::SVf_NOK || $flags & B::SVp_NOK)) {
                 } elsif (($type eq "String") && ($flags & B::SVf_POK)) {
-                } elsif (($type eq "Bool") && ($flags & B::SVf_POK)) {
+                } elsif (($type eq "Bool") && ((($flags & B::SVf_POK) && ("1" eq $value) || ("0" eq $value)) || (($flags & B::SVf_IOK || $flags & B::SVp_IOK) && (1 == $value) || (0 == $value)))) {
                 } elsif (($type eq "Array") && (ref $value eq "ARRAY")) {
                 } elsif (($type eq "Hash") && (ref $value eq "HASH")) {
                 } else {
                     $is_valid = 0;
-                    Jubatus::Common::TypeException->throw([ref $value, $type]);
+                    Jubatus::Common::TypeException->throw("data" => [ref $value, $type],);
                 }
             }
-        }
+        } (
             # Catch the thrown error in the above lines
-            'Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)};
+            'Jubatus::Common::TypeException' => sub {
+                my $data = $@->{data};
+                Jubatus::Common::TypeException->show($data);
+            },
+        );
     };
     if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
@@ -230,11 +238,15 @@ sub check_value {
             } elsif (($type eq "Bool") && ($value eq $query_value)){
             } else {
                 $is_valid = 0;
-                Jubatus::Common::TypeException->throw([ref $value, $type]);
+                Jubatus::Common::TypeException->throw("data" => [ref $value, $type],);
             }
-        }
+        } (
             # Catch the thrown error in the above lines
-            ' Jubatus::Common::TypeException' => sub {Jubatus::Common::TypeException->show($@)};
+            'Jubatus::Common::TypeException' => sub {
+                my $data = $@->{data};
+                Jubatus::Common::TypeException->show($data);
+            },
+        );
     };
     if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
@@ -261,10 +273,14 @@ sub check_values {
                 }
             } else {
                 $is_valid = 0;
-                Jubatus::Common::TypeException->throw([ref $values, "ARRAY or HASH"]);
+                Jubatus::Common::TypeException->throw("data" => [ref $values, "ARRAY or HASH"]);
             }
-        }
-            "Jubatus::Common::TypeException" => Jubatus::Common::TypeException->show($@);
+        } (
+            "Jubatus::Common::TypeException" => sub {
+                my $data = $@->{data};
+                Jubatus::Common::TypeException->show($data);
+            },
+        );
     };
     if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
@@ -280,11 +296,15 @@ sub check_bound {
             } elsif (($type eq "Bool") && (("1" eq $value) || ("0" eq $value))) {
             } else {
                 $is_valid = 0;
-                Jubatus::Common::ValueException->throw([ref $value, $max, $min, $type]);
+                Jubatus::Common::ValueException->throw("data" => [ref $value, $max, $min, $type]);
             }
-        }
+        } (
             # Catch the thrown error in the above lines
-            'Jubatus::Common::ValueException' => sub {Jubatus::Common::ValueException->show($@)};
+            'Jubatus::Common::ValueException' => sub {
+                my $data = $@->{data};
+                Jubatus::Common::ValueException->show($data);
+            },
+        );
     };
     if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
@@ -299,21 +319,24 @@ sub compare_element_num {
             if ($type eq "Array") {
                 unless ($#{$value1} == $#{$value2}) {
                     $is_valid = 0;
-                    Jubatus::Common::ValuePairException->throw([$#{$value1}, $#{$value2}, $type]);
+                    Jubatus::Common::ValuePairException->throw("data" => [$#{$value1}, $#{$value2}, $type]);
                 }
             } elsif ($type eq "Hash") {
                 unless ( scalar(keys %{$value1}) == scalar(keys %{$value2})) {
                     $is_valid = 0;
-                    Jubatus::Common::ValuePairException->throw([scalar(keys %{$value1}), scalar(keys %{$value2}), $type]);
+                    Jubatus::Common::ValuePairException->throw("data" => [scalar(keys %{$value1}), scalar(keys %{$value2}), $type]);
                 }
             } else {
                 $is_valid = 0;
-                Jubatus::Common::TypeException->throw([$type, "ARRAY or HASH"]);
+                Jubatus::Common::TypeException->throw("data" => [$type, "ARRAY or HASH"]);
             }
-        }
+        } (
             # Catch the thrown error in the above lines
-            'Jubatus::Common::ValuePairException' => sub {Jubatus::Common::ValuePairException->show($@)};
-
+            'Jubatus::Common::ValuePairException' => sub {
+                my $data = $@->{data};
+                Jubatus::Common::ValuePairException->show($data);
+            },
+        );
     };
     if ($@) { $is_valid = 0; Jubatus::Common::Exception->show($@); } # Catch the re-thrown exception
     return $is_valid;
@@ -885,13 +908,16 @@ sub to_msgpack {
             if ($m->isa($type)) {
                 return $type->to_msgpack($m);
             } else {
-                Jubatus::Common::NotFoundException->throw([ref $m, $type]);
+                Jubatus::Common::NotFoundException->throw("data" => [ref $m, $type]);
             }
         }
-    } {
+    } (
         # Catch the thrown error in the above lines
-        'Jubatus::Common::NotFoundException' => sub {Jubatus::Common::NotFoundException->show($@)},
-    };
+        'Jubatus::Common::NotFoundException' => sub {
+            my $data = $@->{data};
+            Jubatus::Common::NotFoundException->show($data);
+        },
+    );
     return $m;
 }
 
