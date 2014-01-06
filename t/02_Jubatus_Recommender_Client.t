@@ -1,4 +1,5 @@
 use strict;
+use warnings;
 
 use Test::TCP;
 use FindBin;
@@ -36,13 +37,17 @@ my $setup = sub {
             },
         );
     }
-
-    my $bt = Proc::ProcessTable->new();
-    foreach my $p ( @{$bt->table} ){
-        if (($p->cmndline =~ m|$port|) && ($p->cmndline =~ m|$json_path|)) {
-            $pid = $p->pid;
-            last;
+    if (exists $server->{port}) {
+        my $bt = Proc::ProcessTable->new();
+        foreach my $p ( @{$bt->table} ){
+            if (($p->cmndline =~ m|$server->{port}|) && ($p->cmndline =~ m|$json_path|)) {
+                $pid = $p->pid;
+                last;
+            }
         }
+        unless ($pid) { die "Can't get PID"; }
+    } else {
+        die "Can't get server->{port}";
     }
     return Scope::Guard->new(
         sub {
@@ -52,8 +57,8 @@ my $setup = sub {
 };
 
 subtest "Test to connect to the Recommender" => sub {
-    my $guard = $setup->();
     my $name = "cpan module test";
+    my $guard = $setup->($name);
     my $timeout = 10;
     my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
     subtest "Give hostname & ort number" => sub {
@@ -69,7 +74,7 @@ subtest 'Test JSON config file reader' => sub {
     subtest 'Test get_config() using null character string name (for standalone user)' => sub {
         my $name = "cpan module test";
         my $timeout = 10;
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
         my $con = $reco_client->get_config();
         open my $in, '<', $json_path;
@@ -102,7 +107,7 @@ subtest 'Test server status reader' => sub {
     subtest 'Test get_status()' => sub {
         my $name = "cpan module test";
         my $timeout = 10;
-        my $guard = $setup->();
+        my $guard = $setup->($name);
         my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
         my $status = $reco_client->get_status();
         my $program_name = "";
@@ -212,56 +217,51 @@ subtest 'Test model data updator by write multi row ids' => sub {
     };
 };
 
-die;
-done_testing;
-
 subtest 'Test data dumper and data loader of model' => sub {
     subtest 'test save()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+        my $timeout = 10;
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
 
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear = $reco_client->clear();
 
         {
             my $row_id = "Jubatus Recommender Test A";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0]];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $is_update = $reco_client->update_row($row_id, $datum);
         }
         {
             my $row_id = "Jubatus Recommender Test B";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0]];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $is_update = $reco_client->update_row($row_id, $datum);
         }
         {
             my $row_id = "Jubatus Recommender Test C";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0]];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $is_update = $reco_client->update_row($row_id, $datum);
         }
 
-        subtest 'Does the rows inpute ?' => sub {
-            my $result_ids = $reco_client->get_all_rows($name);
+        subtest 'Does the rows input ?' => sub {
+            my $result_ids = $reco_client->get_all_rows();
             my $answer_ids = [
                 "Jubatus Recommender Test A",
                 "Jubatus Recommender Test B",
                 "Jubatus Recommender Test C",
             ];
-            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
+            is_deeply($result_ids, $answer_ids, "Check the row ids which are same as answer_ids which input by update_row()");
         };
 
         subtest 'Does model file dump ?' => sub {
             my $model_name = "recommender_test";
-            my $is_save = $reco_client->save($name, $model_name);
-            is (1, $is_save, "Call save()");
+            my $is_save = $reco_client->save($model_name);
+            is ($is_save, 1, "Call save()");
 
             my $datadir;
-            my $status = $reco_client->get_status($name);
+            my $status = $reco_client->get_status();
             foreach my $key (keys %{$status}) {
                 foreach my $item (keys %{$status->{$key}}) {
                     if ($item eq 'datadir') {
@@ -270,46 +270,45 @@ subtest 'Test data dumper and data loader of model' => sub {
                     }
                 }
             }
-            is ('/tmp', $datadir, "Get default data directory from get_status()");
+            is ($datadir, '/tmp', "Get default data directory from get_status()");
             my $port = $server->{port};
-            my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".js";
+            my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".jubatus";
             my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
-            is (0, $is_there, "Check the suffix of file name in $datadir is '$model_file_name_suffix'");
+            is ($is_there, 0, "Check the suffix of file name in $datadir is '$model_file_name_suffix'");
         };
     };
 
     subtest 'test load()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+        my $timeout = 10;
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
+
+        my $is_clear = $reco_client->clear();
 
         {
             my $row_id = "Jubatus Recommender Test A";
-            #my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            #my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Common::Datum->new($values,);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0]];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $is_update = $reco_client->update_row($row_id, $datum);
         }
         {
             my $row_id = "Jubatus Recommender Test B";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0]];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $is_update = $reco_client->update_row($row_id, $datum);
         }
         {
             my $row_id = "Jubatus Recommender Test C";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0]];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $is_update = $reco_client->update_row($row_id, $datum);
         }
 
         my $model_name = "recommender_test";
-        my $is_save = $reco_client->save($name, $model_name);
+        my $is_save = $reco_client->save($model_name);
         my $datadir;
-        my $status = $reco_client->get_status($name);
+        my $status = $reco_client->get_status();
         foreach my $key (keys %{$status}) {
             foreach my $item (keys %{$status->{$key}}) {
                 if ($item eq 'datadir') {
@@ -322,28 +321,30 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".js";
         my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
 
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear_again = $reco_client->clear();
         subtest 'Does the saved rows delete ?' => sub {
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $reco_client->get_all_rows();
             my $answer_ids = [];
-            is_deeply($answer_ids, $result_ids, "Check the row ids which are deleted by clear()");
+            is_deeply($result_ids, $answer_ids, "Check the row ids which are deleted by clear()");
         };
 
         subtest 'Does the saved rows load ?' => sub {
-            my $is_load = $reco_client->load($name, $model_name);
+            my $is_load = $reco_client->load($model_name);
             is (1, $is_save, "Call load()");
 
-
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $reco_client->get_all_rows();
             my $answer_ids = [
                 "Jubatus Recommender Test A",
                 "Jubatus Recommender Test B",
                 "Jubatus Recommender Test C",
             ];
-            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which are loaded by load()");
+            is_deeply($result_ids, $answer_ids, "Check the row ids which are same as answer_ids which are loaded by load()");
         };
     };
 };
+
+die;
+done_testing;
 
 subtest 'Test data deleter' => sub {
     subtest 'test clear_row()' => sub {
