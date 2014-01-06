@@ -35,11 +35,11 @@ sub new {
 sub _error_handler {
     my ($e) = @_;
     if ($e == 1) {
-        Jubatus::Common::Exception::show("Unknown method exception : $e");
+        Jubatus::Common::Exception->show("Unknown method exception : $e");
     } elsif ($e == 2) {
-        Jubatus::Common::Exception::show("API mismatch exception : $e");
+        Jubatus::Common::Exception->show("API mismatch exception : $e");
     } else {
-        Jubatus::Common::Exception::show("Something RPC exception : $e");
+        Jubatus::Common::Exception->show("Something RPC exception : $e");
     }
     return;
 }
@@ -48,7 +48,7 @@ sub _error_handler {
 sub _call {
     my ($self, $method, $ret_type, $args, $arg_types) = @_;
     my $res;
-    # Check matching of argument types and the types of argument value
+    # Chek matching of argument types and the types of argument value
     if (Jubatus::Common::Types::compare_element_num($args, $arg_types, "Array")) {
         my $name = $self->{name} || "";
         my $values = [$name];
@@ -57,14 +57,17 @@ sub _call {
             my $arg_type = $arg_types->[$i];
             push @{$values}, $arg_type->to_msgpack($arg); # to_msgpackがtype checkする
         }
-        try {
-            # {client}->handler->**で諸々設定できる。
-            my $retval = $self->{client}->call($method, $values)->recv;
-            if ((defined $retval) && (defined $ret_type)) {
-                $res = $ret_type->from_msgpack($retval); # from_msgpackがtype checkする
-            }
-       }
-       "*" => sub { Jubatus::Common::Exception::show($@) };
+        eval {
+            try {
+                # {client}->handler->**で諸々設定できる。
+                my $retval = $self->{client}->call($method, $values)->recv;
+                if ((defined $retval) && (defined $ret_type)) {
+                    $res = $ret_type->from_msgpack($retval); # from_msgpackがtype checkする
+                }
+            } (
+                "*" => sub { Jubatus::Common::Exception->show($@); },
+            );
+        }; if ($@) { Jubatus::Common::Exception->show($@); }
     }
     return $res;
 }
