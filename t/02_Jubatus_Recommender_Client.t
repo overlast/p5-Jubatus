@@ -118,44 +118,43 @@ subtest 'Test server status reader' => sub {
     };
 };
 
-die;
-done_testing;
-
-
 subtest 'Test model data updator' => sub {
     my $name = "cpan module test";
+    my $timeout = 10;
     my $guard = $setup->($name);
-    my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+    my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
     subtest 'call clear()' => sub {
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear = $reco_client->clear();
         is (1, $is_clear, "Call clear()");
     };
 
-    my $string_values = [["key1", "val1"], ["key2", "val2"],];
-    my $num_values = [["key1", 1.0], ["key2", 2.0],];
+    my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0],];
 
     my $datum;
-    subtest 'test Jubatus::Recommender::Datum->new()' => sub {
-        $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        is("Jubatus::Recommender::Datum", ref $datum, "Get Jubatus::Recommender::Datum object");
+    subtest 'test Jubatus::Common::Datum->new()' => sub {
+        $datum = Jubatus::Common::Datum->new($values);
+        is("Jubatus::Common::Datum", ref $datum, "Get Jubatus::Recommender::Datum object");
         is(1, exists $datum->{string_values}, "Datum object has string_values field");
         is(1, exists $datum->{num_values}, "Datum object has num_values field");
-        is("val1", $datum->{string_values}->[0]->[1], "Check value of string_values field of Datum object");
-        is("1", $datum->{num_values}->[0]->[1], "Check value of num_values field of Datum object");
+        is($datum->{string_values}->[0]->[1], "val1",  "Check value of string_values field of Datum object");
+        is($datum->{num_values}->[0]->[1], "1", "Check value of num_values field of Datum object");
     };
 
     my $row_id = "jubatus recommender test";
     subtest 'test update_row()' => sub {
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($row_id, $datum);
         is (1, $is_update, "Call update_row()");
     };
 
     subtest 'test get_all_rows()' => sub {
-        my $result_ids = $reco_client->get_all_rows($name);
+        my $result_ids = $reco_client->get_all_rows();
         my $answer_ids = [$row_id];
         is_deeply($answer_ids, $result_ids, "Check the row ids which are same as '$row_id' which input by update_row()");
     };
 };
+
+die;
+done_testing;
 
 subtest 'Test all model data cleaner' => sub {
     subtest 'test clear()' => sub {
@@ -280,9 +279,10 @@ subtest 'Test data dumper and data loader of model' => sub {
 
         {
             my $row_id = "Jubatus Recommender Test A";
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+            #my $string_values = [["key1", "val1"], ["key2", "val2"],];
+            #my $num_values = [["key1", 1.0], ["key2", 2.0],];
+            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0],];
+            my $datum = Jubatus::Common::Datum->new($values,);
             my $is_update = $reco_client->update_row($name, $row_id, $datum);
         }
         {
