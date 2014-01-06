@@ -753,7 +753,8 @@ sub check_tuple {
     my $types = $self->{types};
     my $is_valid_type = Jubatus::Common::Types::check_type($m, "Array");
     if ($is_valid_type) {
-        $is_valid = Jubatus::Common::Types::compare_element_num($m, $types, "Array");    }
+        $is_valid = Jubatus::Common::Types::compare_element_num($m, $types, "Array");
+    }
     return $is_valid;
 }
 
