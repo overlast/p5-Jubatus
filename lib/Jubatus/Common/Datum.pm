@@ -6,20 +6,19 @@ use utf8;
 use autodie;
 
 require Jubatus::Common::Types;
-require Jubatus::Common::TypeException;
 use Jubatus::Common::MessageStringGenerator;
 
-our $TYPE = Jubatus::Common::TTuple->new(
+our $TYPE = Jubatus::Common::TTuple->new([
     Jubatus::Common::TList->new(
-        Jubatus::Common::TTuple->new(
-            Jubatus::Common::TString->new(), Jubatus::Common::TString->new())),
+        Jubatus::Common::TTuple->new([
+            Jubatus::Common::TString->new(), Jubatus::Common::TString->new()])),
     Jubatus::Common::TList->new(
-        Jubatus::Common::TTuple->new(
-            Jubatus::Common::TString->new(), Jubatus::Common::TFloat->new())),
+        Jubatus::Common::TTuple->new([
+            Jubatus::Common::TString->new(), Jubatus::Common::TFloat->new()])),
     Jubatus::Common::TList->new(
-        Jubatus::Common::TTuple->new(
-            Jubatus::Common::TString->new(), Jubatus::Common::TRaw->new())),
-);
+        Jubatus::Common::TTuple->new([
+            Jubatus::Common::TString->new(), Jubatus::Common::TRaw->new()])),
+]);
 
 sub new {
     my ($self, $label_value_pairs) = @_;
@@ -37,7 +36,7 @@ sub new {
             } elsif ($type eq "Float") {
                 push @{$num_values}, $label_value_pairs->[$i];
             } else {
-                Jubatus::Common::TypeException::show([$label_value_pairs->[$i]->[1], $type]);
+                Jubatus::Common::TypeException->show([$label_value_pairs->[$i]->[1], $type]);
             }
         }
     }
