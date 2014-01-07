@@ -80,7 +80,7 @@ subtest 'Test JSON config file reader' => sub {
     subtest 'Test get_config() using null character string name (for standalone user)' => sub {
         my $name = "cpan module test";
         my $timeout = 10;
-        my $guard = $setup->($name);
+        my $guard = $setup->();
         my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
         my $con = $reco_client->get_config();
         open my $in, '<', $json_path;
