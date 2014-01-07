@@ -343,9 +343,6 @@ subtest 'Test data dumper and data loader of model' => sub {
     };
 };
 
-die;
-done_testing;
-
 subtest 'Test data deleter' => sub {
     subtest 'test clear_row()' => sub {
         my $name = "cpan module test";
@@ -391,6 +388,9 @@ subtest 'Test data deleter' => sub {
     };
 
 };
+
+die;
+done_testing;
 
 subtest 'Test data decoder' => sub {
     subtest 'test decode_row()' => sub {

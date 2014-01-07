@@ -81,7 +81,7 @@ sub add_binary {
     my ($self, $key, $value) = @_;
     my $done_add = 0;
     if (Jubatus::Common::Type::check_type($key, "String")) {
-        if (Jubatus::Common::Type::check_type($value, "Bool")) {
+        if (Jubatus::Common::Type::check_type($value, "String")) {
             push @{$self->{binary_values}}, [$key, $value];
             $done_add = 1;
         }
@@ -99,9 +99,12 @@ sub to_msgpack {
 }
 
 sub from_msgpack {
-    my ($arg) = @_;
+    my ($self, $arg) = @_;
     my $value = $TYPE->from_msgpack($arg);
-    my $datum = Jubatus::Common::Datum->new($value->[0], $value->[1], $value->[2]);
+    my $datum = Jubatus::Common::Datum->new();
+    $datum->{string_values} = $value->[0];
+    $datum->{num_values} = $value->[1];
+    $datum->{binary_values} = $value->[2];
     return $datum;
 }
 
