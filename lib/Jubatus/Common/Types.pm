@@ -569,7 +569,7 @@ use parent -norequire, 'Jubatus::Common::Datum';
 sub from_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type}; # = "Jubatus::Common::Datum" which set on new()
-    my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, "Array");
     # Return an packed value of $m using message pack protocol
     return "$type"->from_msgpack($m);
 }
