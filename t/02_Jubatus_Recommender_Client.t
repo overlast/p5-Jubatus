@@ -343,13 +343,18 @@ subtest 'Test data dumper and data loader of model' => sub {
     };
 };
 
+#
+# I think Jubatus Recommender can't execute clear_row().
+# Is it issue ??
+#
 subtest 'Test data deleter' => sub {
     subtest 'test clear_row()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+        my $timeout = 10;
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
 
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear = $reco_client->clear();
 
         my @row_ids_arr = (
             "Jubatus Recommender TestA",
@@ -358,47 +363,45 @@ subtest 'Test data deleter' => sub {
         );
 
         foreach my $row_id (@row_ids_arr) {
-            my $string_values = [["key1", "val1"], ["key2", "val2"],];
-            my $num_values = [["key1", 1.0], ["key2", 2.0],];
-            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0],];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $is_update = $reco_client->update_row($row_id, $datum);
         }
 
         {
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $reco_client->get_all_rows();
             my $answer_ids = [
                 @row_ids_arr,
             ];
-            is_deeply($answer_ids, $result_ids, "Check the row ids which are same as answer_ids which input by update_row()");
+            is_deeply($result_ids, $answer_ids, "Check the row ids which are same as answer_ids which input by update_row()");
         }
 
         # my $is_not_clear_row = $reco_client->clear_row($name, $row_ids_arr[0]."noize");
         # is ($is_not_clear_row, 0, "Call clear_row() with uninputted key");
-        my $is_clear_row = $reco_client->clear_row($name, $row_ids_arr[0]);
+        my $is_clear_row = $reco_client->clear_row($row_ids_arr[0]);
         is (1, $is_clear_row, "Call clear_row() (It is meanless test. Because recommender is always return true. delete_row() in storage/sparse_matrix_storage.cpp not return the error !!!)");
 
         {
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $reco_client->get_all_rows();
             my $answer_ids = [
                 $row_ids_arr[1],
                 $row_ids_arr[2],
             ];
-        #    is_deeply($result_ids, $answer_ids, "Check row_id is deleted by clear_row()");
+            # I comment-out this line because jubarecommender ver 0.5 can't execute clear_row()
+            #is_deeply($result_ids, $answer_ids, "Check row_id is deleted by clear_row()");
         }
     };
 
 };
 
-die;
-done_testing;
-
 subtest 'Test data decoder' => sub {
     subtest 'test decode_row()' => sub {
         my $name = "cpan module test";
         my $guard = $setup->($name);
-        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+        my $timeout = 10;
+        my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
 
-        my $is_clear = $reco_client->clear($name);
+        my $is_clear = $reco_client->clear();
 
         my @row_ids_arr = (
             "Jubatus Recommender TestA",
@@ -406,15 +409,14 @@ subtest 'Test data decoder' => sub {
             "Jubatus Recommender TestC",
         );
 
-        my $string_values = [["key1", "val1"], ["key2", "val2"],];
-        my $num_values = [["key1", 1.0], ["key2", 2.0],];
+        my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0],];
         foreach my $row_id (@row_ids_arr) {
-            my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-            my $is_update = $reco_client->update_row($name, $row_id, $datum);
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $is_update = $reco_client->update_row($row_id, $datum);
         }
 
         {
-            my $result_ids = $reco_client->get_all_rows($name);
+            my $result_ids = $reco_client->get_all_rows();
             my $answer_ids = [
                 @row_ids_arr,
             ];
@@ -422,10 +424,13 @@ subtest 'Test data decoder' => sub {
         }
 
         foreach my $row_id (@row_ids_arr) {
-            my $datum = $reco_client->decode_row($name, $row_id);
-            is (ref $datum, "Jubatus::Recommender::Datum", "Call decode_row() and get Jubatus::Recommender::Datum object");
+            my $datum = $reco_client->decode_row($row_id);
+            is (ref $datum, "Jubatus::Common::Datum", "Call decode_row() and get Jubatus::Recommender::Datum object");
             is(exists $datum->{string_values}, 1, "Datum object 'datum' has string_values field");
             is(exists $datum->{num_values}, 1, "Datum object 'datum' has num_values field");
+            is(exists $datum->{binary_values}, 1, "Datum object 'datum' has binary_values field");
+            my $string_values = [["key1", "val1"], ["key2", "val2"],];
+            my $num_values = [["key1", 1.0], ["key2", 2.0],];
             is_deeply($datum->{string_values}, $string_values, "string_values field of Datum object is same as imput data structure");
             is_deeply($datum->{num_values}, $num_values, "num_values field of Datum object is same as imput data structure");
         }
@@ -435,22 +440,22 @@ subtest 'Test data decoder' => sub {
 subtest 'Test caluculator' => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
-    my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
+    my $timeout = 10;
+    my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port}, $name, $timeout);
 
-    my $is_clear = $reco_client->clear($name);
+    my $is_clear = $reco_client->clear();
 
-    my $string_values = [["key1", "val1"], ["key2", "val2"]];
-    my $num_values = [["key1", 1.0], ["key2", 2.0],];
-    my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+    my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0],];
+    my $datum = Jubatus::Common::Datum->new($values);
 
     subtest 'test calc_l2norm()' => sub {
-        my $l2norm = $reco_client->calc_l2norm($name, $datum);
-        is (1, (($l2norm > (sqrt(7) - 0.000001)) && ($l2norm < (sqrt(7) + 0.000001))) , "Check error value of l2norm is less than 0.000001");
+        my $l2norm = $reco_client->calc_l2norm($datum);
+        is ((($l2norm > (sqrt(7) - 0.000001)) && ($l2norm < (sqrt(7) + 0.000001))) ,1, "Check error value of l2norm is less than 0.000001");
     };
 
     subtest 'test calc_similarity()' => sub {
-        my $similarity = $reco_client->calc_similarity($name, $datum, $datum);
-        is (1, (($similarity > 0.999999) && ($similarity < 1.000001)) , "Check error value of similarity of self vector is less than 0.000001");
+        my $similarity = $reco_client->calc_similarity($datum, $datum);
+        is ((($similarity > 0.999999) && ($similarity < 1.000001)), 1, "Check error value of similarity of self vector is less than 0.000001");
     };
 };
 
@@ -461,64 +466,56 @@ subtest 'Test similarity caluculator' => sub {
     my $reco_client = Jubatus::Recommender::Client->new($host, $server->{port});
 
     my $is_clear = $reco_client->clear($name);
-
     {
         my $row_id = "red";
-        my $string_values = [["name", "red"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "red"], ["image", "warm"], ["R", 255.0], ["G", 0.0], ["B", 0.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "blue";
-        my $string_values = [["name", "blue"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "blue"], ["image", "cold"], ["R", 0.0], ["G", 0.0], ["B", 255.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "cyan";
-        my $string_values = [["name", "cyan"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "cyan"], ["image", "cold"], ["R", 0.0], ["G", 255.0], ["B", 255.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "magenta";
-        my $string_values = [["name", "magenta"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "magenta"], ["image", "warm"], ["R", 255.0], ["G", 0.0], ["B", 255.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "yellow";
-        my $string_values = [["name", "yellow"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "yellow"], ["image", "warm"], ["R", 255.0], ["G", 255.0], ["B", 0.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "green";
-        my $string_values = [["name", "green"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 0.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-
+        my $values = [["name", "green"], ["image", "cold"], ["R", 0.0], ["G", 255.0], ["B", 0.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
         my $max_result_num = 10;
         subtest 'test similar_row_from_datum()' => sub {
-            my $similarity = $reco_client->similar_row_from_datum($name, $datum, $max_result_num);
-            is ("cyan", $similarity->[0]->[0], "cyan is most similar than other colors");
-            is ("yellow", $similarity->[1]->[0], "yellow is more similar than blue");
-            is ("blue", $similarity->[2]->[0], "blue is more similar than red");
+            my $similarity = $reco_client->similar_row_from_datum($datum, $max_result_num);
+            is ($similarity->[0]->[0], "cyan", "cyan is most similar than other colors");
+            is ($similarity->[1]->[0], "yellow", "yellow is more similar than blue");
+            is ($similarity->[2]->[0], "blue", "blue is more similar than red");
         };
 
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($row_id, $datum);
 
         subtest 'test similar_row_from_id()' => sub {
-            my $similarity = $reco_client->similar_row_from_id($name, "green", $max_result_num);
-            is ("green", $similarity->[0]->[0], "green is itself");
-            is ("cyan", $similarity->[1]->[0], "cyan is most similar than other colors");
-            is ("yellow", $similarity->[2]->[0], "yellow is more similar than blue");
-            is ("blue", $similarity->[3]->[0], "blue is more similar than red");
+            my $similarity = $reco_client->similar_row_from_id("green", $max_result_num);
+            is ($similarity->[0]->[0], "green", "green is itself");
+            is ($similarity->[1]->[0], "cyan", "cyan is most similar than other colors");
+            is ($similarity->[2]->[0], "yellow", "yellow is more similar than blue");
+            is ($similarity->[3]->[0], "blue", "blue is more similar than red");
         };
     }
 };
@@ -533,59 +530,53 @@ subtest 'Test colmun data completer' => sub {
 
     {
         my $row_id = "red";
-        my $string_values = [["name", "red"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "red"], ["image", "warm"], ["R", 255.0], ["G", 0.0], ["B", 0.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "blue";
-        my $string_values = [["name", "blue"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "blue"], ["image", "cold"], ["R", 0.0], ["G", 0.0], ["B", 255.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "cyan";
-        my $string_values = [["name", "cyan"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "cyan"], ["image", "cold"], ["R", 0.0], ["G", 255.0], ["B", 255.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "magenta";
-        my $string_values = [["name", "magenta"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "magenta"], ["image", "warm"], ["R", 255.0], ["G", 0.0], ["B", 255.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "yellow";
-        my $string_values = [["name", "yellow"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $values = [["name", "yellow"], ["image", "warm"], ["R", 255.0], ["G", 255.0], ["B", 0.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "green";
-        my $string_values = [["name", "green"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 0.255], ["B", 0.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $values = [["name", "green"], ["image", "cold"], ["R", 0.0], ["G", 0.255], ["B", 0.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
 
         subtest 'test complete_row_from_datum()' => sub {
-            my $completed = $reco_client->complete_row_from_datum($name, $datum);
-            is (1, ($completed->{num_values}->[0]->[1] > 0), "R is completed using average of weighted value");
-            is (1, ($completed->{num_values}->[1]->[1] > 0), "G is replace using average of weighted value");
-            is (1, ($completed->{num_values}->[2]->[1] > 0), "B is completed using average of weighted value");
+            my $completed = $reco_client->complete_row_from_datum($datum);
+            is (($completed->{num_values}->[0]->[1] > 0), 1, "R is completed using average of weighted value");
+            is (($completed->{num_values}->[1]->[1] > 0), 1, "G is replace using average of weighted value");
+            is (($completed->{num_values}->[2]->[1] > 0), 1, "B is completed using average of weighted value");
         };
 
-        my $is_update = $reco_client->update_row($name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($row_id, $datum);
 
         subtest 'test similar_row_from_id()' => sub {
-            my $completed = $reco_client->complete_row_from_id($name, "green");
-            is (1, ($completed->{num_values}->[0]->[1] > 0), "R is completed using average of weighted value");
-            is (1, ($completed->{num_values}->[1]->[1] > 0), "G is replace using average of weighted value");
-            is (1, ($completed->{num_values}->[2]->[1] > 0), "B is completed using average of weighted value");
+            my $completed = $reco_client->complete_row_from_id("green");
+            is (($completed->{num_values}->[0]->[1] > 0), 1, "R is completed using average of weighted value");
+            is (($completed->{num_values}->[1]->[1] > 0), 1, "G is replace using average of weighted value");
+            is (($completed->{num_values}->[2]->[1] > 0), 1, "B is completed using average of weighted value");
           };
     }
 };
