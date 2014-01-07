@@ -409,7 +409,7 @@ sub from_msgpack {
     # Check the matching of IV flags of $m object and the string value of $type
     my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     if ($is_valid_type) { # Check of the lower bound and the upper bound
-        my $is_valid_bound = Jubatus::Common::Types::check_bound($m, $self->{max}. $self->{min}, $type);
+        my $is_valid_bound = Jubatus::Common::Types::check_bound($m, $self->{max}, $self->{min}, $type);
     }
     return $m;
 }
@@ -420,7 +420,7 @@ sub to_msgpack {
     # Check the matching of IV flags of $m object and the string value of $type
     my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
     if ($is_valid_type) { # Check of the lower bound and the upper bound
-        my $is_valid_bound = Jubatus::Common::Types::check_bound($m, $self->{max}. $self->{min}, $type);
+        my $is_valid_bound = Jubatus::Common::Types::check_bound($m, $self->{max}, $self->{min}, $type);
     }
     return $m;
 }
