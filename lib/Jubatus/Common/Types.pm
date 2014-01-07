@@ -566,6 +566,14 @@ use parent -norequire, 'Jubatus::Common::Datum';
 # sub new {}
 # sub from_msgpack() {}
 
+sub from_msgpack {
+    my ($self, $m) = @_;
+    my $type = $self->{type}; # = "Jubatus::Common::Datum" which set on new()
+    my $is_valid_type = Jubatus::Common::Types::check_type($m, $type);
+    # Return an packed value of $m using message pack protocol
+    return "$type"->from_msgpack($m);
+}
+
 # Check the matching of a label of $m object and the string value of $type
 sub to_msgpack {
     my ($self, $m) = @_;
