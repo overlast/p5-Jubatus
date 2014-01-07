@@ -56,6 +56,12 @@ my $setup = sub {
     );
 };
 
+sub kill_process {
+    my ($pid) = @_;
+    my $is_killed = system("kill -9 $pid"); # if success = 0 ,if fail > 0
+    return  ($is_killed - 1) * -1; # i
+}
+
 subtest "Test to connect to the Recommender" => sub {
     my $name = "cpan module test";
     my $guard = $setup->($name);
@@ -582,9 +588,3 @@ subtest 'Test colmun data completer' => sub {
 };
 
 done_testing();
-
-sub kill_process {
-    my ($pid) = @_;
-    my $is_killed = system("kill -9 $pid"); # if success = 0 ,if fail > 0
-    return  ($is_killed - 1) * -1; # i
-}
