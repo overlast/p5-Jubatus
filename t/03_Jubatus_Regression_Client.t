@@ -77,7 +77,7 @@ subtest 'Test JSON config file reader' => sub {
     subtest 'Test get_config() using null character string name (for standalone user)' => sub {
         my $guard = $setup->();
         my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-        my $con = $regr_client->get_config("");
+        my $con = $regr_client->get_config();
         open my $in, '<', $json_path;
         my $content;
         {
@@ -89,9 +89,10 @@ subtest 'Test JSON config file reader' => sub {
     };
     subtest 'test get_config() using not null character string name (for zookeeper user)' => sub {
         my $name = "cpan module test";
+        my $timeout = 10;
         my $guard = $setup->($name);
-        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-        my $con = $regr_client->get_config("");
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port}, $name, $timeout);
+        my $con = $regr_client->get_config();
         open my $in, '<', $json_path;
         my $content;
         {
@@ -105,9 +106,11 @@ subtest 'Test JSON config file reader' => sub {
 
 subtest 'Test server status reader' => sub {
     subtest 'Test get_status()' => sub {
-        my $guard = $setup->();
-        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
-        my $status = $regr_client->get_status("");
+        my $name = "cpan module test";
+        my $timeout = 10;
+        my $guard = $setup->($name);
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port}, $name, $timeout);
+        my $status = $regr_client->get_status();
         my $program_name = "";
         foreach my $key (keys %{$status}) {
             foreach my $item (keys %{$status->{$key}}) {
@@ -123,36 +126,37 @@ subtest 'Test server status reader' => sub {
 
 subtest 'Test model data updator' => sub {
     my $name = "cpan module test";
+    my $timeout = 10;
     my $guard = $setup->($name);
-    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
+    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port}, $name, $timeout);
+
     subtest 'call clear()' => sub {
-        my $is_clear = $regr_client->clear($name);
+        my $is_clear = $regr_client->clear();
         is (1, $is_clear, "Call clear()");
     };
 
-    my $string_values = [["key1", "val1"], ["key2", "val2"],];
-    my $num_values = [["key1", 1.0], ["key2", 2.0],];
+    my $weight = 1.0;
+    my $values = [["key1", "val1"], ["key2", "val2"], ["key1", 1.0], ["key2", 2.0],];
 
     my $datum;
-    subtest 'test Jubatus::Regression::Datum->new()' => sub {
-        $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        is("Jubatus::Regression::Datum", ref $datum, "Get Jubatus::Regression::Datum object");
-        is(1, exists $datum->{string_values}, "Datum object has string_values field");
+    subtest 'test Jubatus::Common::Datum->new()' => sub {
+        $datum = Jubatus::Common::Datum->new($values);
+        is("Jubatus::Common::Datum", ref $datum, "Get Jubatus::Regression::ScoredDatum");
+        is(1, exists $datum->{string_values}, "Datum object has string_value field");
         is(1, exists $datum->{num_values}, "Datum object has num_values field");
         is("val1", $datum->{string_values}->[0]->[1], "Check value of string_values field of Datum object");
         is("1", $datum->{num_values}->[0]->[1], "Check value of num_values field of Datum object");
     };
 
     subtest 'test train()' => sub {
-        my $weight = 1.0;
-        my $one_data = [[$weight, $datum->to_msgpack()]];
-        my $is_train_one_data = $regr_client->train($name, $one_data);
+        my $single_data = [[$weight, $datum]];
+        my $is_train_one_data = $regr_client->train($single_data);
         is (1, $is_train_one_data, "Call train() with one training data");
-        my $two_data = [[$weight, $datum->to_msgpack()], [$weight, $datum->to_msgpack()],];
-        my $is_train_two_data = $regr_client->train($name, $two_data);
+        my $two_data = [[$weight, $datum], [$weight, $datum]];
+        my $is_train_two_data = $regr_client->train($two_data);
         is (2, $is_train_two_data, "Call train() with two training data");
         my $zero_data = [];
-        my $is_train_zero_data = $regr_client->train($name, $zero_data);
+        my $is_train_zero_data = $regr_client->train($zero_data);
         is (0, $is_train_zero_data, "Call train() with zero training data");
     };
 };
@@ -308,64 +312,64 @@ my @sample = (
 
 subtest 'Test estimater' => sub {
     my $name = "cpan module test";
+    my $timeout = 10;
     my $guard = $setup->($name);
-    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
+    my $regr_client = Jubatus::Regression::Client->new($host, $server->{port}, $name, $timeout);
     subtest 'call clear()' => sub {
-        my $is_clear = $regr_client->clear($name);
+        my $is_clear = $regr_client->clear();
         is (1, $is_clear, "Call clear()");
     };
 
     my @data_arr = ();
     foreach my $data (@sample) {
         my @vals = split / /, $data;
-        my $string_values = [["direction", "$vals[5]"],];
-        my $num_values = [["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
+        my $values = [["direction", "$vals[5]"], ["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
+        my $datum = Jubatus::Common::Datum->new($values);
         my $rent = 0.0 + $vals[0];
-        my $data = [$rent, $datum->to_msgpack()];
+        my $data = [$rent, $datum];
         push @data_arr, $data;
     }
     subtest 'test train()' => sub {
-        my $is_train = $regr_client->train($name, \@data_arr);
-        is(145, $is_train, "train all samples (145 samples)")
+        my $is_train = $regr_client->train(\@data_arr);
+        is($is_train, 145, "train all samples (145 samples)")
     };
+
     subtest 'test estimate()' => sub {
-        my $string_values = [];
-        my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
-        my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-        my $data = [$datum->to_msgpack()];
-        my $estimate_result = $regr_client->estimate($name, $data);
-        is(1, $estimate_result > 8, "Get estimate rent value");
+        my $values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $data = [$datum];
+        my $estimate_result = $regr_client->estimate($data);
+        is($estimate_result > 8, 1, "Get estimate rent value");
     };
 };
 
 subtest 'Test data dumper and data loader of model' => sub {
     subtest 'test save()' => sub {
         my $name = "cpan module test";
+        my $timeout = 10;
         my $guard = $setup->($name);
-        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port}, $name, $timeout);
 
-        my $is_clear = $regr_client->clear($name);
+        my $is_clear = $regr_client->clear();
 
         my @data_arr = ();
         foreach my $data (@sample) {
             my @vals = split / /, $data;
-            my $string_values = [["direction", "$vals[5]"],];
-            my $num_values = [["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
+            my $values = [["direction", "$vals[5]"], ["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
+            my $datum = Jubatus::Common::Datum->new($values);
             my $rent = 0.0 + $vals[0];
-            my $data = [$rent, $datum->to_msgpack()];
+            my $data = [$rent, $datum];
             push @data_arr, $data;
         }
-        my $is_train = $regr_client->train($name, \@data_arr);
+        my $is_train = $regr_client->train(\@data_arr);
 
         subtest 'Does model file dump ?' => sub {
             my $model_name = "regression_test";
-            my $is_save = $regr_client->save($name, $model_name);
-            is (1, $is_save, "Call save()");
+            my $is_save = $regr_client->save($model_name);
+            is ($is_save, 1, "Call save()");
 
             my $datadir;
-            my $status = $regr_client->get_status($name);
+            my $status = $regr_client->get_status();
             foreach my $key (keys %{$status}) {
                 foreach my $item (keys %{$status->{$key}}) {
                     if ($item eq 'datadir') {
@@ -374,35 +378,35 @@ subtest 'Test data dumper and data loader of model' => sub {
                     }
                 }
             }
-            is ('/tmp', $datadir, "Get default data directory from get_status()");
+            is ($datadir, '/tmp', "Get default data directory from get_status()");
             my $port = $server->{port};
-            my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".js";
+            my $model_file_name_suffix = "_".$port."_jubatus_".$model_name.".jubatus";
             my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
-            is (0, $is_there, "Check the suffix of file name in $datadir is '$model_file_name_suffix'");
+            is ($is_there, 0, "Check the suffix of file name in $datadir is '$model_file_name_suffix'");
         };
     };
 
     subtest 'test load()' => sub {
         my $name = "cpan module test";
+        my $timeout = 10;
         my $guard = $setup->($name);
-        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port});
+        my $regr_client = Jubatus::Regression::Client->new($host, $server->{port}, $name, $timeout);
 
         my @data_arr = ();
         foreach my $data (@sample) {
             my @vals = split / /, $data;
-            my $string_values = [["direction", "$vals[5]"],];
-            my $num_values = [["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
+            my $values = [["direction", "$vals[5]"], ["walk_n_min", 0.0 + $vals[1]], ["area", 0.0 + $vals[2]], ["age", 0.0 + $vals[3]], ["floor", 0.0 + $vals[4]],];
+            my $datum = Jubatus::Common::Datum->new($values);
             my $rent = 0.0 + $vals[0];
-            my $data = [$rent, $datum->to_msgpack()];
+            my $data = [$rent, $datum];
             push @data_arr, $data;
         }
-        my $is_train = $regr_client->train($name, \@data_arr);
+        my $is_train = $regr_client->train(\@data_arr);
 
         my $model_name = "regression_test";
-        my $is_save = $regr_client->save($name, $model_name);
+        my $is_save = $regr_client->save($model_name);
         my $datadir;
-        my $status = $regr_client->get_status($name);
+        my $status = $regr_client->get_status();
         foreach my $key (keys %{$status}) {
             foreach my $item (keys %{$status->{$key}}) {
                 if ($item eq 'datadir') {
@@ -416,35 +420,32 @@ subtest 'Test data dumper and data loader of model' => sub {
         my $is_there = system("ls -al /tmp|grep $model_file_name_suffix 1>/dev/null 2>/dev/null");
 
         subtest 'test estimate() using learned model' => sub {
-            my $string_values = [];
-            my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $data = [$datum->to_msgpack()];
-            my $estimate_result = $regr_client->estimate($name, $data);
-            is(1, $estimate_result > 8, "Get estimate rent value");
+            my $values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $data = [$datum];
+            my $estimate_result = $regr_client->estimate($data);
+            is($estimate_result > 8, 1, "Get estimate rent value");
         };
 
-        my $is_clear = $regr_client->clear($name);
+        my $is_clear = $regr_client->clear();
 
         subtest 'test estimate() for empty model' => sub {
-            my $string_values = [];
-            my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $data = [$datum->to_msgpack()];
-            my $estimate_result = $regr_client->estimate($name, $data);
-            is_deeply([0], $estimate_result, "Can't get estimate rent value");
+            my $values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $data = [$datum];
+            my $estimate_result = $regr_client->estimate($data);
+            is_deeply($estimate_result, [0], "Can't get estimate rent value");
         };
 
         subtest 'Does the saved rows load ?' => sub {
-            my $is_load = $regr_client->load($name, $model_name);
-            is (1, $is_save, "Call load()");
+            my $is_load = $regr_client->load($model_name);
+            is ($is_save, 1, "Call load()");
 
-            my $string_values = [];
-            my $num_values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
-            my $datum = Jubatus::Regression::Datum->new($string_values, $num_values);
-            my $data = [$datum->to_msgpack()];
-            my $estimate_result = $regr_client->estimate($name, $data);
-            is(1, $estimate_result > 8, "Get estimate rent value from dumped model");
+            my $values = [["walk_n_min", 5.0], ["area", 32.0], ["age", 15.0],];
+            my $datum = Jubatus::Common::Datum->new($values);
+            my $data = [$datum];
+            my $estimate_result = $regr_client->estimate($data);
+            is($estimate_result > 8, 1, "Get estimate rent value from dumped model");
         };
     };
 };
