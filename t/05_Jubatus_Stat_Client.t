@@ -21,10 +21,11 @@ my $server;
 my $setup = sub {
     my ($name) = @_;
     my $pid = "";
+    my $port;
     if (defined $name) {
         $server = Test::TCP->new(
             code => sub {
-                my $port = shift;
+                $port = shift;
                 my $is_boot = exec ("$server_name -p $port -f $json_path -n '$name' 1>/dev/null 2>/dev/null \&");
             },
         );
@@ -32,18 +33,22 @@ my $setup = sub {
     else {
         $server = Test::TCP->new(
             code => sub {
-                my $port = shift;
+                $port = shift;
                 my $is_boot = exec ("$server_name -p $port -f $json_path 1>/dev/null 2>/dev/null \&");
             },
         );
     }
-
-    my $bt = Proc::ProcessTable->new();
-    foreach my $p ( @{$bt->table} ){
-        if ($p->cmndline =~ m|$json_path|) {
-            $pid = $p->pid;
-            last;
+    if (exists $server->{port}) {
+        my $bt = Proc::ProcessTable->new();
+        foreach my $p ( @{$bt->table} ){
+            if (($p->cmndline =~ m|$server->{port}|) && ($p->cmndline =~ m|$json_path|)) {
+                $pid = $p->pid;
+                last;
+            }
         }
+        unless ($pid) { die "Can't get PID"; }
+    } else {
+        die "Can't get server->{port}";
     }
     return Scope::Guard->new(
         sub {
@@ -51,6 +56,12 @@ my $setup = sub {
         }
     );
 };
+
+sub kill_process {
+    my ($pid) = @_;
+    my $is_killed = system("kill -9 $pid"); # if success = 0 ,if fail > 0
+    return  ($is_killed - 1) * -1; # i
+}
 
 subtest "Test to connect to the Stat" => sub {
     my $guard = $setup->();
@@ -454,9 +465,3 @@ subtest 'Test data dumper and data loader of model' => sub {
 };
 
 done_testing();
-
-sub kill_process {
-    my ($pid) = @_;
-    my $is_killed = system("kill -9 $pid"); # if success = 0 ,if fail > 0
-    return  ($is_killed - 1) * -1; # i
-}
