@@ -916,8 +916,27 @@ sub new {
 sub from_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    my $is_valid_type = $type->from_msgpack($m);
-    return $m;
+    my $data = $m;
+    our $CACHE = { map { $_ => 1 } qw/HASH SCALAR ARRAY GLOB CODE REF/,'' };
+    my $sub_name = (caller 0)."_".(caller 0)[3];
+#    try {
+        if (Jubatus::Common::Types::check_type($m, "Array", $sub_name)) {
+            $data = $self->{type}->from_msgpack($m);
+        } elsif (Jubatus::Common::Types::check_type($m, $type, $sub_name)) {
+            $data = $type->from_msgpack($m);
+        } elsif ($CACHE->{ref $m}) {
+            $data = $m->from_msgpack();
+        } else {
+            Jubatus::Common::NotFoundException->throw("data" => [ref $m, $type]);
+        }
+#    } (
+#        # Catch the thrown error in the above lines
+#        'Jubatus::Common::NotFoundException' => sub {
+#            my $data = $@->{data};
+#            Jubatus::Common::NotFoundException->show($data);
+#        },
+#    );
+    return $data;
 }
 
 sub to_msgpack {
