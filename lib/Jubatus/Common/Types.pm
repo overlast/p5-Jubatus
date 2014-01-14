@@ -804,7 +804,6 @@ sub to_msgpack {
     # Check a data type and matching of the elements numbers of $m and $type
     my $is_valid_tuple = $self->check_tuple($m);
     my $result = [];
-
     if ($is_valid_tuple) {
         for (my $i = 0; $i <= $#$m; $i++) {
             my $type = $types->[$i];
