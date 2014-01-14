@@ -509,19 +509,19 @@ subtest 'Test similarity caluculator' => sub {
         my $max_result_num = 10;
         subtest 'test similar_row_from_datum()' => sub {
             my $similarity = $reco_client->similar_row_from_datum($datum, $max_result_num);
-            is ($similarity->[0]->[0], "cyan", "cyan is most similar than other colors");
-            is ($similarity->[1]->[0], "yellow", "yellow is more similar than blue");
-            is ($similarity->[2]->[0], "blue", "blue is more similar than red");
+            is ($similarity->[0]->{id}, "cyan", "cyan is most similar than other colors");
+            is ($similarity->[1]->{id}, "yellow", "yellow is more similar than blue");
+            is ($similarity->[2]->{id}, "blue", "blue is more similar than red");
         };
 
         my $is_update = $reco_client->update_row($row_id, $datum);
 
         subtest 'test similar_row_from_id()' => sub {
             my $similarity = $reco_client->similar_row_from_id("green", $max_result_num);
-            is ($similarity->[0]->[0], "green", "green is itself");
-            is ($similarity->[1]->[0], "cyan", "cyan is most similar than other colors");
-            is ($similarity->[2]->[0], "yellow", "yellow is more similar than blue");
-            is ($similarity->[3]->[0], "blue", "blue is more similar than red");
+            is ($similarity->[0]->{id}, "green", "green is itself");
+            is ($similarity->[1]->{id}, "cyan", "cyan is most similar than other colors");
+            is ($similarity->[2]->{id}, "yellow", "yellow is more similar than blue");
+            is ($similarity->[3]->{id}, "blue", "blue is more similar than red");
         };
     }
 };
@@ -586,5 +586,6 @@ subtest 'Test colmun data completer' => sub {
           };
     }
 };
+
 
 done_testing();
