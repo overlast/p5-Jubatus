@@ -804,6 +804,7 @@ sub to_msgpack {
     # Check a data type and matching of the elements numbers of $m and $type
     my $is_valid_tuple = $self->check_tuple($m);
     my $result = [];
+
     if ($is_valid_tuple) {
         for (my $i = 0; $i <= $#$m; $i++) {
             my $type = $types->[$i];
@@ -894,7 +895,7 @@ sub to_msgpack {
 1;
 
 package Jubatus::Common::TUserDef;
-# EUserDef value classes
+# TUserDef value classes
 
 use strict;
 use warnings;
@@ -917,40 +918,34 @@ sub from_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
     my $data = $m;
-    our $CACHE = { map { $_ => 1 } qw/HASH SCALAR ARRAY GLOB CODE REF/,'' };
     my $sub_name = (caller 0)."_".(caller 0)[3];
-#    try {
+    try {
         if (Jubatus::Common::Types::check_type($m, "Array", $sub_name)) {
-            $data = $self->{type}->from_msgpack($m);
-        } elsif (Jubatus::Common::Types::check_type($m, $type, $sub_name)) {
             $data = $type->from_msgpack($m);
-        } elsif ($CACHE->{ref $m}) {
-            $data = $m->from_msgpack();
+        } elsif (Jubatus::Common::Types::check_type($m, ref $type, $sub_name)) {
+            $data = $type->from_msgpack($m);
         } else {
             Jubatus::Common::NotFoundException->throw("data" => [ref $m, $type]);
         }
-#    } (
-#        # Catch the thrown error in the above lines
-#        'Jubatus::Common::NotFoundException' => sub {
-#            my $data = $@->{data};
-#            Jubatus::Common::NotFoundException->show($data);
-#        },
-#    );
+    } (
+        # Catch the thrown error in the above lines
+        'Jubatus::Common::NotFoundException' => sub {
+            my $data = $@->{data};
+            Jubatus::Common::NotFoundException->show($data);
+        },
+    );
     return $data;
 }
 
 sub to_msgpack {
     my ($self, $m) = @_;
     my $type = $self->{type};
-    our $CACHE = { map { $_ => 1 } qw/HASH SCALAR ARRAY GLOB CODE REF/,'' };
     my $data = $m;
     my $sub_name = (caller 0)."_".(caller 0)[3];
     try {
         if (Jubatus::Common::Types::check_type($m, "Array", $sub_name)) {
             $data = $type->get_type()->to_msgpack($m);
-        } elsif (Jubatus::Common::Types::check_type($m, $type, $sub_name)) {
-            $data = $type->to_msgpack($m);
-        } elsif ($CACHE->{ref $m}) {
+        } elsif (Jubatus::Common::Types::check_type($m, ref $type, $sub_name)) {
             $data = $m->to_msgpack();
         } else {
             Jubatus::Common::NotFoundException->throw("data" => [ref $m, $type]);
