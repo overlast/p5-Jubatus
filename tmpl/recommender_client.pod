@@ -13,71 +13,71 @@ Jubatus::Recommender::Client - Perl extension for interfacing with recommendatio
 
     use Jubatus;
 
-    my $cluster_name = "jubatus_perl_doc";
-    # even if it isn't in a distributed environment using ZooKeeper and Jubatus keepers.
-
+    my $juba_client_type = "recommender";
     my $host_name_or_ip_address = "localhost"; # master node's
     my $port_number_of_juba_process = 13714; # meanless
 
-    my $juba_client_type = "recommender";
-    # you can select from (recommender|regression|classifier|stat|graph|anomaly|nearestneighbor)
+    my $cluster_name = "jubatus_perl_doc";
+    # even if it isn't in a distributed environment using ZooKeeper and Jubatus keepers.
 
-    my $reco_client = Jubatus->get_client($host_name_or_ip_address, $port_number_of_juba_process, $juba_client_type);
+    # you can select from (recommender | regression | classifier | stat | graph | anomaly | nearestneighbor | clustering)
+
+    my $reco_client = Jubatus->get_client($juba_client_type, $host_name_or_ip_address, $port_number_of_juba_process, $cluster_name);
     # got Jubatus::Recommender::Client object
 
     # In the following example, get maximum value from sample array using Jubatus::Recommender::Client object
 
-    my $is_clear = $reco_client->clear($cluster_name);
+    my $is_clear = $reco_client->clear();
 
-    {
+    {   # You can use an array reference of array references to initialize the Jubatus::Common::Datum object
         my $row_id = "red";
-        my $string_values = [["name", "red"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 0.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
+        my $values = [["name", "red"], ["image", "warm"], ["R", 255.0], ["G", 0.0], ["B", 0.0]];
+        my $datum = Jubatus::Common::Datum->new($string_values, $num_values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
-    {
+    {   # And also you can use an hash to initialize the Jubatus::Common::Datum object
         my $row_id = "blue";
-        my $string_values = [["name", "blue"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
+        my $hash = {
+            "name" => "blue",
+            "image" => "cold",
+            "R" => 0.0,
+            "G" => 0.0,
+            "B" => 255.0
+        };
+        my $datum = Jubatus::Common::Datum->new($hash);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "cyan";
-        my $string_values = [["name", "cyan"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 255.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
+        my $values = [["name", "cyan"], ["image", "cold"], ["R", 0.0], ["G", 255.0], ["B", 255.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "magenta";
-        my $string_values = [["name", "magenta"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 0.0], ["B", 255.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
+        my $values = [["name", "magenta"], ["image", "warm"], ["R", 255.0], ["G", 0.0], ["B", 255.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "yellow";
-        my $string_values = [["name", "yellow"], ["image", "warm"],];
-        my $num_values = [["R", 255.0], ["G", 255.0], ["B", 0.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
-        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
+        my $values = [["name", "yellow"], ["image", "warm"], ["R", 255.0], ["G", 255.0], ["B", 0.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
         my $row_id = "green";
-        my $string_values = [["name", "green"], ["image", "cold"],];
-        my $num_values = [["R", 0.0], ["G", 255.0], ["B", 0.0]];
-        my $datum = Jubatus::Recommender::Datum->new($string_values, $num_values);
+        my $values = [["name", "green"], ["image", "cold"], ["R", 0.0], ["G", 255.0], ["B", 0.0]];
+        my $datum = Jubatus::Common::Datum->new($values);
 
         my $max_result_num = 10;
-        my $similar_row = $reco_client->similar_row_from_datum($cluster_name, $datum, $max_result_num);
+        my $similar_row = $reco_client->similar_row_from_datum($datum, $max_result_num);
         # return cyan, yellow, blue
 
-        my $is_update = $reco_client->update_row($cluster_name, $row_id, $datum);
+        my $is_update = $reco_client->update_row($row_id, $datum);
     }
     {
-        my $similar_row = $reco_client->similar_row_from_id($cluster_name, "green", $max_result_num);
+        my $similar_row = $reco_client->similar_row_from_id("green", $max_result_num);
         # return green, cyan, yellow, blue
     }
 
@@ -113,6 +113,51 @@ The above code is equivalent to:
 
 See L<Jubatus> for more detail.
 
+=head3 Jubatus::Recommender::Client->new($host, $port, $cluster_name);
+
+You must set $cluster_name if you are distributed environment user.
+
+    use Jubatus::Recommender::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    my $cluster_name = "perl doc";
+    my $obj = Jubatus::Recommender::Client->new($host, $port, $cluster_name);
+
+The above code is equivalent to:
+
+    use Jubatus;
+    my $juba_client_type = 'recommender';
+    my $host = 'localhost';
+    my $port = '13714';
+    my $cluster_name = "perl doc";
+    my $reco_client = Jubatus->get_client($juba_client_type, $host, $port, $cluster_name);
+
+See L<Jubatus> for more detail.
+
+=head3 Jubatus::Recommender::Client->new($host, $port, $cluster_name, $timeout_seconds);
+
+Default value of timeout parameter of server process is 10 seconds.
+If you want to set timeout parameter, you should set 4th argument.
+
+    use Jubatus::Recommender::Client;
+    my $host = 'localhost';
+    my $port = '13714';
+    my $cluster_name = "perl doc";
+    my $timeout_secondes = 10;
+    my $obj = Jubatus::Recommender::Client->new($host, $port, $cluster_name, $timeout_secondes);
+
+The above code is equivalent to:
+
+    use Jubatus;
+    my $juba_client_type = 'recommender';
+    my $host = 'localhost';
+    my $port = '13714';
+    my $cluster_name = "perl doc";
+    my $timeout_secondes = 10;
+    my $reco_client = Jubatus->get_client($juba_client_type, $host, $port, $cluster_name, $timeout_secondes);
+
+See L<Jubatus> for more detail.
+
 =head1 FUNCTIONS
 
 =head3 get_client()
@@ -131,15 +176,14 @@ Output:
     - Jubatus::Recommender::Client object - Return a Jubatus::Recommender::Client object
       Which is used ad MessagePack-RPC client instance of jubarecommender server.
 
-=head3 get_config($cluster_name)
+=head3 get_config()
 
 Returns a server configuration from a server which is belonging to the
 cluster which execute the $cluster_name tasks.
 
 Input:
 
-    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
-      cluster
+    - none
 
 Output:
 
@@ -147,7 +191,7 @@ Output:
       This configuration is same as the configuration file which was assigned
       when you start the jubarecommender server.
 
-=head3 get_status($cluster_name)
+=head3 get_status()
 
 Returns server status from all servers which are belonging to the cluster which
 execute the $cluster_name tasks. Each server is represented by a pair of
@@ -155,18 +199,14 @@ a host name and a port number.
 
 Input:
 
-    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
-      cluster
+    - none
 
-=head3 save($cluster_name, $save_file_name)
+=head3 save($save_file_name)
 
 Stores the learning model as $save_file_name to the local disk of all servers
 which are belonging to the cluster which execute the $cluster_name tasks.
 
 Input:
-
-    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
-      cluster
 
     - $save_file_name - File name to save
 
@@ -175,32 +215,28 @@ Output:
     - binary(1 or 0) - Return integer value 1 if this function saves files
       successfully at all servers
 
-=head3 load($cluster_name, $load_file_name)
+=head3 load($load_file_name)
 
 Restores the saved model using $load_file_name at the local disk of all servers
 which are belonging to the cluster which execute the $cluster_name tasks.
 
 Input:
 
-    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
-      cluster
-
-    - $save_file_name - File name to restore
+    - $load_file_name - File name to restore
 
 Output:
 
     - binary(1 or 0) - Return integer value 1 if this function restore saved
       model successfully at all servers
 
-=head3 clear($cluster_name)
+=head3 clear()
 
 Completely clears the learning model on the memory of all servers which are
 belonging to the cluster which execute the $cluster_name tasks.
 
 Input:
 
-    - $cluster_name - String value to uniquely identify a task in the ZooKeeper
-      cluster
+    - none
 
 Output:
 
@@ -235,18 +271,6 @@ Copyright (C) 2013 by Toshinori Sato (@overlast).
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
-
-The licence of Jubatus is LGPL 2.1.
-
-    Jubatus: Online machine learning framework for distributed environment
-    Copyright (C) 2011,2012 Preferred Infrastructure and Nippon Telegraph and Telephone Corporation.
-
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License version 2.1 as published by the Free Software Foundation.
-
-However Jubatus.pm and Jubatus::*.pm is the pure Perl modules.
-Therefor the licence of Jubatus.pm and Jubatus::*.pm is the Perl's licence.
 
 =head1 AUTHOR
 
