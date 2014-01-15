@@ -67,7 +67,7 @@ C<get_clustering_client>,  to get a specific Client object explicitly.
 =head2 get_client $juba_client_type, $host, $port, $process_name, $timeout_sec
 
 $juba_client_type is a value to specify the client type of jubatus.
-You can select from (recommender | regression | classifier | stat | graph | anomaly | nearestneighbor | clustering).
+You can select from (recommender | regression | classifier | stat | graph | anomaly | "nearestneighbor" | clustering).
 You can also use (Recommender | Regression | Classifier | Stat | Graph | Anomaly | NearestNeighbor | Clustering).
 
 If you select 'stat', you can get L<Jubatus::Stat::Client> object.
@@ -92,7 +92,7 @@ The above code is equivalent to:
 
 Because default value of $timeout_seconds_of_juba_process is 10.
 
-If you are not distributed environment user, you cau write as following.
+If you are not distributed environment user, you can write as following.
 
     my $juba_client_type = 'stat';
     my $host = 'localhost';
