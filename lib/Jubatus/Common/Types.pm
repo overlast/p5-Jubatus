@@ -176,7 +176,7 @@ sub estimate_type {
         } (
             # Catch the thrown error in the above lines
             'Jubatus::Common::TypeException' => sub {
-                my $data = $@->{data};
+                my $data = ${$@}->{data};
                 Jubatus::Common::TypeException->show($data);
             },
         ),
@@ -210,7 +210,7 @@ sub check_type {
         } (
             # Catch the thrown error in the above lines
             'Jubatus::Common::TypeException' => sub {
-                my $data = $@->{data};
+                my $data = ${$@}->{data};
                 Jubatus::Common::TypeException->show($data);
             },
         );
@@ -253,7 +253,7 @@ sub check_value {
         } (
             # Catch the thrown error in the above lines
             'Jubatus::Common::TypeException' => sub {
-                my $data = $@->{data};
+                my $data = ${$@}->{data};
                 Jubatus::Common::TypeException->show($data);
             },
         );
@@ -288,7 +288,7 @@ sub check_values {
             }
         } (
             "Jubatus::Common::TypeException" => sub {
-                my $data = $@->{data};
+                my $data = ${$@}->{data};
                 Jubatus::Common::TypeException->show($data);
             },
         );
@@ -313,7 +313,7 @@ sub check_bound {
         } (
             # Catch the thrown error in the above lines
             'Jubatus::Common::ValueException' => sub {
-                my $data = $@->{data};
+                my $data = ${$@}->{data};
                 Jubatus::Common::ValueException->show($data);
             },
         );
@@ -346,7 +346,7 @@ sub compare_element_num {
         } (
             # Catch the thrown error in the above lines
             'Jubatus::Common::ValuePairException' => sub {
-                my $data = $@->{data};
+                my $data = ${$@}->{data};
                 Jubatus::Common::ValuePairException->show($data);
             },
         );
@@ -929,7 +929,7 @@ sub from_msgpack {
     } (
         # Catch the thrown error in the above lines
         'Jubatus::Common::NotFoundException' => sub {
-            my $data = $@->{data};
+            my $data = ${$@}->{data};
             Jubatus::Common::NotFoundException->show($data);
         },
     );
@@ -952,7 +952,7 @@ sub to_msgpack {
     } (
         # Catch the thrown error in the above lines
         'Jubatus::Common::NotFoundException' => sub {
-            my $data = $@->{data};
+            my $data = ${$@}->{data};
             Jubatus::Common::NotFoundException->show($data);
         },
     );
