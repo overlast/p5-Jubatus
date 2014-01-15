@@ -26,7 +26,7 @@ foreach my $suffix (@server_name_suffix) {
         my $juba = Test::TCP->new(
             code => sub {
                 $port = shift;
-                my $is_boot = exec ("$server_name -p $port -f $json_path");# 1>/dev/null 2>/dev/null \&");
+                my $is_boot = exec ("$server_name -p $port -f $json_path 1>/dev/null 2>/dev/null \&");
                 is($is_boot, 0, "Boot $server_name");
             },
         );
