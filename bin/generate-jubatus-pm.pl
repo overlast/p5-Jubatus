@@ -15,6 +15,7 @@ sub main {
     my @use_modules;
     my @get_clients;
     my @module_names;
+    my %cache = ();
     while (my $dir_path = $dir->next) {
         my $subdir = dir($dir_path);
         my $dir = $subdir->{dirs}->[-1];
@@ -22,6 +23,9 @@ sub main {
         while (my $subdir_path = $subdir->next) {
             if ((exists $subdir_path->{file}) && ($subdir_path->{file} =~ m|Client.pm|)){
                 my $module_name =  $subdir_path->{dir}->{dirs}->[-1];
+                next if (exists $cache{$module_name});
+                $cache{$module_name} = 1;
+                use YAML; print Dump $module_name;
                 my $name_space = "Jubatus::".$module_name."::Client";
                 push @use_modules, "use ".$name_space.";";
                 my $get_client = &get_client_getter($name_space, $module_name);
@@ -63,7 +67,7 @@ sub get_client_getter_using_parameter {
 
     my $tmpl_head = <<'__TMPL_HEAD__';
 sub get_client {
-    my ($self, $host, $port, $param) = @_;
+    my ($self, $param, $host, $port, $name, $timeout) = @_;
     my $client;
     given ($param) {
 __TMPL_HEAD__
@@ -75,7 +79,7 @@ __TMPL_HEAD__
 
         my $tmpl_body = <<'__TMPL_BODY__';
         when (/^==MODULE_NAME==|==MODULE_NAME_NC==$/) {
-            $client = Jubatus->get_==MODULE_NAME_NC==_client($host, $port);
+            $client = Jubatus->get_==MODULE_NAME_NC==_client($host, $port, $name, $timeout);
         }
 __TMPL_BODY__
 
@@ -105,8 +109,8 @@ sub get_client_getter {
     $module_name_nc =~ tr|[A-Z]|[a-z]|;
     my $tmpl = <<'__TMPL__';
 sub get_==MODULE_NAME_NC==_client {
-    my ($self, $host, $port) = @_;
-    my $client = ==NAMESPACE==->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = ==NAMESPACE==->new($host, $port, $name, $timeout);
     return $client;
 }
 __TMPL__
