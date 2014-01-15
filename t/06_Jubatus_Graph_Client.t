@@ -252,7 +252,7 @@ subtest 'Test edge remover' => sub {
             my $edge21 = Jubatus::Graph::Edge->new({}, $node_id_2, $node_id_1);
             my $edge_id = $graph_client->create_edge($node_id_1, $edge12);
             my $is_remove_edge = $graph_client->remove_edge($node_id_1, $edge_id);
-            is ($is_remove_edge,  "Make check on to delete edge : $edge_id");
+            is ($is_remove_edge, 1, "Make check on to delete edge : $edge_id");
         }
 #        {
             # if remove a node which is not there, Jubatus down by error.
