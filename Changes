@@ -2,6 +2,8 @@ Revision history for Perl extension Jubatus
 
 {{$NEXT}}
 
+0.0.1_01 2014-01-15T13:29:22Z
+
     - Fix to use APIs of Jubatus version 0.5
 
 0.0.0_02 2013-08-08T12:50:49Z

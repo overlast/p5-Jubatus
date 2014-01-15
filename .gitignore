@@ -24,3 +24,8 @@ cover_db/
 MYMETA.*
 
 /Jubatus-*
+
+Daatum.pm
+generate/
+/jubatus-generate/
+/t/#*

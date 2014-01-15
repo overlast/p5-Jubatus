@@ -42,7 +42,7 @@
       },
       "runtime" : {
          "requires" : {
-            "perl" : "v5.10.1"
+            "perl" : "v5.12.1"
          }
       },
       "test" : {
@@ -50,8 +50,6 @@
             "AnyEvent::MPRPC" : "0.20",
             "Data::MessagePack" : "0.47",
             "Test::More" : "0.98"
-            "Proc::ProcessTable" : "0.48",
-            "Scope::Guard" : "0.20",
          }
       }
    },
@@ -67,7 +65,7 @@
          "web" : "https://github.com/overlast/p5-Jubatus"
       }
    },
-   "version" : "0.0.0_02",
+   "version" : "0.0.1_01",
    "x_contributors" : [
       "Toshinori Sato (@overlast) <overlasting@gmail.com>"
    ]

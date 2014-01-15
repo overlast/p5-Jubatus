@@ -52,11 +52,9 @@ L<https://github.com/overlast/p5-Jubatus>
 
 =head1 LICENSE
 
-Copyright (C) 2013 by Toshinori Sato (@overlast).
-
 The MIT License (MIT)
 
-Copyright (c) <year> <copyright holders>
+Copyright (c) 2013 by Toshinori Sato (@overlast).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
