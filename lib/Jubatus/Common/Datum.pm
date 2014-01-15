@@ -31,8 +31,8 @@ sub new {
             if ($type eq "String") {
                 push @{$string_values}, $label_value_pairs->[$i];
             } elsif ($type eq "Integer") {
-                $label_value_pairs->[$i]->[1] = 0.0 + $label_value_pairs->[$i]->[1];
-                push @{$num_values}, $label_value_pairs->[$i];
+                my $tmp_float = [$label_value_pairs->[$i]->[0] , 1.1 + $label_value_pairs->[$i]->[1] - 1.1];
+                push @{$num_values}, $tmp_float;
             } elsif ($type eq "Float") {
                 push @{$num_values}, $label_value_pairs->[$i];
             } else {
