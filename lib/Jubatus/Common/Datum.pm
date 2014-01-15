@@ -39,6 +39,23 @@ sub new {
                 Jubatus::Common::TypeException->show([$label_value_pairs->[$i]->[1], $type]);
             }
         }
+    } elsif ((defined $label_value_pairs) && (ref $label_value_pairs eq "HASH")) {
+        foreach my $key (keys %{$label_value_pairs}) {
+            # $label_value_pairs->[$i] = [label(String), value(Any type)]
+            my $type = Jubatus::Common::Types::estimate_type($label_value_pairs->{$key});
+            if ($type eq "String") {
+                my $tmp_string = [$key, $label_value_pairs->{$key}];
+                push @{$string_values}, $tmp_string;
+            } elsif ($type eq "Integer") {
+                my $tmp_float = [$key, 1.1 + $label_value_pairs->{$key} - 1.1];
+                push @{$num_values}, $tmp_float;
+            } elsif ($type eq "Float") {
+                my $tmp_float = [$key, 1.1 + $label_value_pairs->{$key} - 1.1];
+                push @{$num_values}, $tmp_float;
+            } else {
+                Jubatus::Common::TypeException->show([$label_value_pairs->{$key}, $type]);
+            }
+        }
     }
     my %hash = (
         'type' => "Jubatus::Common::Datum",
