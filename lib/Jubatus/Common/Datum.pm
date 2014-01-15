@@ -70,7 +70,7 @@ sub add_number {
             push @{$self->{num_values}}, [$key, $value];
             $done_add = 1;
         } elsif ($value_type eq "Integer") {
-            push @{$self->{num_values}}, [$key, 0.0 + $value];
+            push @{$self->{num_values}}, [$key, 1.1 + $value - 1.1];
             $done_add = 1;
         }
     }
