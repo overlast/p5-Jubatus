@@ -18,90 +18,90 @@ use Jubatus::Anomaly::Client;
 use Jubatus::Common::Datum;
 
 sub get_nearestneighbor_client {
-    my ($self, $host, $port) = @_;
-    my $client = Jubatus::NearestNeighbor::Client->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = Jubatus::NearestNeighbor::Client->new($host, $port, $name, $timeout);
     return $client;
 }
 
 sub get_regression_client {
-    my ($self, $host, $port) = @_;
-    my $client = Jubatus::Regression::Client->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = Jubatus::Regression::Client->new($host, $port, $name, $timeout);
     return $client;
 }
 
 sub get_common_client {
-    my ($self, $host, $port) = @_;
-    my $client = Jubatus::Common::Client->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = Jubatus::Common::Client->new($host, $port, $name, $timeout);
     return $client;
 }
 
 sub get_recommender_client {
-    my ($self, $host, $port) = @_;
-    my $client = Jubatus::Recommender::Client->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = Jubatus::Recommender::Client->new($host, $port, $name, $timeout);
     return $client;
 }
 
 sub get_classifier_client {
-    my ($self, $host, $port) = @_;
-    my $client = Jubatus::Classifier::Client->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = Jubatus::Classifier::Client->new($host, $port, $name, $timeout);
     return $client;
 }
 
 sub get_stat_client {
-    my ($self, $host, $port) = @_;
-    my $client = Jubatus::Stat::Client->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = Jubatus::Stat::Client->new($host, $port, $name, $timeout);
     return $client;
 }
 
 sub get_clustering_client {
-    my ($self, $host, $port) = @_;
-    my $client = Jubatus::Clustering::Client->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = Jubatus::Clustering::Client->new($host, $port, $name, $timeout);
     return $client;
 }
 
 sub get_graph_client {
-    my ($self, $host, $port) = @_;
-    my $client = Jubatus::Graph::Client->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = Jubatus::Graph::Client->new($host, $port, $name, $timeout);
     return $client;
 }
 
 sub get_anomaly_client {
-    my ($self, $host, $port) = @_;
-    my $client = Jubatus::Anomaly::Client->new($host, $port);
+    my ($self, $host, $port, $name, $timeout) = @_;
+    my $client = Jubatus::Anomaly::Client->new($host, $port, $name, $timeout);
     return $client;
 }
 
 
 sub get_client {
-    my ($self, $host, $port, $param) = @_;
+    my ($self, $param, $host, $port, $name, $timeout) = @_;
     my $client;
     given ($param) {
         when (/^NearestNeighbor|nearestneighbor$/) {
-            $client = Jubatus->get_nearestneighbor_client($host, $port);
+            $client = Jubatus->get_nearestneighbor_client($host, $port, $name, $timeout);
         }
         when (/^Regression|regression$/) {
-            $client = Jubatus->get_regression_client($host, $port);
+            $client = Jubatus->get_regression_client($host, $port, $name, $timeout);
         }
         when (/^Common|common$/) {
-            $client = Jubatus->get_common_client($host, $port);
+            $client = Jubatus->get_common_client($host, $port, $name, $timeout);
         }
         when (/^Recommender|recommender$/) {
-            $client = Jubatus->get_recommender_client($host, $port);
+            $client = Jubatus->get_recommender_client($host, $port, $name, $timeout);
         }
         when (/^Classifier|classifier$/) {
-            $client = Jubatus->get_classifier_client($host, $port);
+            $client = Jubatus->get_classifier_client($host, $port, $name, $timeout);
         }
         when (/^Stat|stat$/) {
-            $client = Jubatus->get_stat_client($host, $port);
+            $client = Jubatus->get_stat_client($host, $port, $name, $timeout);
         }
         when (/^Clustering|clustering$/) {
-            $client = Jubatus->get_clustering_client($host, $port);
+            $client = Jubatus->get_clustering_client($host, $port, $name, $timeout);
         }
         when (/^Graph|graph$/) {
-            $client = Jubatus->get_graph_client($host, $port);
+            $client = Jubatus->get_graph_client($host, $port, $name, $timeout);
         }
         when (/^Anomaly|anomaly$/) {
-            $client = Jubatus->get_anomaly_client($host, $port);
+            $client = Jubatus->get_anomaly_client($host, $port, $name, $timeout);
         }
         default {
             die "Jubatus::".$param."::Client.pm is not install.\n Please see Jubatus.pm !\n";
