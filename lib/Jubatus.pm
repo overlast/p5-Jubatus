@@ -8,9 +8,11 @@ our $VERSION = "0.0.0_02";
 
 use Jubatus::NearestNeighbor::Client;
 use Jubatus::Regression::Client;
+use Jubatus::Common::Client;
 use Jubatus::Recommender::Client;
 use Jubatus::Classifier::Client;
 use Jubatus::Stat::Client;
+use Jubatus::Clustering::Client;
 use Jubatus::Graph::Client;
 use Jubatus::Anomaly::Client;
 use Jubatus::Common::Datum;
@@ -24,6 +26,12 @@ sub get_nearestneighbor_client {
 sub get_regression_client {
     my ($self, $host, $port) = @_;
     my $client = Jubatus::Regression::Client->new($host, $port);
+    return $client;
+}
+
+sub get_common_client {
+    my ($self, $host, $port) = @_;
+    my $client = Jubatus::Common::Client->new($host, $port);
     return $client;
 }
 
@@ -42,6 +50,12 @@ sub get_classifier_client {
 sub get_stat_client {
     my ($self, $host, $port) = @_;
     my $client = Jubatus::Stat::Client->new($host, $port);
+    return $client;
+}
+
+sub get_clustering_client {
+    my ($self, $host, $port) = @_;
+    my $client = Jubatus::Clustering::Client->new($host, $port);
     return $client;
 }
 
@@ -68,6 +82,9 @@ sub get_client {
         when (/^Regression|regression$/) {
             $client = Jubatus->get_regression_client($host, $port);
         }
+        when (/^Common|common$/) {
+            $client = Jubatus->get_common_client($host, $port);
+        }
         when (/^Recommender|recommender$/) {
             $client = Jubatus->get_recommender_client($host, $port);
         }
@@ -76,6 +93,9 @@ sub get_client {
         }
         when (/^Stat|stat$/) {
             $client = Jubatus->get_stat_client($host, $port);
+        }
+        when (/^Clustering|clustering$/) {
+            $client = Jubatus->get_clustering_client($host, $port);
         }
         when (/^Graph|graph$/) {
             $client = Jubatus->get_graph_client($host, $port);
