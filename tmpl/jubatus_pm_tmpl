@@ -1,6 +1,6 @@
 package Jubatus;
 
-use v5.10.1;
+use v5.12.1;
 use strict;
 use warnings;
 
