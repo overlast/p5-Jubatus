@@ -1,4 +1,4 @@
-# This file is auto-generated from graph.idl
+# This file is auto-generated from graph.idl(0.4.5-347-g86989a6) with jenerator version 0.4.5-532-g61b108e/develop
 # *** DO NOT EDIT ***
 
 package Jubatus::Graph::Client;
@@ -9,175 +9,134 @@ use utf8;
 use autodie;
 use AnyEvent::MPRPC;
 
-use Jubatus::Graph::Types;
-
-sub new {
-  my ($class, $host, $port) = @_;
-  my $client = AnyEvent::MPRPC::Client->new(
-    'host' => $host,
-    'port' => $port,
-  );
-  my %hash = ('client' => $client);
-  bless \%hash, $class;
-}
-
-sub get_client {
-  my ($self) = @_;
-  return $self->{client};
-}
-
-sub get_config {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_config' => [ $name ] )->recv;
-  return $retval;
-}
+use parent 'Jubatus::Common::Client';
+require Jubatus::Graph::Types;
 
 sub create_node {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('create_node' => [ $name ] )->recv;
-  return $retval;
+  my ($self) = @_;
+  return $self->_call("create_node", Jubatus::Common::TString->new(), [], []);
 }
 
 sub remove_node {
-  my ($self, $name, $node_id) = @_;
-  my $retval = $self->{client}->call('remove_node' => [ $name,
-       $node_id ] )->recv;
-  return $retval;
+  my ($self, $node_id) = @_;
+  return $self->_call("remove_node", Jubatus::Common::TBool->new(), [$node_id],
+      [Jubatus::Common::TString->new()]);
 }
 
 sub update_node {
-  my ($self, $name, $node_id, $property) = @_;
-  my $retval = $self->{client}->call('update_node' => [ $name, $node_id,
-       $property ] )->recv;
-  return $retval;
+  my ($self, $node_id, $property) = @_;
+  return $self->_call("update_node", Jubatus::Common::TBool->new(), [$node_id,
+      $property], [Jubatus::Common::TString->new(), Jubatus::Common::TMap->new(
+      Jubatus::Common::TString->new(), Jubatus::Common::TString->new())]);
 }
 
 sub create_edge {
-  my ($self, $name, $node_id, $e) = @_;
-  my $retval = $self->{client}->call('create_edge' => [ $name, $node_id,
-       $e->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $node_id, $e) = @_;
+  return $self->_call("create_edge", Jubatus::Common::TInt->new(0, 8),
+      [$node_id, $e], [Jubatus::Common::TString->new(),
+      Jubatus::Common::TUserDef->new(Jubatus::Graph::Edge->new())]);
 }
 
 sub update_edge {
-  my ($self, $name, $node_id, $edge_id, $e) = @_;
-  my $retval = $self->{client}->call('update_edge' => [ $name, $node_id,
-       $edge_id, $e->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $node_id, $edge_id, $e) = @_;
+  return $self->_call("update_edge", Jubatus::Common::TBool->new(), [$node_id,
+      $edge_id, $e], [Jubatus::Common::TString->new(),
+      Jubatus::Common::TInt->new(0, 8), Jubatus::Common::TUserDef->new(
+      Jubatus::Graph::Edge->new())]);
 }
 
 sub remove_edge {
-  my ($self, $name, $node_id, $edge_id) = @_;
-  my $retval = $self->{client}->call('remove_edge' => [ $name, $node_id,
-       $edge_id ] )->recv;
-  return $retval;
+  my ($self, $node_id, $edge_id) = @_;
+  return $self->_call("remove_edge", Jubatus::Common::TBool->new(), [$node_id,
+      $edge_id], [Jubatus::Common::TString->new(), Jubatus::Common::TInt->new(0,
+      8)]);
 }
 
 sub get_centrality {
-  my ($self, $name, $node_id, $centrality_type,
-     $query) = @_;
-  my $retval = $self->{client}->call('get_centrality' => [ $name, $node_id,
-       $centrality_type, $query->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $node_id, $centrality_type, $query) = @_;
+  return $self->_call("get_centrality", Jubatus::Common::TFloat->new(),
+      [$node_id, $centrality_type, $query], [Jubatus::Common::TString->new(),
+      Jubatus::Common::TInt->new(1, 4), Jubatus::Common::TUserDef->new(
+      Jubatus::Graph::PresetQuery->new())]);
 }
 
 sub add_centrality_query {
-  my ($self, $name, $query) = @_;
-  my $retval = $self->{client}->call('add_centrality_query' => [ $name,
-       $query->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $query) = @_;
+  return $self->_call("add_centrality_query", Jubatus::Common::TBool->new(),
+      [$query], [Jubatus::Common::TUserDef->new(
+      Jubatus::Graph::PresetQuery->new())]);
 }
 
 sub add_shortest_path_query {
-  my ($self, $name, $query) = @_;
-  my $retval = $self->{client}->call('add_shortest_path_query' => [ $name,
-       $query->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $query) = @_;
+  return $self->_call("add_shortest_path_query", Jubatus::Common::TBool->new(),
+      [$query], [Jubatus::Common::TUserDef->new(
+      Jubatus::Graph::PresetQuery->new())]);
 }
 
 sub remove_centrality_query {
-  my ($self, $name, $query) = @_;
-  my $retval = $self->{client}->call('remove_centrality_query' => [ $name,
-       $query->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $query) = @_;
+  return $self->_call("remove_centrality_query", Jubatus::Common::TBool->new(),
+      [$query], [Jubatus::Common::TUserDef->new(
+      Jubatus::Graph::PresetQuery->new())]);
 }
 
 sub remove_shortest_path_query {
-  my ($self, $name, $query) = @_;
-  my $retval = $self->{client}->call('remove_shortest_path_query' => [ $name,
-       $query->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $query) = @_;
+  return $self->_call("remove_shortest_path_query", Jubatus::Common::TBool->new(
+      ), [$query], [Jubatus::Common::TUserDef->new(
+      Jubatus::Graph::PresetQuery->new())]);
 }
 
 sub get_shortest_path {
-  my ($self, $name, $query) = @_;
-  my $retval = $self->{client}->call('get_shortest_path' => [ $name,
-       $query->to_msgpack() ] )->recv;
-  return [ map { $_} @{ $retval } ];
+  my ($self, $query) = @_;
+  return $self->_call("get_shortest_path", Jubatus::Common::TList->new(
+      Jubatus::Common::TString->new()), [$query],
+      [Jubatus::Common::TUserDef->new(Jubatus::Graph::ShortestPathQuery->new(
+      ))]);
 }
 
 sub update_index {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('update_index' => [ $name ] )->recv;
-  return $retval;
+  my ($self) = @_;
+  return $self->_call("update_index", Jubatus::Common::TBool->new(), [], []);
 }
 
 sub clear {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('clear' => [ $name ] )->recv;
-  return $retval;
+  my ($self) = @_;
+  return $self->_call("clear", Jubatus::Common::TBool->new(), [], []);
 }
 
 sub get_node {
-  my ($self, $name, $node_id) = @_;
-  my $retval = $self->{client}->call('get_node' => [ $name, $node_id ] )->recv;
-  return Jubatus::Graph::Node->from_msgpack($retval);
+  my ($self, $node_id) = @_;
+  return $self->_call("get_node", Jubatus::Common::TUserDef->new(
+      Jubatus::Graph::Node->new()), [$node_id], [Jubatus::Common::TString->new(
+      )]);
 }
 
 sub get_edge {
-  my ($self, $name, $node_id, $edge_id) = @_;
-  my $retval = $self->{client}->call('get_edge' => [ $name, $node_id,
-       $edge_id ] )->recv;
-  return Jubatus::Graph::Edge->from_msgpack($retval);
-}
-
-sub save {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('save' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub load {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('load' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub get_status {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_status' => [ $name ] )->recv;
-  return $retval;
+  my ($self, $node_id, $edge_id) = @_;
+  return $self->_call("get_edge", Jubatus::Common::TUserDef->new(
+      Jubatus::Graph::Edge->new()), [$node_id, $edge_id],
+      [Jubatus::Common::TString->new(), Jubatus::Common::TInt->new(0, 8)]);
 }
 
 sub create_node_here {
-  my ($self, $name, $node_id) = @_;
-  my $retval = $self->{client}->call('create_node_here' => [ $name,
-       $node_id ] )->recv;
-  return $retval;
+  my ($self, $node_id) = @_;
+  return $self->_call("create_node_here", Jubatus::Common::TBool->new(),
+      [$node_id], [Jubatus::Common::TString->new()]);
 }
 
 sub remove_global_node {
-  my ($self, $name, $node_id) = @_;
-  my $retval = $self->{client}->call('remove_global_node' => [ $name,
-       $node_id ] )->recv;
-  return $retval;
+  my ($self, $node_id) = @_;
+  return $self->_call("remove_global_node", Jubatus::Common::TBool->new(),
+      [$node_id], [Jubatus::Common::TString->new()]);
 }
 
 sub create_edge_here {
-  my ($self, $name, $edge_id, $e) = @_;
-  my $retval = $self->{client}->call('create_edge_here' => [ $name, $edge_id,
-       $e->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $edge_id, $e) = @_;
+  return $self->_call("create_edge_here", Jubatus::Common::TBool->new(),
+      [$edge_id, $e], [Jubatus::Common::TInt->new(0, 8),
+      Jubatus::Common::TUserDef->new(Jubatus::Graph::Edge->new())]);
 }
 
 1;
@@ -446,4 +405,6 @@ Therefor the licence of Jubatus.pm and Jubatus::*.pm is the Perl's licence.
 Toshinori Sato (@overlast) E<lt>overlasting@gmail.comE<gt>
 
 =cut
+
+1; # Jubatus::Graph::Client;
 

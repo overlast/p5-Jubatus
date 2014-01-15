@@ -1,4 +1,4 @@
-# This file is auto-generated from regression.idl
+# This file is auto-generated from regression.idl(0.4.5-347-g86989a6) with jenerator version 0.4.5-532-g61b108e/develop
 # *** DO NOT EDIT ***
 
 package Jubatus::Regression::Client;
@@ -9,64 +9,26 @@ use utf8;
 use autodie;
 use AnyEvent::MPRPC;
 
-use Jubatus::Regression::Types;
-
-sub new {
-  my ($class, $host, $port) = @_;
-  my $client = AnyEvent::MPRPC::Client->new(
-    'host' => $host,
-    'port' => $port,
-  );
-  my %hash = ('client' => $client);
-  bless \%hash, $class;
-}
-
-sub get_client {
-  my ($self) = @_;
-  return $self->{client};
-}
-
-sub get_config {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_config' => [ $name ] )->recv;
-  return $retval;
-}
+use parent 'Jubatus::Common::Client';
+require Jubatus::Regression::Types;
 
 sub train {
-  my ($self, $name, $train_data) = @_;
-  my $retval = $self->{client}->call('train' => [ $name, $train_data ] )->recv;
-  return $retval;
+  my ($self, $train_data) = @_;
+  return $self->_call("train", Jubatus::Common::TInt->new(1, 4), [$train_data],
+      [Jubatus::Common::TList->new(Jubatus::Common::TUserDef->new(
+      Jubatus::Regression::ScoredDatum->new()))]);
 }
 
 sub estimate {
-  my ($self, $name, $estimate_data) = @_;
-  my $retval = $self->{client}->call('estimate' => [ $name,
-       $estimate_data ] )->recv;
-  return [ map { $_} @{ $retval } ];
+  my ($self, $estimate_data) = @_;
+  return $self->_call("estimate", Jubatus::Common::TList->new(
+      Jubatus::Common::TFloat->new()), [$estimate_data],
+      [Jubatus::Common::TList->new(Jubatus::Common::TDatum->new())]);
 }
 
 sub clear {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('clear' => [ $name ] )->recv;
-  return $retval;
-}
-
-sub save {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('save' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub load {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('load' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub get_status {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_status' => [ $name ] )->recv;
-  return $retval;
+  my ($self) = @_;
+  return $self->_call("clear", Jubatus::Common::TBool->new(), [], []);
 }
 
 1;
@@ -446,4 +408,6 @@ Therefor the licence of Jubatus.pm and Jubatus::*.pm is the Perl's licence.
 Toshinori Sato (@overlast) E<lt>overlasting@gmail.comE<gt>
 
 =cut
+
+1; # Jubatus::Regression::Client;
 

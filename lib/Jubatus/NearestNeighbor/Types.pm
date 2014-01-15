@@ -1,7 +1,7 @@
-# This file is auto-generated from nearest_neighbor.idl
+# This file is auto-generated from nearest_neighbor.idl(0.4.5-347-g86989a6) with jenerator version 0.4.5-532-g61b108e/develop
 # *** DO NOT EDIT ***
 
-package Jubatus::NearestNeighbor::NeighborResult;
+package Jubatus::NearestNeighbor::IdWithScore;
 
 use strict;
 use warnings;
@@ -9,44 +9,48 @@ use utf8;
 use autodie;
 use AnyEvent::MPRPC;
 
-sub from_msgpack {
-  my ($self, $arg) = @_;
-  return [ map {  [ $_->[0], $_->[1] ] } @{ $arg } ]
-}
+use Jubatus::Common::Types;
+use Jubatus::Common::Datum;
+use Jubatus::Common::MessageStringGenerator;
 
-1;
-
-package Jubatus::NearestNeighbor::Datum;
-
-use strict;
-use warnings;
-use utf8;
-use autodie;
-use AnyEvent::MPRPC;
+our $TYPE = Jubatus::Common::TTuple->new([Jubatus::Common::TString->new(),
+    Jubatus::Common::TFloat->new()]);
 
 sub new {
-  my ($self, $string_values, $num_values) = @_;
+  my ($self, $id, $score) = @_;
   my %hash = (
-    'string_values' => $string_values,
-    'num_values' => $num_values,
+    'id' => $id,
+    'score' => $score,
   );
   bless \%hash, $self;
 }
 
 sub to_msgpack {
   my ($self) = @_;
-  return [ 
-        $self->{string_values},
-        $self->{num_values},
-   ];
+  return $TYPE->to_msgpack([
+    $self->{id}, $self->{score}
+  ]);
 }
 
 sub from_msgpack {
-  my ($self, $arg) = @_;
-  my $datum = Jubatus::NearestNeighbor::Datum->new([ map {  [ $_->[0],
-       $_->[1] ] } @{ $arg->[0] } ], [ map {  [ $_->[0],
-       $_->[1] ] } @{ $arg->[1] } ]);
-  return $datum;
+  my ($self, $args) = @_;
+  my $id_with_score = Jubatus::NearestNeighbor::IdWithScore->new(
+      @{ $TYPE->from_msgpack($args) });
+  return $id_with_score;
+}
+
+sub to_s {
+  my ($self, $id, $score) = @_;
+  my $gen = Jubatus::Common::MessageStringGenerator->new();
+  $gen->open("id_with_score");
+  $gen->add("id", $self->{id});
+  $gen->add("score", $self->{score});
+  $gen->close();
+  return $gen->to_s();
+}
+
+sub get_type {
+  return $TYPE;
 }
 
 1;
@@ -59,5 +63,5 @@ use utf8;
 use autodie;
 use AnyEvent::MPRPC;
 
-1;
+1; # Jubatus::NearestNeighbor::Types;
 

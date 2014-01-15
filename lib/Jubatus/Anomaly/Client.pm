@@ -1,4 +1,4 @@
-# This file is auto-generated from anomaly.idl
+# This file is auto-generated from anomaly.idl(0.4.5-347-g86989a6) with jenerator version 0.4.5-532-g61b108e/develop
 # *** DO NOT EDIT ***
 
 package Jubatus::Anomaly::Client;
@@ -9,91 +9,49 @@ use utf8;
 use autodie;
 use AnyEvent::MPRPC;
 
-use Jubatus::Anomaly::Types;
-
-sub new {
-  my ($class, $host, $port) = @_;
-  my $client = AnyEvent::MPRPC::Client->new(
-    'host' => $host,
-    'port' => $port,
-  );
-  my %hash = ('client' => $client);
-  bless \%hash, $class;
-}
-
-sub get_client {
-  my ($self) = @_;
-  return $self->{client};
-}
-
-sub get_config {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_config' => [ $name ] )->recv;
-  return $retval;
-}
+use parent 'Jubatus::Common::Client';
+require Jubatus::Anomaly::Types;
 
 sub clear_row {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('clear_row' => [ $name, $id ] )->recv;
-  return $retval;
+  my ($self, $id) = @_;
+  return $self->_call("clear_row", Jubatus::Common::TBool->new(), [$id],
+      [Jubatus::Common::TString->new()]);
 }
 
 sub add {
-  my ($self, $name, $row) = @_;
-  my $retval = $self->{client}->call('add' => [ $name, $row->to_msgpack(
-      ) ] )->recv;
-  return  [ $retval->[0], $retval->[1] ] ;
+  my ($self, $row) = @_;
+  return $self->_call("add", Jubatus::Common::TUserDef->new(
+      Jubatus::Anomaly::IdWithScore->new()), [$row],
+      [Jubatus::Common::TDatum->new()]);
 }
 
 sub update {
-  my ($self, $name, $id, $row) = @_;
-  my $retval = $self->{client}->call('update' => [ $name, $id, $row->to_msgpack(
-      ) ] )->recv;
-  return $retval;
+  my ($self, $id, $row) = @_;
+  return $self->_call("update", Jubatus::Common::TFloat->new(), [$id, $row],
+      [Jubatus::Common::TString->new(), Jubatus::Common::TDatum->new()]);
 }
 
 sub overwrite {
-  my ($self, $name, $id, $row) = @_;
-  my $retval = $self->{client}->call('overwrite' => [ $name, $id,
-       $row->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $id, $row) = @_;
+  return $self->_call("overwrite", Jubatus::Common::TFloat->new(), [$id, $row],
+      [Jubatus::Common::TString->new(), Jubatus::Common::TDatum->new()]);
 }
 
 sub clear {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('clear' => [ $name ] )->recv;
-  return $retval;
+  my ($self) = @_;
+  return $self->_call("clear", Jubatus::Common::TBool->new(), [], []);
 }
 
 sub calc_score {
-  my ($self, $name, $row) = @_;
-  my $retval = $self->{client}->call('calc_score' => [ $name, $row->to_msgpack(
-      ) ] )->recv;
-  return $retval;
+  my ($self, $row) = @_;
+  return $self->_call("calc_score", Jubatus::Common::TFloat->new(), [$row],
+      [Jubatus::Common::TDatum->new()]);
 }
 
 sub get_all_rows {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_all_rows' => [ $name ] )->recv;
-  return [ map { $_} @{ $retval } ];
-}
-
-sub save {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('save' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub load {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('load' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub get_status {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_status' => [ $name ] )->recv;
-  return $retval;
+  my ($self) = @_;
+  return $self->_call("get_all_rows", Jubatus::Common::TList->new(
+      Jubatus::Common::TString->new()), [], []);
 }
 
 1;
@@ -329,4 +287,6 @@ Therefor the licence of Jubatus.pm and Jubatus::*.pm is the Perl's licence.
 Toshinori Sato (@overlast) E<lt>overlasting@gmail.comE<gt>
 
 =cut
+
+1; # Jubatus::Anomaly::Client;
 

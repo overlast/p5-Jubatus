@@ -1,4 +1,4 @@
-# This file is auto-generated from stat.idl
+# This file is auto-generated from stat.idl(0.4.5-347-g86989a6) with jenerator version 0.4.5-532-g61b108e/develop
 # *** DO NOT EDIT ***
 
 package Jubatus::Stat::Client;
@@ -9,94 +9,55 @@ use utf8;
 use autodie;
 use AnyEvent::MPRPC;
 
-use Jubatus::Stat::Types;
-
-sub new {
-  my ($class, $host, $port) = @_;
-  my $client = AnyEvent::MPRPC::Client->new(
-    'host' => $host,
-    'port' => $port,
-  );
-  my %hash = ('client' => $client);
-  bless \%hash, $class;
-}
-
-sub get_client {
-  my ($self) = @_;
-  return $self->{client};
-}
-
-sub get_config {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_config' => [ $name ] )->recv;
-  return $retval;
-}
+use parent 'Jubatus::Common::Client';
+require Jubatus::Stat::Types;
 
 sub push {
-  my ($self, $name, $key, $value) = @_;
-  my $retval = $self->{client}->call('push' => [ $name, $key, $value ] )->recv;
-  return $retval;
+  my ($self, $key, $value) = @_;
+  return $self->_call("push", Jubatus::Common::TBool->new(), [$key, $value],
+      [Jubatus::Common::TString->new(), Jubatus::Common::TFloat->new()]);
 }
 
 sub sum {
-  my ($self, $name, $key) = @_;
-  my $retval = $self->{client}->call('sum' => [ $name, $key ] )->recv;
-  return $retval;
+  my ($self, $key) = @_;
+  return $self->_call("sum", Jubatus::Common::TFloat->new(), [$key],
+      [Jubatus::Common::TString->new()]);
 }
 
 sub stddev {
-  my ($self, $name, $key) = @_;
-  my $retval = $self->{client}->call('stddev' => [ $name, $key ] )->recv;
-  return $retval;
+  my ($self, $key) = @_;
+  return $self->_call("stddev", Jubatus::Common::TFloat->new(), [$key],
+      [Jubatus::Common::TString->new()]);
 }
 
 sub max {
-  my ($self, $name, $key) = @_;
-  my $retval = $self->{client}->call('max' => [ $name, $key ] )->recv;
-  return $retval;
+  my ($self, $key) = @_;
+  return $self->_call("max", Jubatus::Common::TFloat->new(), [$key],
+      [Jubatus::Common::TString->new()]);
 }
 
 sub min {
-  my ($self, $name, $key) = @_;
-  my $retval = $self->{client}->call('min' => [ $name, $key ] )->recv;
-  return $retval;
+  my ($self, $key) = @_;
+  return $self->_call("min", Jubatus::Common::TFloat->new(), [$key],
+      [Jubatus::Common::TString->new()]);
 }
 
 sub entropy {
-  my ($self, $name, $key) = @_;
-  my $retval = $self->{client}->call('entropy' => [ $name, $key ] )->recv;
-  return $retval;
+  my ($self, $key) = @_;
+  return $self->_call("entropy", Jubatus::Common::TFloat->new(), [$key],
+      [Jubatus::Common::TString->new()]);
 }
 
 sub moment {
-  my ($self, $name, $key, $degree, $center) = @_;
-  my $retval = $self->{client}->call('moment' => [ $name, $key, $degree,
-       $center ] )->recv;
-  return $retval;
+  my ($self, $key, $degree, $center) = @_;
+  return $self->_call("moment", Jubatus::Common::TFloat->new(), [$key, $degree,
+      $center], [Jubatus::Common::TString->new(), Jubatus::Common::TInt->new(1,
+      4), Jubatus::Common::TFloat->new()]);
 }
 
 sub clear {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('clear' => [ $name ] )->recv;
-  return $retval;
-}
-
-sub save {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('save' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub load {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('load' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub get_status {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_status' => [ $name ] )->recv;
-  return $retval;
+  my ($self) = @_;
+  return $self->_call("clear", Jubatus::Common::TBool->new(), [], []);
 }
 
 1;
@@ -312,4 +273,6 @@ Therefor the licence of Jubatus.pm and Jubatus::*.pm is the Perl's licence.
 Toshinori Sato (@overlast) E<lt>overlasting@gmail.comE<gt>
 
 =cut
+
+1; # Jubatus::Stat::Client;
 

@@ -1,4 +1,4 @@
-# This file is auto-generated from nearest_neighbor.idl
+# This file is auto-generated from nearest_neighbor.idl(0.4.5-347-g86989a6) with jenerator version 0.4.5-532-g61b108e/develop
 # *** DO NOT EDIT ***
 
 package Jubatus::NearestNeighbor::Client;
@@ -9,92 +9,53 @@ use utf8;
 use autodie;
 use AnyEvent::MPRPC;
 
-use Jubatus::NearestNeighbor::Types;
-
-sub new {
-  my ($class, $host, $port) = @_;
-  my $client = AnyEvent::MPRPC::Client->new(
-    'host' => $host,
-    'port' => $port,
-  );
-  my %hash = ('client' => $client);
-  bless \%hash, $class;
-}
-
-sub get_client {
-  my ($self) = @_;
-  return $self->{client};
-}
-
-sub init_table {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('init_table' => [ $name ] )->recv;
-  return $retval;
-}
+use parent 'Jubatus::Common::Client';
+require Jubatus::NearestNeighbor::Types;
 
 sub clear {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('clear' => [ $name ] )->recv;
-  return $retval;
+  my ($self) = @_;
+  return $self->_call("clear", Jubatus::Common::TBool->new(), [], []);
 }
 
 sub set_row {
-  my ($self, $name, $id, $d) = @_;
-  my $retval = $self->{client}->call('set_row' => [ $name, $id, $d->to_msgpack(
-      ) ] )->recv;
-  return $retval;
+  my ($self, $id, $d) = @_;
+  return $self->_call("set_row", Jubatus::Common::TBool->new(), [$id, $d],
+      [Jubatus::Common::TString->new(), Jubatus::Common::TDatum->new()]);
 }
 
 sub neighbor_row_from_id {
-  my ($self, $name, $id, $size) = @_;
-  my $retval = $self->{client}->call('neighbor_row_from_id' => [ $name, $id,
-       $size ] )->recv;
-  return Jubatus::NearestNeighbor::NeighborResult->from_msgpack($retval);
+  my ($self, $id, $size) = @_;
+  return $self->_call("neighbor_row_from_id", Jubatus::Common::TList->new(
+      Jubatus::Common::TUserDef->new(Jubatus::NearestNeighbor::IdWithScore->new(
+      ))), [$id, $size], [Jubatus::Common::TString->new(),
+      Jubatus::Common::TInt->new(0, 4)]);
 }
 
 sub neighbor_row_from_data {
-  my ($self, $name, $query, $size) = @_;
-  my $retval = $self->{client}->call('neighbor_row_from_data' => [ $name,
-       $query->to_msgpack(), $size ] )->recv;
-  return Jubatus::NearestNeighbor::NeighborResult->from_msgpack($retval);
+  my ($self, $query, $size) = @_;
+  return $self->_call("neighbor_row_from_data", Jubatus::Common::TList->new(
+      Jubatus::Common::TUserDef->new(Jubatus::NearestNeighbor::IdWithScore->new(
+      ))), [$query, $size], [Jubatus::Common::TDatum->new(),
+      Jubatus::Common::TInt->new(0, 4)]);
 }
 
 sub similar_row_from_id {
-  my ($self, $name, $id, $ret_num) = @_;
-  my $retval = $self->{client}->call('similar_row_from_id' => [ $name, $id,
-       $ret_num ] )->recv;
-  return Jubatus::NearestNeighbor::NeighborResult->from_msgpack($retval);
+  my ($self, $id, $ret_num) = @_;
+  return $self->_call("similar_row_from_id", Jubatus::Common::TList->new(
+      Jubatus::Common::TUserDef->new(Jubatus::NearestNeighbor::IdWithScore->new(
+      ))), [$id, $ret_num], [Jubatus::Common::TString->new(),
+      Jubatus::Common::TInt->new(1, 4)]);
 }
 
 sub similar_row_from_data {
-  my ($self, $name, $query, $ret_num) = @_;
-  my $retval = $self->{client}->call('similar_row_from_data' => [ $name,
-       $query->to_msgpack(), $ret_num ] )->recv;
-  return Jubatus::NearestNeighbor::NeighborResult->from_msgpack($retval);
-}
-
-sub save {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('save' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub load {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('load' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub get_status {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_status' => [ $name ] )->recv;
-  return $retval;
-}
-
-sub get_config {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_config' => [ $name ] )->recv;
-  return $retval;
+  my ($self, $query, $ret_num) = @_;
+  return $self->_call("similar_row_from_data", Jubatus::Common::TList->new(
+      Jubatus::Common::TUserDef->new(Jubatus::NearestNeighbor::IdWithScore->new(
+      ))), [$query, $ret_num], [Jubatus::Common::TDatum->new(),
+      Jubatus::Common::TInt->new(1, 4)]);
 }
 
 1;
+
+1; # Jubatus::NearestNeighbor::Client;
+

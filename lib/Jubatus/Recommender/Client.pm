@@ -1,4 +1,4 @@
-# This file is auto-generated from recommender.idl
+# This file is auto-generated from recommender.idl(0.4.5-347-g86989a6) with jenerator version 0.4.5-532-g61b108e/develop
 # *** DO NOT EDIT ***
 
 package Jubatus::Recommender::Client;
@@ -9,118 +9,76 @@ use utf8;
 use autodie;
 use AnyEvent::MPRPC;
 
-use Jubatus::Recommender::Types;
-
-sub new {
-  my ($class, $host, $port) = @_;
-  my $client = AnyEvent::MPRPC::Client->new(
-    'host' => $host,
-    'port' => $port,
-  );
-  my %hash = ('client' => $client);
-  bless \%hash, $class;
-}
-
-sub get_client {
-  my ($self) = @_;
-  return $self->{client};
-}
-
-sub get_config {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_config' => [ $name ] )->recv;
-  return $retval;
-}
+use parent 'Jubatus::Common::Client';
+require Jubatus::Recommender::Types;
 
 sub clear_row {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('clear_row' => [ $name, $id ] )->recv;
-  return $retval;
+  my ($self, $id) = @_;
+  return $self->_call("clear_row", Jubatus::Common::TBool->new(), [$id],
+      [Jubatus::Common::TString->new()]);
 }
 
 sub update_row {
-  my ($self, $name, $id, $row) = @_;
-  my $retval = $self->{client}->call('update_row' => [ $name, $id,
-       $row->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $id, $row) = @_;
+  return $self->_call("update_row", Jubatus::Common::TBool->new(), [$id, $row],
+      [Jubatus::Common::TString->new(), Jubatus::Common::TDatum->new()]);
 }
 
 sub clear {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('clear' => [ $name ] )->recv;
-  return $retval;
+  my ($self) = @_;
+  return $self->_call("clear", Jubatus::Common::TBool->new(), [], []);
 }
 
 sub complete_row_from_id {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('complete_row_from_id' => [ $name,
-       $id ] )->recv;
-  return Jubatus::Recommender::Datum->from_msgpack($retval);
+  my ($self, $id) = @_;
+  return $self->_call("complete_row_from_id", Jubatus::Common::TDatum->new(),
+      [$id], [Jubatus::Common::TString->new()]);
 }
 
 sub complete_row_from_datum {
-  my ($self, $name, $row) = @_;
-  my $retval = $self->{client}->call('complete_row_from_datum' => [ $name,
-       $row->to_msgpack() ] )->recv;
-  return Jubatus::Recommender::Datum->from_msgpack($retval);
+  my ($self, $row) = @_;
+  return $self->_call("complete_row_from_datum", Jubatus::Common::TDatum->new(),
+      [$row], [Jubatus::Common::TDatum->new()]);
 }
 
 sub similar_row_from_id {
-  my ($self, $name, $id, $size) = @_;
-  my $retval = $self->{client}->call('similar_row_from_id' => [ $name, $id,
-       $size ] )->recv;
-  return Jubatus::Recommender::SimilarResult->from_msgpack($retval);
+  my ($self, $id, $size) = @_;
+  return $self->_call("similar_row_from_id", Jubatus::Common::TList->new(
+      Jubatus::Common::TUserDef->new(Jubatus::Recommender::IdWithScore->new())),
+      [$id, $size], [Jubatus::Common::TString->new(),
+      Jubatus::Common::TInt->new(0, 4)]);
 }
 
 sub similar_row_from_datum {
-  my ($self, $name, $row, $size) = @_;
-  my $retval = $self->{client}->call('similar_row_from_datum' => [ $name,
-       $row->to_msgpack(), $size ] )->recv;
-  return Jubatus::Recommender::SimilarResult->from_msgpack($retval);
+  my ($self, $row, $size) = @_;
+  return $self->_call("similar_row_from_datum", Jubatus::Common::TList->new(
+      Jubatus::Common::TUserDef->new(Jubatus::Recommender::IdWithScore->new())),
+      [$row, $size], [Jubatus::Common::TDatum->new(),
+      Jubatus::Common::TInt->new(0, 4)]);
 }
 
 sub decode_row {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('decode_row' => [ $name, $id ] )->recv;
-  return Jubatus::Recommender::Datum->from_msgpack($retval);
+  my ($self, $id) = @_;
+  return $self->_call("decode_row", Jubatus::Common::TDatum->new(), [$id],
+      [Jubatus::Common::TString->new()]);
 }
 
 sub get_all_rows {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_all_rows' => [ $name ] )->recv;
-  return [ map { $_} @{ $retval } ];
+  my ($self) = @_;
+  return $self->_call("get_all_rows", Jubatus::Common::TList->new(
+      Jubatus::Common::TString->new()), [], []);
 }
 
 sub calc_similarity {
-  my ($self, $name, $lhs, $rhs) = @_;
-  my $retval = $self->{client}->call('calc_similarity' => [ $name,
-       $lhs->to_msgpack(), $rhs->to_msgpack() ] )->recv;
-  return $retval;
+  my ($self, $lhs, $rhs) = @_;
+  return $self->_call("calc_similarity", Jubatus::Common::TFloat->new(), [$lhs,
+      $rhs], [Jubatus::Common::TDatum->new(), Jubatus::Common::TDatum->new()]);
 }
 
 sub calc_l2norm {
-  my ($self, $name, $row) = @_;
-  my $retval = $self->{client}->call('calc_l2norm' => [ $name, $row->to_msgpack(
-      ) ] )->recv;
-  return $retval;
-}
-
-sub save {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('save' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub load {
-  my ($self, $name, $id) = @_;
-  my $retval = $self->{client}->call('load' => [ $name, $id ] )->recv;
-  return $retval;
-}
-
-sub get_status {
-  my ($self, $name) = @_;
-  my $retval = $self->{client}->call('get_status' => [ $name ] )->recv;
-  return $retval;
+  my ($self, $row) = @_;
+  return $self->_call("calc_l2norm", Jubatus::Common::TFloat->new(), [$row],
+      [Jubatus::Common::TDatum->new()]);
 }
 
 1;
@@ -379,4 +337,6 @@ Therefor the licence of Jubatus.pm and Jubatus::*.pm is the Perl's licence.
 Toshinori Sato (@overlast) E<lt>overlasting@gmail.comE<gt>
 
 =cut
+
+1; # Jubatus::Recommender::Client;
 
