@@ -4,7 +4,7 @@ use v5.12.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.0.1_02";
+our $VERSION = "0.0.1_03";
 
 use Jubatus::NearestNeighbor::Client;
 use Jubatus::Regression::Client;
@@ -119,34 +119,51 @@ __END__
 
 =head1 NAME
 
-Jubatus - Perl extension for interfacing with Jubatus, a distributed processing framework and streaming machine learning library.
+Jubatus - Perl extension for interfacing with Jubatus, a distributed processing
+ framework and streaming machine learning library.
 
 =head1 SYNOPSIS
 
     use Jubatus;
 
-    my $cluster_name = "jubatus_perl_doc"; # even if it isn't in a distributed environment using ZooKeeper and Jubatus keepers.
-    my $host_name_or_ip_address = "localhost"; # master node's
-    my $port_number_of_juba_process = 13714; # meanless
-    my $timeout_seconds_of_juba_process = 10; # 10 sec is default parameter
+    # you can use recommender or regression, classifier, stat, graph, anomaly,
+    # nearestneighbor, clustering
+    my $client_type = "stat";
 
-    my $juba_client_type = "stat"; # you can select from (recommender|regression|classifier|stat|graph|anomaly|nearestneighbor|clustering)
-    my $graph_client = Jubatus->get_client($juba_client_type, $host_name_or_ip_address, $port_number_of_juba_process, $cluster_name, $timeout_seconds_of_juba_process); # got Jubatus::Stat::Client object
+    # distributed environment user must define cluster name of Jubatus/Zookeeper
+    my $name = "jubatus_perl_doc";
 
-    # In the following example, get maximum value from sample array using Jubatus::Stat::Client object
+    # hostname or ip address of master node
+    my $host = "localhost";
+
+    # port number of your juba* process
+    my $port = 13714; # meanless
+
+    # default parameter of Jubatus.pm is 10 seconds
+    my $timeout = 15;
+
+    # get Jubatus::Stat::Client object
+    my $graph_client = Jubatus->get_client(
+       $client_type, $host, $port, $name, $timeout
+    );
+
+    # In the following example, get maximum value from sample array using
+    # Jubatus::Stat::Client object
     my @sample = (1.0, 2.0, 3.0, 4.0, 5.0);
     my $key = "sum";
     foreach my $val (@sample) {
         my $is_push = $stat_client->push($key, $val);
     }
-    my $result = $stat_client->sum($key);
 
+    my $result = $stat_client->sum($key);
     # $result is 15.0
 
 =head1 DESCRIPTION
 
-This module provide a interface of Jubatus by TCP-based MessagePack RPC protocol using L<AnyEvent::MPRPC::Client>
-Jubatus is a distributed processing framework and streaming machine learning library.
+This module provide a interface of Jubatus by TCP-based MessagePack RPC protocol
+ using L<AnyEvent::MPRPC::Client>
+Jubatus is a distributed processing framework and streaming machine learning
+ library.
 
 L<Jubatus> provide you a couple of export functions that are shortcut of
  L<Jubatus::Recommender::Client> and L<Jubatus::Regression::Client>,
@@ -160,103 +177,261 @@ Another is C<get_recommender_client> and C<get_regression_client>,
  C<get_anomaly_client>, C<get_nearestneighbor_client>,
 C<get_clustering_client>,  to get a specific Client object explicitly.
 
-=head1 FUNCTIONS
+=head1 METHODS
 
-=head2 get_client $juba_client_type, $host, $port, $process_name, $timeout_sec
+=over 4
 
-$juba_client_type is a value to specify the client type of jubatus.
-You can select from (recommender | regression | classifier | stat | graph | anomaly | "nearestneighbor" | clustering).
-You can also use (Recommender | Regression | Classifier | Stat | Graph | Anomaly | NearestNeighbor | Clustering).
+=item get_client($client_type, $host, $port, $name, $timeout)
 
+Input:
+    String  $client_type (indispensable)
+    String  $host (indispensable)
+    Integer $port (indispensable)
+    String  $name
+    Integer $timeout
+
+Output:
+    Jubatus::$client_type::Client $object
+
+Indispensable arguments are $client_type, $host, $port.
+Distributed environment user must be set $name.
+Default value of $timeout parameter is 10(seconds).
+If you want change the value of $timeout, you should set $timeout.
+
+$client_type is a value to specify the client type of jubatus server.
+You can select recommender or regression, classifier, stat, graph, anomal,
+ nearestneighbor, clustering.
+You can also select Recommender or Regression, Classifier, Stat, Graph,
+ Anomaly, NearestNeighbor, Clustering.
+
+$host is hostname or ip address of master node of juba* process.
+
+$port is a port number of your juba* process
+
+$name is a cluster name.
+Default value of $name parameter is ""(null string).
+If you are user of distributed environment of Jubatus/Zookeeper,
+ you must set $name.
+
+$timeout is a seconds value of timeout when you access to jubatus server.
+Default value is 10 seconds.
+You should set $timeout if you want to change other seconds value.
+
+Example:
 If you select 'stat', you can get L<Jubatus::Stat::Client> object.
 
-    my $juba_client_type = 'stat';
+    use Jubatus;
+    my $client_type = 'stat';
     my $host = 'localhost';
     my $port = '13714';
-    my $cluster_name = "jubatus_perl_doc";
-    my $timeout_seconds_of_juba_process = 10;
-    my $stat_client = Jubatus->get_client($juba_client_type, $host, $port, $cluster_name, $timeout_seconds_of_juba_process);
+    my $name = 'jubatus_perl_doc';
+    my $client = Jubatus->get_client($client_type, $host, $port, $name);
 
-This code will create Jubatus::Stat::Client object and return it.
-You should set $host and $port in agreement to running jubastat server application.
+$client will get Jubatus::Stat::Client object.
 
 The above code is equivalent to:
 
     use Jubatus::Stat::Client;
     my $host = 'localhost';
     my $port = '13714';
-    my $cluster_name = "jubatus_perl_doc";
-    Jubatus::Stat::Client->new($host, $port, $cluster_name);
+    my $name = 'jubatus_perl_doc';
+    my $client = Jubatus::Stat::Client->new($host, $port, $name);
 
-Because default value of $timeout_seconds_of_juba_process is 10.
+If you are not distributed environment user, you can write code ad follow.
 
-If you are not distributed environment user, you can write as following.
-
-    my $juba_client_type = 'stat';
+    use Jubatus;
+    my $client_type = 'stat';
     my $host = 'localhost';
     my $port = '13714';
-    my $stat_client = Jubatus->get_client($juba_client_type, $host, $port);
+    my $client = Jubatus->get_client($client_type, $host, $port);
 
-Because default value of $cluster_name is ""(null string).
+=back
 
-=head2 get_recommender_client $host, $port, ($cluster_name, $timeout_seconds,)
+=over 4
+
+=item get_recommender_client($host, $port, $name, $timeout)
+
+Input:
+    String  $host (indispensable)
+    Integer $port (indispensable)
+    String  $name
+    Integer $timeout
+
+Output:
+    Jubatus::Recommender::Client $object
+
+Indispensable arguments are $host, $port.
+Distributed environment user must be set $name.
+Default value of $timeout parameter is 10(seconds).
+If you want change the value of $timeout, you should set $timeout.
+
+Example:
+    use Jubatus;
+    my $host = 'localhost';
+    my $port = '13714';
+    my $client = Jubatus->get_recommender_client($host, $port);
 
 This code will create Jubatus::Recommener::Client object and return it.
-You should set $host and $port in agreement to running jubarecommender server application.
-
-    my $host = 'localhost';
-    my $port = '13714';
-    my $stat_client = Jubatus->get_recommender_client($host, $port);
+You should set $host and $port in agreement to
+ running jubarecommender server application.
 
 This code isn't write cluster name and timeout seconds parameter.
-But Jubatus.pm use default cluster name("") and default timeout parameter(10).
+But Jubatus.pm use default cluster name("")
+ and default timeout parameter(10).
 
 The above code is equivalent to:
 
     use Jubatus::Recommender::Client;
     my $host = 'localhost';
     my $port = '13714';
-    Jubatus::Recommender::Client->new($host, $port);
+    my $client = Jubatus::Recommender::Client->new($host, $port);
 
 If you are distributed environment user and
 you want to set the parameter of timeout secondes of jubatus server,
 you can write same as following code.
 
+    use Jubatus;
     my $host = 'localhost';
     my $port = '13714';
     my $cluster_name = "jubatus_perl_doc";
-    my $timeout_seconds = 10;
-    my $stat_client = Jubatus->get_recommender_client($host, $port, $cluster_name, $timeout_seconds);
+    my $timeout_seconds = 3;
+    my $client = Jubatus->get_recommender_client(
+        $host, $port, $name, $timeout
+    );
 
 See L<Jubatus::Recommender::Client> for more detail.
 
-=head2 get_regression_client $host, $port, ($cluster_name, $timeout_seconds,)
+=back
+
+=over 4
+
+=item get_regression_client($host, $port, $name, $timeout)
+
+Input:
+    String  $host (indispensable)
+    Integer $port (indispensable)
+    String  $name
+    Integer $timeout
+
+Output:
+    Jubatus::Regression::Client $object
+
+Indispensable arguments are $host, $port.
+Distributed environment user must be set $name.
+Default value of $timeout parameter is 10(seconds).
+If you want change the value of $timeout, you should set $timeout.
 
 See L<Jubatus::Regression::Client> for more detail.
 
-=head2 get_classifier_client $host, $port, ($cluster_name, $timeout_seconds,)
+=item get_classifier_client($host, $port, $name, $timeout)
+
+Input:
+    String  $host (indispensable)
+    Integer $port (indispensable)
+    String  $name
+    Integer $timeout
+
+Output:
+    Jubatus::Clasifier::Client $object
+
+Indispensable arguments are $host, $port.
+Distributed environment user must be set $name.
+Default value of $timeout parameter is 10(seconds).
+If you want change the value of $timeout, you should set $timeout.
 
 See L<Jubatus::Classifier::Client> for more detail.
 
-=head2 get_stat_client $host, $port, ($cluster_name, $timeout_seconds,)
+=item get_stat_client($host, $port, $name, $timeout)
+
+Input:
+    String  $host (indispensable)
+    Integer $port (indispensable)
+    String  $name
+    Integer $timeout
+
+Output:
+    Jubatus::Stat::Client $object
+
+Indispensable arguments are $host, $port.
+Distributed environment user must be set $name.
+Default value of $timeout parameter is 10(seconds).
+If you want change the value of $timeout, you should set $timeout.
 
 See L<Jubatus::Stat::Client> for more detail.
 
-=head2 get_graph_client $host, $port, ($cluster_name, $timeout_seconds,)
+=item get_graph_client($host, $port, $name, $timeout)
+
+Input:
+    String  $host (indispensable)
+    Integer $port (indispensable)
+    String  $name
+    Integer $timeout
+
+Output:
+    Jubatus::Graph::Client $object
+
+Indispensable arguments are $host, $port.
+Distributed environment user must be set $name.
+Default value of $timeout parameter is 10(seconds).
+If you want change the value of $timeout, you should set $timeout.
 
 See L<Jubatus::Graph::Client> for more detail.
 
-=head2 get_anomaly_client $host, $port, ($cluster_name, $timeout_seconds,)
+=item get_anomaly_client($host, $port, $name, $timeout)
+
+Input:
+    String  $host (indispensable)
+    Integer $port (indispensable)
+    String  $name
+    Integer $timeout
+
+Output:
+    Jubatus::Anomaly::Client $object
+
+Indispensable arguments are $host, $port.
+Distributed environment user must be set $name.
+Default value of $timeout parameter is 10(seconds).
+If you want change the value of $timeout, you should set $timeout.
 
 See L<Jubatus::Anomaly::Client> for more detail.
 
-=head2 get_nearestneighbor_client $host, $port, ($cluster_name, $timeout_seconds,)
+=item get_nearestneighbor_client($host, $port, $name, $timeout)
+
+Input:
+    String  $host (indispensable)
+    Integer $port (indispensable)
+    String  $name
+    Integer $timeout
+
+Output:
+    Jubatus::NearestNeighbor::Client $object
+
+Indispensable arguments are $host, $port.
+Distributed environment user must be set $name.
+Default value of $timeout parameter is 10(seconds).
+If you want change the value of $timeout, you should set $timeout.
 
 See L<Jubatus::NearestNeighbor::Client> for more detail.
 
-=head2 get_clustering_client $host, $port, ($cluster_name, $timeout_seconds,)
+=item get_clustering_client($host, $port, $name, $timeout)
+
+Input:
+    String  $host (indispensable)
+    Integer $port (indispensable)
+    String  $name
+    Integer $timeout
+
+Output:
+    Jubatus::Clustering::Client $object
+
+Indispensable arguments are $host, $port.
+Distributed environment user must be set $name.
+Default value of $timeout parameter is 10(seconds).
+If you want change the value of $timeout, you should set $timeout.
 
 See L<Jubatus::Clustering::Client> for more detail.
+
+=back
 
 =head1 SEE ALSO
 
