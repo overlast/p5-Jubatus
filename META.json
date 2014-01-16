@@ -1,5 +1,5 @@
 {
-   "abstract" : "Perl extension for interfacing with Jubatus, a distributed processing framework and streaming machine learning library.",
+   "abstract" : "Perl extension for interfacing with Jubatus, a distributed processing",
    "author" : [
       "Toshinori Sato (@overlast)."
    ],
@@ -65,7 +65,7 @@
          "web" : "https://github.com/overlast/p5-Jubatus"
       }
    },
-   "version" : "0.0.1_02",
+   "version" : "0.0.1_03",
    "x_contributors" : [
       "Toshinori Sato (@overlast) <overlasting@gmail.com>"
    ]
