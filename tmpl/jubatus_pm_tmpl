@@ -4,7 +4,7 @@ use v5.12.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.0.1_01";
+our $VERSION = "0.0.1_03";
 
 #### USE ALL AUTO GENERATE MODULES ####
 use Jubatus::Common::Datum;
