@@ -50,6 +50,9 @@
             "AnyEvent::MPRPC" : "0.20",
             "Data::MessagePack" : "0.47",
             "Test::More" : "0.98"
+            "Try::Lite" : "0.0.3",
+            "Exception::Tiny" : "v0.2.1",
+            "Scope::Guard" : "0.20",
          }
       }
    },
