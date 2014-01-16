@@ -3,27 +3,20 @@ use Test::More;
 
 my @server_name_suffix = (
     "anomaly",
-    "anomaly_keeper",
     "anomaly_proxy",
     "classifier",
-    "classifier_keeper",
     "classifier_proxy",
     "clustering",
     "clustering_proxy",
     "graph",
-    "graph_keeper",
     "graph_proxy",
     "nearest_neighbor",
-    "nearest_neighbor_keeper",
     "nearest_neighbor_proxy",
     "recommender",
-    "recommender_keeper",
     "recommender_proxy",
     "regression",
-    "regression_keeper",
     "regression_proxy",
     "stat",
-    "stat_keeper",
     "stat_proxy",
 );
 
@@ -31,7 +24,7 @@ foreach my $suffix (@server_name_suffix) {
     subtest "Check the install path of $suffix" => sub {
         my $server_name = "juba".$suffix;
         my $is_there = system("which $server_name"); # there => 0
-        is($is_there, 0, "Is $server_name there ?");
+        is($is_there, 0, "Is $server_name there ? and did you install Jubatus version >= 0.5 ?");
     };
 }
 
