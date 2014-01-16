@@ -4,7 +4,7 @@ use v5.12.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.0.1_01";
+our $VERSION = "0.0.1_02";
 
 use Jubatus::NearestNeighbor::Client;
 use Jubatus::Regression::Client;

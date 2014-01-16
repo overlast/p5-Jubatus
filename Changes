@@ -2,6 +2,8 @@ Revision history for Perl extension Jubatus
 
 {{$NEXT}}
 
+0.0.1_02 2014-01-16T04:36:44Z
+
     - Add CPAN modules to META.json
     - Delete lines which call *_keeper because _keeper were renamed to _proxy after version 0.5
 
